@@ -11,7 +11,7 @@ const AutoBreadcrumb = () => {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            <Link className='[&>svg]:size-3.5 transition-colors hover:text-foreground' href="/">Home</Link>
         </BreadcrumbItem>
         {pathSegments.map((segment, index) => (
             <React.Fragment key={index}>

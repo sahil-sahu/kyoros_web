@@ -26,6 +26,20 @@ export const signup = async (req: AuthRequest, res: any) => {
   }
 };
 
+export const setFCM = async (req: AuthRequest, res: any) => {
+  try {
+    if(req.user){
+      const { token } = req.body;
+      const user = await User.updateOne({firebaseUid: req.user}, {$set:{fireToken:token}});
+      res.json({"fcmSet":true});
+    }else{
+      throw "unauthorised";
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const signin = async (req: any, res: any) => {
   try {
     const token = fireAuth.createCustomToken(req.body.uid);

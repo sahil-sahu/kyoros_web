@@ -20,7 +20,7 @@ export const addPeriodicData = async ({patientlog, patientId}:{patientlog: Patie
         ...patientlog,
         patientId
       }, {
-        headers: setheader(),
+        headers: await setheader(),
       });
       return "done";
     } catch (error) {

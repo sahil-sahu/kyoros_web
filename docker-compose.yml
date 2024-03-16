@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    image: kyoros-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"  # Assuming backend runs on port 5000
+    # Add other configurations for backend service if needed
+
+  frontend:
+    image: kyoros-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+
+  dummy:
+    image: kyoros-dummy:latest
+    build:
+      context: ./dummy
+      dockerfile: Dockerfile
+
+networks:
+  kyoros:
+    driver: bridge      

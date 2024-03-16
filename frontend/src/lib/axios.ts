@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { auth } from './firebase';
 
 // Create an instance of Axios with a base URL
 export const axiosInstance: AxiosInstance = axios.create({
@@ -6,8 +7,8 @@ export const axiosInstance: AxiosInstance = axios.create({
   // You can also add other configuration options here, such as headers, timeout, etc.
 });
 
-export const setheader = ()=>{
-  const token = sessionStorage.getItem('token') ?? "";
+export const setheader = async ()=>{
+  const token = sessionStorage.getItem('token') ?? await auth.currentUser?.getIdToken();
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,

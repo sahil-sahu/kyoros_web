@@ -13,7 +13,7 @@ export const createUser = async ({ email, userType, password }: CreateUserBody):
         email,
         userType,
       }, {
-        headers: setheader(),
+        headers: await setheader(),
       });
       return userType;
     } catch (error) {
