@@ -13,15 +13,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { logUser } from "./mutation";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 
 
 enum Color {
@@ -32,7 +25,7 @@ enum Color {
 export default function Login(){
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const { mutate, isLoading, error, data } = useMutation(logUser);
+  const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:logUser});
   const router = useRouter()
   async function login(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

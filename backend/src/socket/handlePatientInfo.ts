@@ -3,10 +3,11 @@ import { Patientlog } from "../types";
 import { redisClient } from "../redis";
 import PatientRealtimeModel from "../models/patientRealtime";
 import patient_from_redis from "../helpers/fetchPatientfromRedis";
+import checknSendNotification from "./notificationPlugin";
 
 export const handlePatientEvent = async (patientId:string, socket:Socket, data:Patientlog) => {
     const queueKey = `patient:${patientId}:queue`;
-
+    checknSendNotification(patientId, data);
     await redisClient.lPush(queueKey, JSON.stringify(data));
     await redisClient.lTrim(queueKey, 0, 49);
     checknUpdatetoDB(patientId);

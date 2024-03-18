@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react"
 
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import Link from "next/link";
 import { Button } from "@/components/ui/button"
 import {Card} from "@/components/ui/card"
@@ -35,7 +35,7 @@ export default function Login(){
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [designation, setDesignation] = React.useState<Color | ''>("");
-    const { mutate, isLoading, error, data } = useMutation(createUser);
+    const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:createUser});
     const router = useRouter()
 
     async function signup(event: React.FormEvent<HTMLFormElement>) {

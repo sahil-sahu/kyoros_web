@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import PatientInfo from "@/components/custom/pateintInfo";
 import { PatientFormData } from '@/types/pateintinfo';
 import AutoBreadcrumb from '@/components/custom/breadCrumb';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { addPeriodicData } from './mutation';
 import { useRouter } from 'next/navigation';
 import ICON from './wired-flat-245-edit-document.json';
@@ -30,7 +30,7 @@ const PatientMonitoringForm = ({ params:{patientid} }: { params: { patientid: st
     mentalHealthAssessment: '',
   });
   
-  const {mutate, error, data, isLoading} = useMutation(addPeriodicData);
+  const {mutate, error, data, isPending:isLoading} = useMutation({mutationFn:addPeriodicData});
   
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

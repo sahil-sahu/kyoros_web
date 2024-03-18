@@ -1,14 +1,14 @@
 // pages/index.tsx
 "use client";
-import { messaging } from '@/lib/firebase';
-import { getToken, isSupported } from 'firebase/messaging';
+import { getMessaging, getToken, isSupported } from 'firebase/messaging';
 import { useEffect } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { setFcm } from './mutation';
 import { useRouter } from 'next/navigation';
+import { app } from '@/lib/firebase';
 
-export default function Home() {
-    const { mutate, isLoading, error, data } = useMutation(setFcm);
+export default function Messaging() {
+    const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:setFcm});
     const router = useRouter();
     useEffect(() => {
 
@@ -21,11 +21,10 @@ export default function Home() {
         alert("notification not supported on this browser");
         router.back();
       } 
+      const messaging = getMessaging(app);
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        console.log(process.env.NEXT_PUBLIC_FCM);
         const token = await getToken(messaging, {vapidKey:process.env.NEXT_PUBLIC_FCM});
-        console.log('FCM Token:', token);
         mutate({token});
       } else {
         console.log('Notification permission denied');

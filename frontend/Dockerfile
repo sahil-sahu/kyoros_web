@@ -1,23 +1,20 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18
+# Stage 1: Build environment (slim Node.js image)
+FROM node:alpine AS builder
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+# Set working directory
+WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+# Copy package.json and package-lock.json (or yarn.lock)
 COPY package*.json ./
 
-# Install app dependencies
+# Install dependencies
 RUN npm install
-
-# Copy the rest of the application code to the working directory
 COPY . .
-
-# Build the TypeScript code
 RUN npm run build
+# Copy the rest of your application code
 
-# Expose the port your app runs on
+# Stage 2: Production environment (smaller Alpine image)
 EXPOSE 3000
 
-# Define the command to start your application
-CMD ["next", "start"]
+# Start the Next.js application in production mode
+CMD npm start

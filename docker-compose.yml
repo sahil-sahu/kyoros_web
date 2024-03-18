@@ -11,7 +11,11 @@ services:
     # Add other configurations for backend service if needed
 
   frontend:
+    depends_on:
+      - backend
     image: kyoros-frontend:latest
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:5000
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -20,6 +24,10 @@ services:
 
   dummy:
     image: kyoros-dummy:latest
+    environment:
+      - ADDRESS=http://backend:5000
+    depends_on:
+      - backend
     build:
       context: ./dummy
       dockerfile: Dockerfile

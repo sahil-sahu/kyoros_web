@@ -1,5 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 interface Patient {
     name: string;
@@ -17,9 +17,9 @@ export const fetchPatients = async (): Promise<Patient[]> => {
   };
 
 export const usePatientQuery = (patientId: string) => {
-    return useQuery<Patient>(['patient', patientId], async ({ queryKey }) => {
+    return useQuery<Patient>({queryKey:['patient', patientId], queryFn: async ({ queryKey }) => {
       const [, actualPatientId] = queryKey; // Destructure query key arguments
       const response = await axiosInstance.get<Patient[]>(`/patient/${actualPatientId}`);
       return response.data[0];
-    });
+    }});
   };

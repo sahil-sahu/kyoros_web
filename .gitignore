@@ -5,6 +5,7 @@
 /frontend/.env
 /backend/node_modules
 /backend/.env
+/backend/dist
 /dummy/kyoros
 /backend/kyoros-f71b1-firebase-adminsdk-hupgm-312fc0c764.json
 /.pnp

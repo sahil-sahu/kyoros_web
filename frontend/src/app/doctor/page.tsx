@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/table"
 import AutoBreadcrumb from "@/components/custom/breadCrumb"
 import { Button } from "@/components/ui/button"
-import { useQuery } from "react-query"
+import { useQuery } from "@tanstack/react-query"
 import { fetchPatients } from "@/lib/getpatients"
 import Link from "next/link"
  
 export default function PatientPage(){
-  const { data, isLoading, refetch, error } = useQuery(['patients'], fetchPatients);
+  const { data, isPaused:isLoading, refetch, error } = useQuery({queryKey:['patients'], queryFn: fetchPatients});
 
   if (isLoading) {
     return (

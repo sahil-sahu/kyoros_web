@@ -2,11 +2,17 @@ import socketio
 import random
 import time
 from datetime import datetime
+import os
+env_var_value = os.getenv("ADDRESS")
+address = 'http://192.168.0.102:5000'
+if env_var_value is not None:
+    time.sleep(15)
+    address = env_var_value
 # Create a SocketIO client instance
 sio = socketio.SimpleClient()
 
 # Connect to the SocketIO server
-sio.connect('http://192.168.0.102:5000')
+sio.connect(address)
 
 # Function to generate simulated data
 def generate_data():

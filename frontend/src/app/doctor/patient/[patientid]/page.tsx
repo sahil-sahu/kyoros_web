@@ -9,7 +9,7 @@ import { connectToSocket, unsubscribeFromRoom }from '@/lib/socket';
 import useStack from './useStack';
 import linechartFormatter from '@/lib/linechartformatter';
 import { PatientInfoType } from '@/types/pateintinfo';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetchPatientlog } from './query';
 import { useRouter } from 'next/navigation';
 const options = {
@@ -43,7 +43,7 @@ const options = {
 export default function PatientSync({ params:{patientid} }: { params: { patientid: string } }){
       const router = useRouter();
       const {messages, pushMessage, setMessages} = useStack();
-      const { data, isLoading, refetch, error } = useQuery([patientid], fetchPatientlog);
+      const { data, isLoading, refetch, error } = useQuery({queryKey:[patientid], queryFn:fetchPatientlog});
       const mysocket = useRef<(() => void) | null>(null);
       useEffect(() => {
         if(data){

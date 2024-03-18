@@ -1,6 +1,7 @@
+Dockerfile
+.dockerignore
 node_modules
-.next/
-out/
-
-# production
-build
+npm-debug.log
+README.md
+.next
+.git

@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:18
+FROM node:20
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 5000
 
 # Define the command to start your application
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/app.js"]
