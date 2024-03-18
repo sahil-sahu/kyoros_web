@@ -32,6 +32,7 @@ Kyoros is a project that simulates ICU readings like blood pressure (BP) and hea
 ## Running the Project
 
 Don't worry, we've got Docker!
+
 **Step 0:** Install Docker and clone the project.
 
 **Step 1**: Get .env files from the contributor
