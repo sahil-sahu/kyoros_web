@@ -1,0 +1,6 @@
+.navlist > li > a{
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 15px 0;
+}
