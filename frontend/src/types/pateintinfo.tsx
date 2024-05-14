@@ -5,14 +5,21 @@ export interface PatientInfoProps {
   }
 
 export interface PatientRealtimeObj {
-  bp:number;
+  bp_d:number;
+  bp_s:number;
+  spo2:number;
+  temp:number;
+  critical: boolean;
   bpm:number;
   timestamp:string;
 }
 
 export enum PatientInfoType {
-  bp = "bp",
-  bpm = "bpm"
+  bp_d = "bp_d",
+  bp_s = "bp_s",
+  bpm = "bpm",
+  spo2 = "spo2",
+  temp = "temp"
 }
 
 export interface PatientFormData {

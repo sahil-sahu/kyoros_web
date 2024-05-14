@@ -7,7 +7,7 @@ import PatientInfo from "@/components/custom/pateintInfo";
 import AutoBreadcrumb from "@/components/custom/breadCrumb";
 import { connectToSocket, unsubscribeFromRoom }from '@/lib/socket';
 import useStack from './useStack';
-import linechartFormatter from '@/lib/linechartformatter';
+import {linechartFormatter, linechartFormatterDual }from '@/lib/linechartformatter';
 import { PatientInfoType } from '@/types/pateintinfo';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPatientlog } from './query';
@@ -95,7 +95,7 @@ export default function PatientSync({ params:{patientid} }: { params: { patienti
                     <div className="align-center w-100">
                         <Line
                             options={options}
-                            data={linechartFormatter(PatientInfoType.bp,messages)}
+                            data={linechartFormatterDual(PatientInfoType.bp_d, PatientInfoType.bp_s, messages)}
                             className="m-auto h-80"
                         />
                     </div>
