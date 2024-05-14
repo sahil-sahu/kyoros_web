@@ -7,134 +7,29 @@ import { setFcm } from './mutation';
 import { useRouter } from 'next/navigation';
 import { app } from '@/lib/firebase';
 import NavBox from '@/components/custom/header/header';
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
+import { NotificationTab, Alert } from './table';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-}
-
-export type Alert = {
-  id: string
-  title: string
-  status: "critical" | "normal"
-  feed: string
-  timestamp : string
-}
-
-const columns: ColumnDef<Alert>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-  },
-  {
-    accessorKey: "timestamp",
-    header: "Time",
-  },
-]
 
 function getData(): Alert[] {
   // Fetch data from your API here.
   return [
     {
       id: "1",
-      title: "Critical Alert",
+      title: "Resp rate 12",
       status: "critical",
-      feed: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      feed: "CICU 2a, Bed 2302",
       timestamp: "2024-05-13T12:00:00Z",
     },
     {
       id: "2",
-      title: "Normal Alert",
+      title: "Heart rate 35",
       status: "normal",
-      feed: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      feed: "CICU 2a, Bed 2305",
       timestamp: "2024-05-13T12:30:00Z",
     },
     // Add more dummy data as needed
   ];
 }
-
-function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = useState({})
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      rowSelection,
-    },
-  })
-  return (
-    <div className="rounded-md border">
-      <Table>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  )
-}
-
 
 export default function Messaging() {
     const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:setFcm});
@@ -166,15 +61,14 @@ export default function Messaging() {
   // if(isLoading){
   //   return <div>subscribing our services</div>
   // }
-
   return (
     <main>
       <NavBox title={"Notifications"}></NavBox>
-      <section>
-        <h2>
+      <section className='p-2'>
+        <h2 className='text-lg'>
           Critical
         </h2>
-        <DataTable columns={columns} data={getData()} />
+        <NotificationTab rows={getData()} />
       </section>
     </main>
   );
