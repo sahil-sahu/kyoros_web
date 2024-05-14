@@ -28,7 +28,7 @@ const navigationMenu = <ul className={`divide-y divide-solid ${styles.navlist}`}
   </Link>
 </li>
 <li>
-  <Link href='/at-a-glance'>
+  <Link href='/glance'>
       <Image height={20} width={20} src={real_ico} alt=''/>
       At a Glance
   </Link>
