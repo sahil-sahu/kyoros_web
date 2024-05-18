@@ -40,7 +40,7 @@ const navigationMenu = <ul className={`divide-y divide-solid ${styles.navlist}`}
   </Link>
 </li>
 <li>
-  <Link href='/registration'>
+  <Link href='/registrations'>
       <Image height={20} width={20} src={regis_ico} alt=''/>
       Registration
   </Link>

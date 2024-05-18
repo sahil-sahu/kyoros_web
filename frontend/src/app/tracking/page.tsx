@@ -8,10 +8,8 @@ import folder_i from "./folder.png"
 import phone_i from "./phone.png"
 import Image from "next/image";
 import TrendView from "./trend";
-export enum LiveTrend {
-    Live = "Live",
-    Trend = "Trend",
-}
+import { LiveTrend } from "@/types/types";
+
 
 
 
@@ -27,14 +25,7 @@ const Tracking = () =>{
                 {
                     displayType === LiveTrend.Live?
                         <LiveView />
-                    :
-                    <span></span>
-                }
-                {
-                    displayType === LiveTrend.Trend?
-                        <TrendView />
-                    :
-                    <span></span>
+                    :<TrendView />
                 }
             </section>
             <section style={{transform:"translateX(-50%)", zIndex:100}} className="fixed left-1/2 bottom-0 flex justify-evenly max-w-lg m-auto items-end text-center w-full">

@@ -5,9 +5,9 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
+import { LiveTrend } from "@/types/types";
 
 import { Dispatch, SetStateAction } from "react"
-import { LiveTrend } from "./page";
 export default function TrackingHeader({ICURef, BedRef, TypeRef}:{ICURef: Dispatch<SetStateAction<String>>; BedRef:Dispatch<SetStateAction<String>>, TypeRef:Dispatch<SetStateAction<LiveTrend>>}){
 
     return(

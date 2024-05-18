@@ -1,5 +1,5 @@
 
-const PieChart = ({perct, rad=45}:{perct:number; rad:number})=>{
+const PieChart = ({perct, rad=45}:{perct:number; rad:number|undefined})=>{
     return (
         <div className="relative flex items-center justify-center">
             <svg className="transform">
