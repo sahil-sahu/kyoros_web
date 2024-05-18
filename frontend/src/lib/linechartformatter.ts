@@ -7,55 +7,68 @@ function getTimeFromISOString(isoString: string): string {
 
     return `${hours}:${minutes}`;
   }
+
+export const options = {
+    responsive: true,
+    interaction: {
+        mode: 'index' as const,
+        intersect: false,
+      },
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      Ticks: {
+        tickFormatter: (value:number, index:number) => {
+          if (index % 20 === 0) { // Show labels every 10th point (adjust as needed)
+            return value.toString(); // Return formatted value for display
+          }
+          return ''; // Hide labels for non-matching indices
+        },
+      },
+    },
+  };
 export function linechartFormatter(param : PatientInfoType, info:PatientRealtimeObj[]){
     
     const labels = info.map((log)=>getTimeFromISOString(log.timestamp));
+    if(param === PatientInfoType.bp){
+        return {
+            labels,
+            datasets: [
+            {
+                label: "Distolic",
+                data: info.map(e => e.bp.bp_d),
+                fill: false,
+                pointRadius: 3,
+                pointHitRadius: 10,
+                borderColor: '#0F52BA',
+                backgroundColor: '#0F52BA',
+            },
+            {
+                label: 'Systolic',
+                data: info.map(e => e.bp.bp_s),
+                fill: false,
+                pointRadius: 3,
+                borderColor: '#ABCCFF', // Increase clickable area for points
+                backgroundColor: '#ABCCFF', // Increase clickable area for points
+                pointHitRadius: 10,
+            },
+            ],
+        };
+    }
     const data = info.map((log) => log[param]);
 
-
     return {
         labels,
         datasets: [
         {
-            label: 'Heart Rate (BPM)',
+            label: param,
             data,
-            fill: false, // Avoid filling the area below the line
-            backgroundColor: 'rgba(255, 99, 132, 0.2)', // Semi-transparent red
-            borderColor: 'rgba(255, 99, 132, 1)', // Red line
-            pointRadius: 3, // Adjust point size
-            pointHitRadius: 10, // Increase clickable area for points
-        },
-        ],
-    };
-};
-
-export function linechartFormatterDual(param1 : PatientInfoType, param2 : PatientInfoType, info:PatientRealtimeObj[]){
-    
-    const labels = info.map((log)=>getTimeFromISOString(log.timestamp));
-    const data = info.map((log) => log[param1]);
-    const data2 = info.map((log) => log[param2]);
-
-
-    return {
-        labels,
-        datasets: [
-        {
-            label: 'Dialystic',
-            data,
-            fill: false, // Avoid filling the area below the line
-            backgroundColor: 'rgba(255, 99, 132, 0.2)', // Semi-transparent red
-            borderColor: 'rgba(255, 99, 132, 1)', // Red line
-            pointRadius: 3, // Adjust point size
-            pointHitRadius: 10, // Increase clickable area for points
-        },
-        {
-            label: 'Syslostic',
-            data:data2,
-            fill: false, // Avoid filling the area below the line
-            backgroundColor: 'rgba(255, 99, 255, 0.2)', // Semi-transparent red
-            borderColor: 'rgba(255, 99, 255, 1)', // Red line
-            pointRadius: 3, // Adjust point size
-            pointHitRadius: 10, // Increase clickable area for points
+            fill: false,
+            pointRadius: 3,
+            pointHitRadius: 10,
+            borderColor: '#0F52BA',
+            backgroundColor: '#0F52BA'
         },
         ],
     };
