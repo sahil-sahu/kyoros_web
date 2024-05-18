@@ -1,12 +1,13 @@
 import Image from "next/image";
 import { PatientRealtimeObj } from "@/types/pateintinfo"
 import pin_img from "./pin.png"
+import { Toggle } from "@/components/ui/toggle"
 
 const GlanceBox = ({data}:{data:PatientRealtimeObj}) =>{
     return (
         <div className={`${data.critical? "border-dashed border-red-500":"border-solid" } border-2 w-[100%] h-[100%] p-1`}>
             <div className="flex justify-evenly items-center mb-2">
-                <Image src={pin_img} alt="📌" className={"border-dotted border-bluecustom"}/>
+                <Toggle  variant="outline"><Image src={pin_img} alt="📌" className={"border-dotted border-bluecustom"}/></Toggle>
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <h3 className="text-white">
                         2201
@@ -17,7 +18,7 @@ const GlanceBox = ({data}:{data:PatientRealtimeObj}) =>{
                         BP
                     </h3>
                     <p className="text-bluecustom text-lg">
-                        {`${data.bp_d} / ${data.bp_s}`}
+                        {`${data.bp.bp_d} / ${data.bp.bp_s}`}
                     </p>
                 </div>
             </div>

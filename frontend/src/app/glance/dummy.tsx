@@ -7,8 +7,7 @@ const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max 
 
 // Generate dummy data for PatientRealtimeObj interface
 const generateDummyData = (): PatientRealtimeObj => ({
-  bp_d: randomInt(60, 100),
-  bp_s: randomInt(90, 140),
+  bp:{bp_d: randomInt(60, 100),bp_s: randomInt(90, 140),},
   spo2: randomInt(90, 100),
   temp: +(Math.random() * (37.5 - 36.0) + 36.0).toFixed(1), // Random temperature between 36.0 and 37.5
   critical: randomBoolean(),
@@ -17,4 +16,4 @@ const generateDummyData = (): PatientRealtimeObj => ({
 });
 
 // Generate an array of dummy data
-export const dummyData: PatientRealtimeObj[] = Array.from({ length: 10 }, () => generateDummyData());
+export const dummyData: PatientRealtimeObj[] = Array.from({ length: 20 }, () => generateDummyData());

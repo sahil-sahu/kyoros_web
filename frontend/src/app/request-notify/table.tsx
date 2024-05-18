@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export type Alert = {
     id: string
@@ -22,13 +23,7 @@ export function NotificationTab({rows}:{rows:Alert[]}){
       <thead>
         <tr>
           <th className="py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-            <input onChange={(e => {
-                // if(e.target.checked){
-
-                // } else {
-
-                // }
-            })} type="checkbox" className="form-checkbox" />
+          <Checkbox />
           </th>
           <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
             Feed
@@ -52,12 +47,8 @@ function Row({alert, selectedAlerts, toggleAlertSelection}:{alert:Alert; selecte
     return  (
         <tr key={alert.id}>
             <td className="py-4 whitespace-no-wrap">
-              <input
-                type="checkbox"
-                className="form-checkbox"
-                checked={selectedAlerts.includes(alert.id)}
-                onChange={() => toggleAlertSelection(alert.id)}
-              />
+              <Checkbox checked={selectedAlerts.includes(alert.id)}
+                onClick={() => toggleAlertSelection(alert.id)} />
             </td>
             <td className="px-1 py-4 whitespace-no-wrap">
                 <p className="text-bluecustom font-bold">{alert.title}</p>
