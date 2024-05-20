@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hospital {
+  id          String @id @default(cuid())
+  name        String
+  ICUs        ICU[]
+  Users       User[]
+  Patients    Patient[]
+}
+
+model ICU {
+  id          Int      @id @default(autoincrement())
+  name        String
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  beds        Bed[]
+}
+
+model Bed {
+  id          Int      @id @default(autoincrement())
+  name        String
+  icuId       Int
+  ICU         ICU @relation(fields: [icuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  occupied    Boolean @default(false)
+  patientId   String? @unique
+  patient     Patient? @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  bedLogs     Logs[]
+}
+
+model User {
+  id          String @id @default(cuid())
+  userType    UserType
+  email       String   @unique
+  fireTokens  String[]
+  firebaseUid String
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+}
+
+enum UserType {
+  admin
+  nurse
+  doctor
+}
+
+model Patient {
+  id         String @id @default(cuid())
+  docs       PatientDoc[]
+  logs       Logs[]
+  bedId      Int?
+  bed        Bed?
+  gender     String
+  name       String
+  age        Int
+  email      String?
+  phone      String @db.VarChar(13) //+91 1234567890
+  hospitalId  String
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Logs {
+  id          String @id @default(cuid())
+  bpm         Int
+  bp          Int[] //diastolic/systolic
+  spo2        Int
+  temp        Int
+  timeStamp   DateTime
+  patientId   String
+  patient     Patient @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  bedID       Int
+  bed         Bed @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
+}
+
+model PatientDoc {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  s3Link     String
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+}
+
+
+
