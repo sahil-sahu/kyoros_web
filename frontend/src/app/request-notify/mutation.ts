@@ -10,6 +10,7 @@ export const setFcm = async ({ token}: {token:string}):Promise<fcmRes> => {
       }, {
         headers: await setheader(),
       });
+      localStorage.setItem("fcmSet","true");
       return response.data;
     } catch (error) {
       throw error;

@@ -45,7 +45,7 @@ model User {
   userType    UserType
   email       String   @unique
   fireTokens  String[]
-  firebaseUid String
+  firebaseUid String   @unique
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: NoAction, onUpdate: Cascade)
 }

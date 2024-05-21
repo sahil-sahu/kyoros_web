@@ -37,14 +37,14 @@ export default function Messaging() {
     useEffect(() => {
 
     if(data){
-        // router.back();
+        return;
     }
 
     const requestNotificationPermission = async () => {
       if(!isSupported()){
         alert("notification not supported on this browser");
         router.back();
-      } 
+      }
       const messaging = getMessaging(app);
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
@@ -55,7 +55,9 @@ export default function Messaging() {
       }
     };
 
-    requestNotificationPermission();
+    if(localStorage.getItem("fcmSet")  != "true")
+        requestNotificationPermission();
+
   }, [data, mutate, router]);
 
   // if(isLoading){

@@ -1,21 +1,21 @@
 import { fireAuth } from '../firebase';
-import User from '../models/user';
+import { prisma } from '../prisma';
 import { AuthRequest } from '../types';
-
-interface SignUpData {
-  email: string;
-}
-
-interface SignInData {
-  email: string;
-}
 
 export const signup = async (req: AuthRequest, res: any) => {
   try {
     if(req.user){
       const { email, userType } = req.body;
-      const user = new User({ userType, email,firebaseUid: req.user });
-      await user.save();
+      const user =  await prisma.user.create({
+        data:{
+          userType,
+          email,
+          firebaseUid: req.user,
+          hospitalId:'clwg25cbk00006jbyo8blp3hs'
+        }
+      })
+      // const user = new User({ userType, email,firebaseUid: req.user });
+      // await user.save();
       await fireAuth.setCustomUserClaims(req.user, {userType});
       res.json(user);
     }else{
@@ -30,13 +30,26 @@ export const setFCM = async (req: AuthRequest, res: any) => {
   try {
     if(req.user){
       const { token } = req.body;
-      const user = await User.updateOne({firebaseUid: req.user}, {$set:{fireToken:token}});
+      const {fireTokens} = await prisma.user.findUnique({
+        where:{firebaseUid:req.user}
+      });
+
+      if(!fireTokens.includes(token)){
+        fireTokens.push(token);
+        await prisma.user.update({
+          where:{firebaseUid:req.user},
+          data:{
+            fireTokens
+          }
+        })
+      }
       res.json({"fcmSet":true});
     }else{
       console.log("mai ka choda");
       throw "unauthorised";
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
