@@ -3,21 +3,29 @@ import PatientPeriodicModel from '../models/patientPeriodic';
 import { IPatientPeriodic, IPatient } from '../types';
 import PatientModel from '../models/patients';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
+import { prisma } from '../prisma';
 
 export const createPatient = async (req: Request, res: Response) => {
     try {
       const { name, age, gender, email, phone } = req.body;
-      let user = await PatientModel.findOne({ email });
+      let user = await prisma.patient.findFirst({
+        where:{
+          hospitalId:'clwg25cbk00006jbyo8blp3hs',
+          phone
+        }
+      });
         if (!user) {
-            const newPatient: IPatient = new PatientModel({
+            const savedPatient = await prisma.patient.create({
+              data:{
                 name,
                 age,
                 gender,
                 email,
                 phone,
-              });
-            const savedPatient = await newPatient.save();
-            res.status(201).json(savedPatient);
+                hospitalId:'clwg25cbk00006jbyo8blp3hs'
+              }
+            })
+            return res.status(201).json(savedPatient);
         }
 
       res.status(201).json(user);
@@ -28,7 +36,7 @@ export const createPatient = async (req: Request, res: Response) => {
 
 export const getPatients = async (req: Request, res: Response) => {
     try {
-      const patients = await PatientModel.find();
+      const patients = await prisma.patient.findMany();
       res.json(patients);
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -37,7 +45,10 @@ export const getPatients = async (req: Request, res: Response) => {
 export const getPatient = async (req: Request, res: Response) => {
     try {
       const patient = req.params.patient;
-      const patient_res = await PatientModel.findById(patient);
+      const patient_res = prisma.patient.findUnique({
+                                      where:{
+                                        id:patient
+                                      }});
       res.json(patient_res);
     } catch (err) {
       res.status(500).json({ message: err.message });
