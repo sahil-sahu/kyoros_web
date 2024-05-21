@@ -5,7 +5,7 @@ import PatientModel from "../models/patients";
 import { Message, MulticastMessage } from "firebase-admin/messaging";
 
 export default async function checknSendNotification(patientId:string, data:Patientlog){
-    if(!(data.bp > 120 || data.bpm > 80))
+    if(!(data.bp[0] > 120 || data.bpm > 80))
     return; //No need to send notification for
 
     const patient = await PatientModel.findById(patientId);
