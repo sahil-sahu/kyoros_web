@@ -7,10 +7,10 @@ import { prisma } from '../prisma';
 
 export const createPatient = async (req: Request, res: Response) => {
     try {
-      const { name, age, gender, email, phone } = req.body;
+      const { name, age, gender, email, phone, hospitalId } = req.body;
       let user = await prisma.patient.findFirst({
         where:{
-          hospitalId:'clwg25cbk00006jbyo8blp3hs',
+          hospitalId,
           phone
         }
       });
@@ -22,7 +22,7 @@ export const createPatient = async (req: Request, res: Response) => {
                 gender,
                 email,
                 phone,
-                hospitalId:'clwg25cbk00006jbyo8blp3hs'
+                hospitalId
               }
             })
             return res.status(201).json(savedPatient);

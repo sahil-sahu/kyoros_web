@@ -12,6 +12,7 @@ import { redisClient } from '../redis';
 import { Server } from "socket.io";
 import { mainSocket } from '../socket/main';
 import router from './route';
+import registerRouter from './register';
 
 
 const app: Express = express();
@@ -26,6 +27,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/logs', router);
+app.use("/register", registerRouter);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Application is healthy' });

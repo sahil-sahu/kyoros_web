@@ -1,9 +1,9 @@
 import { addLog } from "./controller";
-import { verifyToken } from "./middleware/verfier";
+import { verifySensor, verifyToken } from "./middleware/verfier";
 
 const express = require('express');
 const router = express.Router();
 
-router.post('', verifyToken, addLog);
+router.post('', verifySensor, addLog);
 
 export default router;

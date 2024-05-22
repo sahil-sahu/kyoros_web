@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { prisma } from '../prisma';
-import { Patientlog } from '../types';
+import { AuthRequest, Patientlog } from '../types';
 import checknSendNotification from '../socket/notificationPlugin';
-export const addLog = async(req:Request,res:Response) => {
+export const addLog = async(req:AuthRequest,res:Response) => {
     try {
         const body:Patientlog = req.body;
         const log = prisma.logs.create({

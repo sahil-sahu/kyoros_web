@@ -38,6 +38,7 @@ model Bed {
   patientId   String? @unique
   patient     Patient? @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   bedLogs     Logs[]
+  sensor      Sensor?
 }
 
 model User {
@@ -90,6 +91,12 @@ model PatientDoc {
   s3Link     String
   patientId  String
   patient    Patient  @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+}
+
+model Sensor {
+  id          String @id @default(cuid())
+  bedID       Int? @unique
+  bed         Bed? @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
 }
 
 
