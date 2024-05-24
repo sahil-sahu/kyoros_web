@@ -26,7 +26,16 @@ model ICU {
   name        String
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  watcher     Watcher[]
   beds        Bed[]
+}
+
+model Watcher {
+  id          Int      @id @default(autoincrement())
+  userid      String
+  user        User    @relation(fields: [userid], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  icuId       Int
+  icu         ICU    @relation(fields: [icuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Bed {
@@ -45,10 +54,12 @@ model User {
   id          String @id @default(cuid())
   userType    UserType
   email       String   @unique
+  verified    Boolean @default(false)
   fireTokens  String[]
   firebaseUid String   @unique
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  watcher     Watcher[]
 }
 
 enum UserType {
@@ -74,27 +85,34 @@ model Patient {
 
 model Logs {
   id          String @id @default(cuid())
-  bpm         Int
+  heart_rate  Int @default(0)
+  pulse       Int @default(0)
+  resp_rate   Int @default(0)
   bp          Int[] //diastolic/systolic
   spo2        Int
-  temp        Int
+  temp        Int? //in celsius
   timeStamp   DateTime
   patientId   String
   patient     Patient @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   bedID       Int
   bed         Bed @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  sensorid    String?
+  sensor      Sensor? @relation(fields: [sensorid], references: [id], onDelete: NoAction, onUpdate: Cascade)
 }
 
 model PatientDoc {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now()) @db.Timestamp(6)
-  s3Link     String
+  fileName   String   @unique
+  name       String
+  s3Link     String   @unique
   patientId  String
   patient    Patient  @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
 }
 
 model Sensor {
   id          String @id @default(cuid())
+  logs        Logs[]
   bedID       Int? @unique
   bed         Bed? @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
 }

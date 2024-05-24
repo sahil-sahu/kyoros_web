@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Logs" ADD COLUMN     "pulse" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "resp_rate" INTEGER NOT NULL DEFAULT 0;

@@ -1,9 +1,10 @@
 import express, { Router } from 'express';
 import { createPatient, createPatientPeriodic, getLatestlog, getPatients } from '../controllers/patientController';
+import { upload } from '../helpers/docUpload';
 
 const patientRouter: Router = express.Router();
 
-patientRouter.post('/periodic', createPatientPeriodic);
+patientRouter.post('/docupload', upload.single("file"), createPatientPeriodic);
 patientRouter.post('', createPatient);
 patientRouter.get('', getPatients);
 patientRouter.get('/:patient', getPatients);

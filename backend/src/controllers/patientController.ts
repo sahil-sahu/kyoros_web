@@ -75,45 +75,20 @@ export const getLatestlog = async(req: Request, res: Response) => {
       res.status(500).json({ message: err.message });
     }
 }
-
 export const createPatientPeriodic = async (req: Request, res: Response) => {
   try {
-    const {
-      patientId,
-      bloodTests,
-      abgAnalysis,
-      imagingStudies,
-      nutritionalAssessment,
-      drugLevels,
-      fluidBalance,
-      woundAssessment,
-      rehabilitationProgress,
-      cultureAndInfectionMarkers,
-      ecgMonitoring,
-      mentalHealthAssessment,
-    } = req.body;
-
-    // Create a new patient periodic record
-    const newPatientPeriodic: IPatientPeriodic = new PatientPeriodicModel({
-        patientId,
-        bloodTests,
-        abgAnalysis,
-        imagingStudies,
-        nutritionalAssessment,
-        drugLevels,
-        fluidBalance,
-        woundAssessment,
-        rehabilitationProgress,
-        cultureAndInfectionMarkers,
-        ecgMonitoring,
-        mentalHealthAssessment,
+    if (!req.file) throw "Failed";
+      const file:any = req.file;
+      const s3Link:string = file.location;
+      const fileName:string = file.key;
+      // Send the response with file info
+      res.status(200).json({
+        message: 'File uploaded loodu successfully',
+        s3Link,
+        fileName
       });
 
-    // Save the new patient periodic record to the database
-    const savedPatientPeriodic = await newPatientPeriodic.save();
-
-    res.status(201).json(savedPatientPeriodic);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create patient periodic record' });
+  } catch(err){
+    res.status(400).json({ message: 'File upload failed' });
   }
 };
