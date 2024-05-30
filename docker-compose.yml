@@ -1,18 +1,35 @@
 version: '3.8'
 
 services:
-  backend:
+  clientServer:
     image: kyoros-backend:latest
+    depends_on:
+      - redis
     build:
       context: ./backend
       dockerfile: Dockerfile
+    environment:
+      - REDIS_URL=redis
     ports:
       - "5000:5000"  # Assuming backend runs on port 5000
     # Add other configurations for backend service if needed
 
+  logServer:
+    image: kyoros-logserver:latest
+    depends_on:
+      - redis
+    build:
+      context: ./backend/logServer
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_URL=redis
+    ports:
+      - "8000:8000"  # Assuming backend runs on port 5000
+    # Add other configurations for backend service if needed  
+
   frontend:
     depends_on:
-      - backend
+      - clientServer
     image: kyoros-frontend:latest
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:5000
@@ -21,6 +38,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+
+  redis:
+    image: redis:latest
+    environment:
+      - REDIS_PASSWORD=4pfgKxhmBVsUmAOaEYC9sdipT5RTLm7M
+    ports:
+      -"6379:6379"
 
   dummy:
     image: kyoros-dummy:latest

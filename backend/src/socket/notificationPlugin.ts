@@ -1,26 +1,27 @@
 import { fireNotifier } from "../firebase";
 import User from "../models/user";
-import { Patientlog } from "../types";
+import { FullLog, Patientlog } from "../types";
 import PatientModel from "../models/patients";
 import { Message, MulticastMessage } from "firebase-admin/messaging";
+import { fireTokensFromICU } from "../helpers/formatwRedis";
 
-export default async function checknSendNotification(patientId:string, data:Patientlog){
-    if(!(data.bp[0] > 120 || data.bpm > 80))
+export default async function checknSendNotification(log:FullLog, icuId: number){
+    if(!(log.bp[0] > 120 || log.heart_rate > 80))
     return; //No need to send notification for
-
-    // const patient = await PatientModel.findById(patientId);
-    // const users = await User.find({"userType": { $in: ['doctor', 'nurse'] }, "fireToken": {"$ne": null}});
-    // const message:MulticastMessage = {
-    //     notification: {
-    //         title: 'Abnormal Behaviour Detected',
-    //         body: `Patient: ${patient.name} having bp :${data.bp} & bpm :${data.bpm}`
-    //     },
-    //     webpush: {
-    //         fcmOptions: {
-    //           link: `doctor/patient/${patientId}`
-    //         }
-    //       },
-    //     tokens:users.map(user => user.fireToken)
-    //     };
-    // fireNotifier.sendEachForMulticast(message);
+    const firetokens = await fireTokensFromICU(icuId);
+    if(firetokens.length == 0)
+        return;
+    const message:MulticastMessage = {
+        notification: {
+            title: 'Abnormal Behaviour Detected',
+            body: `Patient having bp :${log.bp} & bpm :${log.heart_rate}`
+        },
+        webpush: {
+            fcmOptions: {
+              link: `doctor/patient/${log.patientId}`
+            }
+          },
+        tokens:firetokens
+        };
+    fireNotifier.sendEachForMulticast(message);
 }

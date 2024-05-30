@@ -30,10 +30,18 @@ export interface IPatient extends Document {
 
 export interface Patientlog {
   bp: [number,number];
-  bpm: number;
+  heart_rate: number;
+  pulse: number;
+  resp_rate: number;
   spo2: number;
   temp: number;
+  // patientId: string;
+  // bedID: number;
+  timeStamp: Date;
+  sensorid:string;
+}
+
+export interface FullLog extends Patientlog {
   patientId: string;
   bedID: number;
-  timestamp: string;
 }

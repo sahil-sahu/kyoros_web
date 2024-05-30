@@ -1,6 +1,3 @@
-import { applicationDefault } from "firebase-admin/app";
-
-const { initializeApp } = require('firebase-admin/app');
 import { getAuth } from 'firebase-admin/auth';
 import { getMessaging } from 'firebase-admin/messaging';
 require('dotenv').config();

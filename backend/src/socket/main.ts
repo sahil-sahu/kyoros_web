@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { Patientlog } from "../types";
-import { handlePatientEvent } from "./handlePatientInfo";
+// import { handlePatientEvent } from "./handlePatientInfo";
 
 
   export function mainSocket(socket:Socket){
@@ -30,9 +30,9 @@ import { handlePatientEvent } from "./handlePatientInfo";
         });
 
         socket.on('patient', ({patientId, log}:{patientId:string, log:Patientlog}) => {
-            console.log(`Received event from patient ${patientId}: ${log.timestamp}`);
+            console.log(`Received event from patient ${patientId}: ${log.timeStamp}`);
             socket.to(`patient/${patientId}`).emit('patient-event', log);
-            handlePatientEvent(patientId, socket, log);
+            // handlePatientEvent(patientId, socket, log);
         });
 
   }
