@@ -1,5 +1,6 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import axios from "axios";
 export const logUser = async ({ email, password }: {email:string, password:string}):Promise<string>  => {
     try {
         const userCred = await signInWithEmailAndPassword(auth, email, password);
@@ -7,6 +8,11 @@ export const logUser = async ({ email, password }: {email:string, password:strin
         const type = String(claims.userType || "");
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('userType', type);
+        sessionStorage.setItem('hospital', String(claims.hospitalId|| ""));
+        const formData = new FormData();
+        formData.append('token', token);
+        formData.append('hospital', String(claims.hospitalId || ""));
+        await axios.post("/setCookie", formData)
         return type;
     } catch (error) {
       throw error;

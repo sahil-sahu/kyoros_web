@@ -5,9 +5,18 @@ import { AuthRequest, Patientlog, FullLog } from '../types';
 export const fireTokensFromICU = async(icuId:number):Promise<string[]>=>{
     const icus = await redisClient.get(`ICU:${icuId}`);
     if(!icus){
-        const watchers = await prisma.watcher.findMany({where:{icuId}});
-        const users = await prisma.user.findMany({where:{id: {in:watchers.map(watcher => watcher.userid)}}})
-        const fireTokens = users.flatMap(user => user.fireTokens);
+        const watchers = await prisma.watcher.findMany({
+            where:{icuId},
+            include:{
+                user:{
+                    select:{
+                        fireTokens:true
+                    }
+                }
+            }
+        });
+        // const users = await prisma.user.findMany({where:{id: {in:watchers.map(watcher => watcher.userid)}}})
+        const fireTokens = watchers.flatMap(watcher => watcher.user.fireTokens);
         const savetoRedis = await redisClient.set(`ICU:${icuId}`, JSON.stringify(fireTokens));
         await redisClient.expire(`ICU:${icuId}`, 60*60*6);
         return fireTokens;
@@ -17,18 +26,24 @@ export const fireTokensFromICU = async(icuId:number):Promise<string[]>=>{
 }
 
 const callFromDB = async(log:Patientlog):Promise<[FullLog, number]> => {
-    const res = await prisma.sensor.findUniqueOrThrow({
+    const {bedID,bed:{icuId,patientId}} = await prisma.sensor.findUniqueOrThrow({
         where:{
             id:log.sensorid
+        },
+        include:{
+            bed:{
+                include:{
+                    patient:{
+                        select:{
+                            id:true,
+                            name:true
+                        }
+                    }
+                }
+            }
         }
     });
-    console.log(res);
-    const {bedID} = res;
-    const {patientId,icuId} = await prisma.bed.findFirstOrThrow({
-        where:{
-            id:bedID
-        }
-    });
+    // res.bed.ICU.
     await redisClient.set(`sensor:${log.sensorid}`, JSON.stringify({patientId,bedID,icuId}))
     await redisClient.expire(`sensor:${log.sensorid}`, 60*60*6);
     return [{

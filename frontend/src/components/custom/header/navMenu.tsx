@@ -10,7 +10,7 @@ import occu_ico from './icons/occu.png';
 import support_ico from './icons/support.png'
 import profile_ico from './icons/myprofile.png';
 import logout_ico from './icons/logout.png';
-import { LogOut } from '../authCheck';
+import { AuthBox } from '../authCheck';
 
 import styles from './header.module.css';
 
@@ -64,10 +64,7 @@ const navigationMenu = <ul className={`divide-y divide-solid ${styles.navlist}`}
   </Link>
 </li>
 <li>
-  <Link href='#' onClick={LogOut}>
-      <Image height={20} width={20} src={logout_ico} alt=''/>
-      Logout
-  </Link>
+  <AuthBox />
 </li>
 </ul>;
 

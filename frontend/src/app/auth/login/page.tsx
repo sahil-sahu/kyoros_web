@@ -37,7 +37,7 @@ export default function Login(){
   
   React.useEffect(()=>{
     if(data){
-      router.push("/"+data);
+      router.push("/");
     }
   }, [data, router]);
 

@@ -3,28 +3,33 @@
 import { auth } from "@/lib/firebase"
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { Button } from "../ui/button";
 import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
-
+import logout_ico from './header/icons/logout.png';
+import Image from "next/image";
 export function AuthBox(){
     const {data, isPending, refetch, error} = useQuery({queryKey: ["authCheck"], queryFn:fetchAuth});
     async function LogOut (){
         await signOut(auth);
         refetch();
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        }
     }
     if(data){
-        return <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-                    <div>
-                    <Button onClick={LogOut} className="inline-block text-sm px-4 py-2 leading-none border rounded border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">LogOut</Button>
-                    </div>
-                </div>
+        return(<Link href='#' onClick={LogOut}>
+                    <Image height={20} width={20} src={logout_ico} alt=''/>
+                    Logout
+                </Link>)
     }
-    return <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
-                    <div>
-                    <Link href="/auth/login" className="inline-block text-sm px-4 py-2 leading-none border rounded border-white hover:border-transparent hover:text-teal-500 hover:bg-white mt-4 lg:mt-0">Login</Link>
-                    </div>
-                </div>
+    return  <Link href="/auth/login">
+                <Image height={20} width={20} src={logout_ico} alt=''/>
+                Login
+            </Link>
 
 }
 
@@ -36,9 +41,4 @@ export async function fetchAuth (){
         return true;
     }
     return false;
-}
-
-export async function LogOut (){
-    await signOut(auth);
-    return true;
 }

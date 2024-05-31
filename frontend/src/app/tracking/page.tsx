@@ -9,6 +9,8 @@ import phone_i from "./phone.png"
 import Image from "next/image";
 import TrendView from "./trend";
 import { LiveTrend } from "@/types/types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchICU } from "./querys/icuQuery";
 
 
 
@@ -17,6 +19,9 @@ const Tracking = () =>{
     const [ICU, ICUSet]  = useState<String>("");
     const [Bed, BedSet]  = useState<String>("");
     const [displayType, displayTypeSet]  = useState<LiveTrend>(LiveTrend.Live);
+    const { data, isLoading, refetch, error } = useQuery({queryKey:['icu'], queryFn:fetchICU});
+    if(!isLoading)
+        console.log(data)
     return (
         <main >
             <NavBox title={"Tracking"}></NavBox>

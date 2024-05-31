@@ -2,6 +2,7 @@ export interface PatientInfoProps {
     name: string;
     age: number;
     gender: string;
+    id: string;
   }
 
 export interface PatientRealtimeObj {

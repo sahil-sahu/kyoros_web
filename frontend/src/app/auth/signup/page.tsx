@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react"
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import Link from "next/link";
 import { Button } from "@/components/ui/button"
 import {Card} from "@/components/ui/card"
@@ -24,6 +24,8 @@ import {
 
 import { createUser } from "./mutation";
 import { useRouter } from 'next/navigation'
+import { getHospitals } from "./hospitalQuery";
+import { Hospital } from "@/types/hospital";
 
 enum Color {
     Doctor = 'doctor',
@@ -34,18 +36,22 @@ export default function Login(){
 
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [hospital, setHospital] = React.useState<Hospital|undefined>();
     const [designation, setDesignation] = React.useState<Color | ''>("");
     const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:createUser});
+    const hospitalsRes = useQuery({queryKey:['hospitals'],queryFn:getHospitals})
+    const hospitalData = hospitalsRes.data ?? [];
     const router = useRouter()
 
     async function signup(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
-      mutate({ email, userType:designation, password });
+      if(hospital != undefined)
+        mutate({ email, userType:designation, password, hospital });
     }
 
     React.useEffect(()=>{
       if(data){
-        router.push("/"+data);
+        router.push("/");
       }
     }, [data, router]);
 
@@ -81,6 +87,28 @@ export default function Login(){
                         <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                 </Select>
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="hospital">Hospital</Label>
+                  {
+                    hospitalsRes.isLoading ? <div></div>:(
+                    <Select onValueChange={(e) => {
+                          const hsp = hospitalsRes.data?.find(hsp => hsp.id === e);
+                          setHospital(hsp);
+                        return true;
+                      }}
+                        >
+                          <SelectTrigger id="hospital">
+                              <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                              {hospitalData.map(e => (
+                                <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                              ))}
+                          </SelectContent>
+                      </Select>
+                      )
+                  }
                 </div>
             </div>
         </CardContent>

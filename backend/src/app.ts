@@ -14,19 +14,9 @@ import { redisClient } from './redis';
 import patientRouter from './routes/patient';
 import { Server } from "socket.io";
 import { mainSocket } from './socket/main';
-
-mongoose.connect(process.env.MONGODB_URI);
-
-export const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
-  console.log('MongoDB connection established');
-});
-
+import icuRouter from './routes/hospital';
 
 const app: Express = express();
-const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
@@ -38,19 +28,12 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/api/auth', authRouter);
 app.use('/patient', patientRouter);
+app.use('/hospital', icuRouter);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Application is healthy' });
 });
 
-app.get('/set', async (req, res) => {
-  const key = 'myKey';
-  const value = 'myValue';
-
-  await redisClient.set(key, value);
-
-  res.send(`Set ${key} to ${value} in Redis`);
-});
 const corsOptions = {
   origin: '*', // Replace with the client domain or use '*' for all domains
   methods: ['GET', 'POST'], // Specify the allowed HTTP methods
@@ -59,10 +42,10 @@ const corsOptions = {
 };
 // Start the server
 const httpServer = createServer(app);
-export const io = new Server(httpServer, {
-  cors: corsOptions
-});
-io.on('connection', mainSocket);
+// export const io = new Server(httpServer, {
+//   cors: corsOptions
+// });
+// io.on('connection', mainSocket);
 
 const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {

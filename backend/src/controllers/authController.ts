@@ -16,7 +16,7 @@ export const signup = async (req: AuthRequest, res: any) => {
       })
       // const user = new User({ userType, email,firebaseUid: req.user });
       // await user.save();
-      await fireAuth.setCustomUserClaims(req.user, {userType});
+      await fireAuth.setCustomUserClaims(req.user, {userType,hospitalId});
       res.json(user);
     }else{
       throw "unauthorised";

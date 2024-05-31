@@ -3,6 +3,8 @@ import * as admin from 'firebase-admin';
 import { Document, Types } from 'mongoose';
 export interface AuthRequest extends Request {
     user?: string;
+    userType?: string;
+    hospital?: string;
   }
 
 export interface IPatientPeriodic extends Document {

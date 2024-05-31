@@ -1,7 +1,20 @@
+import { PatientInfoProps } from "./pateintinfo";
+
 export interface ICU {
     name:string;
     filled:number;
     total:number;
+}
+
+interface bedInfo{
+    name:string;
+    id:number;
+    patient:PatientInfoProps
+}
+export interface ICUInfo {
+    id:number;
+    name:string;
+    beds: bedInfo[];
 }
 
 function getRandomInt(min: number, max: number): number {
