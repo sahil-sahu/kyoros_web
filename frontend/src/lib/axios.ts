@@ -15,15 +15,15 @@ export async function fetchAuth(){
     formData.append('token', token);
     formData.append('hospital', String(claims.hospitalId || ""));
     await axios.post("/setCookie", formData)
-    sessionStorage.setItem('token', token);
-    sessionStorage.setItem('userType', String(claims.userType || ""));
-    sessionStorage.setItem('hospital', String(claims.hospitalId || ""));
+    localStorage.setItem('token', token);
+    localStorage.setItem('userType', String(claims.userType || ""));
+    localStorage.setItem('hospital', String(claims.hospitalId || ""));
     return token;
   }
   return "";
 }
 export const setheader = async ()=>{
-  const token = sessionStorage.getItem('token') ?? await fetchAuth();
+  const token = localStorage.getItem('token') ?? await fetchAuth();
   console.log(token)
   return {
     'Content-Type': 'application/json',

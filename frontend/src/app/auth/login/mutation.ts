@@ -6,9 +6,9 @@ export const logUser = async ({ email, password }: {email:string, password:strin
         const userCred = await signInWithEmailAndPassword(auth, email, password);
         const {claims , token} = await userCred.user.getIdTokenResult();
         const type = String(claims.userType || "");
-        sessionStorage.setItem('token', token);
-        sessionStorage.setItem('userType', type);
-        sessionStorage.setItem('hospital', String(claims.hospitalId|| ""));
+        localStorage.setItem('token', token);
+        localStorage.setItem('userType', type);
+        localStorage.setItem('hospital', String(claims.hospitalId|| ""));
         const formData = new FormData();
         formData.append('token', token);
         formData.append('hospital', String(claims.hospitalId || ""));
