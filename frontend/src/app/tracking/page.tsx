@@ -1,6 +1,6 @@
 "use client"
 import NavBox from "@/components/custom/header/header";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import TrackingHeader from "./trackingHeader";
 import LiveView from "./liveView";
 import Link from "next/link";
@@ -11,22 +11,30 @@ import TrendView from "./trend";
 import { LiveTrend } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import { fetchICU } from "./querys/icuQuery";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ICUInfo, bedInfo } from "@/types/ICU";
 
 
 
 
 const Tracking = () =>{
-    const [ICU, ICUSet]  = useState<String>("");
-    const [Bed, BedSet]  = useState<String>("");
-    const [displayType, displayTypeSet]  = useState<LiveTrend>(LiveTrend.Live);
+
+    const searchParams = useSearchParams();
+    const patientid = searchParams.get('patient')
+    const displayType = searchParams.get('type') == LiveTrend.Trend ? LiveTrend.Trend : LiveTrend.Live;
+    useEffect(()=>{
+        if(!patientid) return;
+
+        // console.log(patientid);
+    }, [patientid]);
     const { data, isLoading, refetch, error } = useQuery({queryKey:['icu'], queryFn:fetchICU});
-    if(!isLoading)
-        console.log(data)
     return (
         <main >
             <NavBox title={"Tracking"}></NavBox>
             <section className='p-2'>
-                <TrackingHeader ICURef={ICUSet} BedRef={BedSet} TypeRef={displayTypeSet}/>
+                {
+                    (!isLoading && data) && <TrackingHeader icusInfo={data}/>
+                }
                 {
                     displayType === LiveTrend.Live?
                         <LiveView />

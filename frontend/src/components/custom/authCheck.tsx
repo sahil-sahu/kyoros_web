@@ -37,7 +37,7 @@ export async function fetchAuth (){
     await auth.authStateReady();
     const user = auth.currentUser;
     if(auth.currentUser != null){
-        sessionStorage.setItem('token', await auth.currentUser?.getIdToken())
+        localStorage.setItem('token', await auth.currentUser?.getIdToken())
         return true;
     }
     return false;
