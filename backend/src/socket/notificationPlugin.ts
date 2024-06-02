@@ -6,9 +6,9 @@ import { Message, MulticastMessage } from "firebase-admin/messaging";
 import { fireTokensFromICU } from "../helpers/formatwRedis";
 
 export default async function checknSendNotification(log:FullLog, icuId: number){
-    if(!(log.bp[0] > 120 || log.heart_rate > 80))
-    return; //No need to send notification for
+    if(!(log.bp[0] > 120 || log.heart_rate > 80)) return; //No need to send notification for
     const firetokens = await fireTokensFromICU(icuId);
+    console.log("Need to send")
     if(firetokens.length == 0)
         return;
     const message:MulticastMessage = {
@@ -18,7 +18,7 @@ export default async function checknSendNotification(log:FullLog, icuId: number)
         },
         webpush: {
             fcmOptions: {
-              link: `doctor/patient/${log.patientId}`
+              link: `tracking?patient=${log.patientId}&icu=${icuId}&bed=${log.bedID}&type=trend`
             }
           },
         tokens:firetokens
