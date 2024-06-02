@@ -47,3 +47,49 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
         res.status(500).json({ error: 'Failed to fetch icus from db' });
     }
 }
+
+export const getGlance = async (req:AuthRequest,res:Response) =>{
+    try {
+        const user = req.user;
+        const icus = await prisma.user.findUnique({
+            where:{
+                firebaseUid:user
+            },
+            select:{
+                watcher:{
+                    include:{
+                        icu:{
+                            include:{
+                                beds:{
+                                    where:{
+                                        occupied:true
+                                    },
+                                    select:{
+                                        name:true,
+                                        id:true,
+                                        patientId:true,
+                                        icuId:true,
+                                        bedLogs:{
+                                            orderBy:{
+                                                timeStamp: 'desc'
+                                            },
+                                            take:1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const bedArr = icus.watcher.flatMap(watcher => watcher.icu.beds)
+
+        res.status(200).json(bedArr);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch glance of icus from db' });
+    }
+}
