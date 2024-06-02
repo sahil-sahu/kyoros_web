@@ -43,6 +43,7 @@ export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
                 pointHitRadius: 10,
                 borderColor: '#0F52BA',
                 backgroundColor: '#0F52BA',
+                tension:.3
             },
             {
                 label: 'Systolic',
@@ -52,6 +53,7 @@ export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
                 borderColor: '#ABCCFF', // Increase clickable area for points
                 backgroundColor: '#ABCCFF', // Increase clickable area for points
                 pointHitRadius: 10,
+                tension:.3
             },
             ],
         };
@@ -68,7 +70,8 @@ export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
             pointRadius: 3,
             pointHitRadius: 10,
             borderColor: '#0F52BA',
-            backgroundColor: '#0F52BA'
+            backgroundColor: '#0F52BA',
+            tension:.3
         },
         ],
     };
