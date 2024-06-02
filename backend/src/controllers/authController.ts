@@ -56,7 +56,7 @@ export const setFCM = async (req: AuthRequest, res: any) => {
 
 export const signin = async (req: any, res: any) => {
   try {
-    const token = fireAuth.createCustomToken(req.body.uid);
+    const token = await fireAuth.createCustomToken(req.body.uid);
     return res.json({token});
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -5,16 +5,17 @@ const cors = require('cors');
 import { createServer } from "http";
 
 import * as dotenv from 'dotenv';
-import authRouter from './routes/auth';
 dotenv.config();
 
 // Initialize MongoDB client
 import mongoose from 'mongoose';
 import { redisClient } from './redis';
-import patientRouter from './routes/patient';
 import { Server } from "socket.io";
 import { mainSocket } from './socket/main';
+import authRouter from './routes/auth';
+import patientRouter from './routes/patient';
 import icuRouter from './routes/hospital';
+import logRouter from './routes/log';
 
 const app: Express = express();
 
@@ -29,6 +30,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/auth', authRouter);
 app.use('/patient', patientRouter);
 app.use('/hospital', icuRouter);
+app.use('/logs', logRouter);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Application is healthy' });
