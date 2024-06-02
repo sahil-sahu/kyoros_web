@@ -15,7 +15,7 @@ export async function fetchAuth(){
     formData.append('token', token);
     formData.append('hospital', String(claims.hospitalId || ""));
     await axios.post("/setCookie", formData)
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
     localStorage.setItem('userType', String(claims.userType || ""));
     localStorage.setItem('hospital', String(claims.hospitalId || ""));
     return token;
@@ -23,8 +23,8 @@ export async function fetchAuth(){
   return "";
 }
 export const setheader = async ()=>{
-  const token = localStorage.getItem('token') ?? await fetchAuth();
-  console.log(token)
+  const token = sessionStorage.getItem('token') ?? await fetchAuth();
+  // console.log(token)
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
