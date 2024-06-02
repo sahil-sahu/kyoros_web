@@ -48,12 +48,15 @@ const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; pa
     useEffect(()=>{
         if(logs){
             setMessages(logs.logs);
+        }
+        if(mysocket.current == null){
             const connectRealtime = ()=>{
                 const socket = connectToSocket(`patient/${patientId}`, pushMessage);
                 return () => {
                   unsubscribeFromRoom(`patient/${patientId}`);
                 };
               }
+
               mysocket.current = connectRealtime();
         }
     }, [logs, patientId])
