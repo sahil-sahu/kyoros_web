@@ -26,7 +26,7 @@ export const fireTokensFromICU = async(icuId:number):Promise<string[]>=>{
 }
 
 const callFromDB = async(log:Patientlog):Promise<[FullLog, number]> => {
-    const {bedID,bed:{icuId,patientId}} = await prisma.sensor.findUniqueOrThrow({
+    const res = await prisma.sensor.findUniqueOrThrow({
         where:{
             id:log.sensorid
         },
@@ -43,6 +43,9 @@ const callFromDB = async(log:Patientlog):Promise<[FullLog, number]> => {
             }
         }
     });
+    if(res.bedID == null)
+        throw "Sensor not connected to bed";
+    const {bedID,bed:{icuId,patientId}} = res;
     // res.bed.ICU.
     await redisClient.set(`sensor:${log.sensorid}`, JSON.stringify({patientId,bedID,icuId}))
     await redisClient.expire(`sensor:${log.sensorid}`, 60*60*6);
