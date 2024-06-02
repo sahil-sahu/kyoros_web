@@ -45,6 +45,7 @@ model Bed {
   ICU         ICU @relation(fields: [icuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   occupied    Boolean @default(false)
   patientId   String? @unique
+  updatedAt DateTime @updatedAt @default(now())
   patient     Patient? @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   bedLogs     Logs[]
   sensor      Sensor?
@@ -90,7 +91,7 @@ model Logs {
   resp_rate   Int @default(0)
   bp          Int[] //diastolic/systolic
   spo2        Int
-  temp        Int? //in celsius
+  temp        Float? //in celsius
   timeStamp   DateTime
   patientId   String
   patient     Patient @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
