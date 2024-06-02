@@ -22,6 +22,9 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
             where:{hospitalId:hospital},
             include:{
                 beds:{
+                    where:{
+                        occupied:true
+                    },
                     select:{
                         name:true,
                         id:true,
