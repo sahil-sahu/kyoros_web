@@ -5,19 +5,23 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
+import { useToast } from "@/components/ui/use-toast";
 import { ICUInfo, bedInfo } from "@/types/ICU";
 import { LiveTrend } from "@/types/types";
+import { ToastAction } from "@radix-ui/react-toast";
 import { useSearchParams, useRouter } from "next/navigation";
 
-import { Dispatch, SetStateAction, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
+    const {toast} = useToast();
     const router = useRouter()
     const searchParams = useSearchParams();
     const icu = searchParams.get('icu') ?? "0";
     const type = searchParams.get('type') == LiveTrend.Trend ? LiveTrend.Trend : LiveTrend.Live;
     const bed = parseInt((searchParams.get('bed') ?? "0"));
     const [ICU, ICUSet]  = useState<ICUInfo>(icusInfo.find(e => parseInt(icu) == e.id) ?? icusInfo[0]);
-    const [Bed, BedSet]  = useState<bedInfo|undefined>(ICU.beds.find(e => e.id == bed));
+    const [Bed, BedSet]  = useState<bedInfo|undefined>();
+    const [trendtype, typeSet]  = useState<LiveTrend>(type);
     const setICU = (val:string) =>{
         const icu = icusInfo.find(e => (parseInt(val) ?? 0) == e.id);
         if(icu) ICUSet(icu);
@@ -25,13 +29,16 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
 
     const setBed = (val:string) =>{
         const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
-        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${type}`)
+        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${trendtype}`)
     }
+    useEffect(()=>{
+        BedSet(ICU.beds.find(e => e.id == bed))
+    },[ICU, bed])
     return(
         <header className="p-2 m-auto max-w-md gap-1 flex justify-evenly items-center">
                     <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
                         <SelectTrigger>
-                            <SelectValue placeholder="ICU" />
+                            <SelectValue placeholder="Select ICU" />
                         </SelectTrigger>
                         <SelectContent>
                             {
@@ -41,9 +48,10 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                             }
                         </SelectContent>
                     </Select>
-                    <Select defaultValue={Bed?.id.toString()} onValueChange={setBed}>
+                    <Select value={Bed?.id.toString()} onValueChange={setBed}>
+
                         <SelectTrigger>
-                            <SelectValue placeholder="Bed" />
+                            <SelectValue placeholder="Select Bed" />
                         </SelectTrigger>
                         <SelectContent>
                             {
@@ -53,7 +61,18 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                             }
                         </SelectContent>
                     </Select>
-                    <Select defaultValue={type} onValueChange={(e:LiveTrend) => router.push(`/tracking?icu=${ICU?.id}&bed=${Bed?.id}&patient=${Bed?.patient.id}&type=${e}`)}>
+                    <Select defaultValue={trendtype} onValueChange={(e:LiveTrend) => {
+                        typeSet(LiveTrend[e])
+                        if(Bed?.id === undefined){
+                            return toast({
+                                title: "Configuration Error",
+                                description: "Please Select the bed Initially",
+                                variant: "destructive",
+                                duration: 5000,
+                            })
+                        }
+                        router.push(`/tracking?icu=${ICU?.id}&bed=${Bed?.id}&patient=${Bed?.patient.id}&type=${e}`)    
+                    }}>
                         <SelectTrigger>
                             <SelectValue placeholder="Display Type" />
                         </SelectTrigger>

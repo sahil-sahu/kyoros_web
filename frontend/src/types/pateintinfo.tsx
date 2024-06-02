@@ -14,12 +14,23 @@ export interface PatientRealtimeObj {
   timestamp:string;
 }
 
-export enum PatientInfoType {
-  bp = "bp",
-  bpm = "bpm",
-  spo2 = "spo2",
-  temp = "temp"
+export interface Patientlog {
+  id: string;
+  bp: [number,number];
+  heart_rate: number;
+  pulse: number;
+  resp_rate: number;
+  spo2: number;
+  temp: number;
+  patientId: string;
+  bedID: number;
+  timeStamp: string;
+  sensorid:string;
 }
+
+export const PatientInfoType = ["bp", "heart_rate", "pulse", "resp_rate", "spo2", "temp"];
+
+export type HealthParameter = "bp" | "heart_rate" | "pulse" | "resp_rate" | "spo2" | "temp";
 
 export enum Timeline {
   m30 = "30m",

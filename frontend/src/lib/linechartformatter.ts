@@ -1,4 +1,4 @@
-import { PatientInfoType, PatientRealtimeObj } from "@/types/pateintinfo";
+import { HealthParameter, PatientInfoType, PatientRealtimeObj, Patientlog } from "@/types/pateintinfo";
 
 function getTimeFromISOString(isoString: string): string {
     const date = new Date(isoString);
@@ -28,16 +28,16 @@ export const options = {
       },
     },
   };
-export function linechartFormatter(param : PatientInfoType, info:PatientRealtimeObj[]){
+export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
     
-    const labels = info.map((log)=>getTimeFromISOString(log.timestamp));
-    if(param === PatientInfoType.bp){
+    const labels = info.map((log)=>getTimeFromISOString(log.timeStamp));
+    if(param === "bp"){
         return {
             labels,
             datasets: [
             {
                 label: "Distolic",
-                data: info.map(e => e.bp.bp_d),
+                data: info.map(e => e.bp[0]),
                 fill: false,
                 pointRadius: 3,
                 pointHitRadius: 10,
@@ -46,7 +46,7 @@ export function linechartFormatter(param : PatientInfoType, info:PatientRealtime
             },
             {
                 label: 'Systolic',
-                data: info.map(e => e.bp.bp_s),
+                data: info.map(e => e.bp[1]),
                 fill: false,
                 pointRadius: 3,
                 borderColor: '#ABCCFF', // Increase clickable area for points

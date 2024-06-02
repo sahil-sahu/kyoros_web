@@ -1,10 +1,11 @@
-import { PatientRealtimeObj } from '@/types/pateintinfo';
+'use client'
+import { PatientRealtimeObj, Patientlog } from '@/types/pateintinfo';
 import io, { Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
 
-export const connectToSocket = (room:string, setMessages:((message:PatientRealtimeObj) => void) | null) => {
-  socket = io('http://localhost:5000');
+export const connectToSocket = (room:string, setMessages:((message:Patientlog) => void) | null) => {
+  socket = io('http://localhost:8000');
 
   socket.on('connect', () => {
     console.log('Connected to Socket.IO server');
@@ -16,8 +17,9 @@ export const connectToSocket = (room:string, setMessages:((message:PatientRealti
     socket = null;
   });
 
-  socket.on('patient-event', (data: PatientRealtimeObj) => {
+  socket.on('patient-event', (data: Patientlog) => {
       if (setMessages) {
+        console.log("buddy")
         setMessages(data);
       }
     });
