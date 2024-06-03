@@ -18,7 +18,7 @@ export default async function checknSendNotification(log:FullLog, icuId: number)
         },
         webpush: {
             fcmOptions: {
-              link: `tracking?patient=${log.patientId}&icu=${icuId}&bed=${log.bedID}&type=trend`
+              link: `tracking?patient=${log.patientId}&icu=${icuId}&bed=${log.bedID}&type=Trend`
             }
           },
         tokens:firetokens
