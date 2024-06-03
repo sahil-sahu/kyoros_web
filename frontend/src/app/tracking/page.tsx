@@ -46,7 +46,8 @@ const Tracking = () =>{
                     :<TrendView patientId={patientid} />
                 }
             </section>
-            <section style={{transform:"translateX(-50%)", zIndex:100}} className="fixed left-1/2 bottom-0 flex justify-evenly max-w-lg m-auto items-end text-center w-full">
+            {/* <section style={{transform:"translateX(-50%)", zIndex:100}} className="fixed left-1/2 bottom-0 flex justify-evenly max-w-lg m-auto items-end text-center w-full"> */}
+            <section className="flex justify-evenly max-w-lg m-auto items-end text-center w-full">
                 <Link className="border-solid border-bluecustom text-bluecustom" href={"#"}>
                     <h3 className="text-4xl">3</h3>
                     <p>Alerts</p>

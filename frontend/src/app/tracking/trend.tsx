@@ -40,25 +40,32 @@ import { useQuery } from "@tanstack/react-query";
 import { useTimeline } from "./hook/timeline";
 import { useDisplay } from "./hook/display";
 import useStack from "./hook/useStack";
+import { useRouter } from "next/navigation";
 
 const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; patientId:string}) =>{
     const {messages:data, pushMessage, setMessages} = useStack();
-    const mysocket = useRef<(() => void) | null>(null);
+    const mysocket = useRef<{room:string; unsubscribe: () => void;} | null>(null);
     const { data:logs, isLoading:logLoading, refetch:fetchLogs_a, error:err } = useQuery({queryKey:[patientId, old.toISOString()], queryFn:fetchPatientlogs});
+    const router = useRouter();
     useEffect(()=>{
         if(logs){
             setMessages(logs.logs);
         }
-        if(mysocket.current == null){
-            const connectRealtime = ()=>{
-                const socket = connectToSocket(`patient/${patientId}`, pushMessage);
-                return () => {
-                  unsubscribeFromRoom(`patient/${patientId}`);
-                };
-              }
-
-              mysocket.current = connectRealtime();
+        const connectRealtime = ()=>{
+            const socket = connectToSocket(`patient/${patientId}`, pushMessage);
+            return {
+                room: patientId,
+                unsubscribe : () => {
+                    unsubscribeFromRoom(`patient/${patientId}`);
+                  }
+            };
         }
+        if(mysocket.current && mysocket.current?.room != patientId){
+            mysocket.current.unsubscribe();
+            mysocket.current = null;
+        }
+
+       if(mysocket.current == null)  mysocket.current = connectRealtime();
     }, [logs, patientId])
 
     return (<div className="align-center w-100 overflow-x-auto p-3">
@@ -82,7 +89,7 @@ const TrendView = ({patientId}:{patientId:string|null}) => {
     
     return(
         <div className="trend-container">
-            <div className="header max-w-xl m-auto p-2">
+            <div className="header max-w-2xl m-auto p-2">
                 <Select defaultValue={PatientInfoType[1]} onValueChange={setDisplay}>
                     <SelectTrigger>
                         <SelectValue placeholder="ICU" />

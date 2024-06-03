@@ -5,8 +5,8 @@ function useStack() {
     const [messages, setMessages] = useState<Patientlog[]>([]);
 
     const pushMessage = (message:Patientlog) =>{
-        // console.log(message);
-        setMessages((prevMessages) => {
+      setMessages((prevMessages) => {
+          if(prevMessages[prevMessages.length -1].id == message.id) return prevMessages;
           const messages = [...prevMessages, message];
           return messages;
         });
