@@ -8,7 +8,7 @@ export const axiosInstance: AxiosInstance = axios.create({
 export async function fetchAuth(){
   await auth.authStateReady();
   const user = auth.currentUser;
-  console.log(user)
+  // console.log(user)
   if (user != null) {
     const {claims , token} = await user.getIdTokenResult();
     const formData = new FormData();
@@ -23,7 +23,8 @@ export async function fetchAuth(){
   return "";
 }
 export const setheader = async ()=>{
-  const token = sessionStorage.getItem('token') ?? await fetchAuth();
+  const token = await fetchAuth();
+  // const token = sessionStorage.getItem('token') ?? await fetchAuth();
   // console.log(token)
   return {
     'Content-Type': 'application/json',
