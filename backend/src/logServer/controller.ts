@@ -17,7 +17,8 @@ export const addLog = async(req:AuthRequest,res:Response) => {
         })
         const notified = checknSendNotification(log, icuId);
         const [log_res, _] = await Promise.all([dblog, notified]);
-        io.to(`patient/${log.patientId}`).emit('patient-event', log_res);
+        io.to(`patient/${log.patientId}`).emit('patient-event', {data:log_res, room: `patient/${log.patientId}`});
+        io.to(`icu/${icuId}`).emit('patient-event', {data:log_res, room:`icu/${icuId}`});
         // return res.json({log_res:true});
         return res.json(log_res);
     } catch (error) {

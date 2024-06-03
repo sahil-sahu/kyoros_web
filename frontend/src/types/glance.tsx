@@ -6,4 +6,5 @@ export interface GlanceInfo {
     patientId: string;
     icuId:number;
     bedLogs:[Patientlog];
+    pinned?:boolean;
 }
