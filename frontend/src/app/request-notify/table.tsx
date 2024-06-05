@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { Checkbox } from "@/components/ui/checkbox"
+import { notification } from "@/types/notification"
+import Link from "next/link"
 
 export type Alert = {
     id: string
@@ -8,7 +10,7 @@ export type Alert = {
     feed: string
     timestamp : string
   }
-export function NotificationTab({rows}:{rows:Alert[]}){
+export function NotificationTab({rows, feeds, pushFeed, popFeed}:{rows:notification[];feeds: notification[] ;pushFeed: (feed:notification)=> void; popFeed: (feed:notification)=> void;}){
     const [selectedAlerts, setSelectedAlerts] = useState<string[]>([]);
 
     const toggleAlertSelection = (id: string) => {
@@ -20,10 +22,10 @@ export function NotificationTab({rows}:{rows:Alert[]}){
     };
     return (
         <table className="min-w-full divide-y divide-gray-200">
-      <thead>
+      {/* <thead>
         <tr>
           <th className="py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-          <Checkbox />
+            <span></span>
           </th>
           <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
             Feed
@@ -32,27 +34,27 @@ export function NotificationTab({rows}:{rows:Alert[]}){
             Time
           </th>
         </tr>
-      </thead>
+      </thead> */}
       <tbody className="bg-white divide-y divide-gray-200">
         {rows.map(alert => (
-          <Row key={alert.id} alert={alert} selectedAlerts={selectedAlerts} toggleAlertSelection={toggleAlertSelection}/>
+          <Row key={alert.id} pushFeed={pushFeed} popFeed={popFeed} feeds={feeds} alert={alert} />
         ))}
       </tbody>
     </table>
     )
 }
-
-function Row({alert, selectedAlerts, toggleAlertSelection}:{alert:Alert; selectedAlerts:string[]; toggleAlertSelection: (alert:string)=>void}){
-    const dt = new Date(alert.timestamp);
+function Row({alert, feeds, pushFeed, popFeed}:{alert:notification; feeds: notification[];pushFeed: (feed:notification)=> void; popFeed: (feed:notification)=> void;}){
+    const dt = alert.timeStamp;
     return  (
         <tr key={alert.id}>
             <td className="py-4 whitespace-no-wrap">
-              <Checkbox checked={selectedAlerts.includes(alert.id)}
-                onClick={() => toggleAlertSelection(alert.id)} />
+              <Checkbox className="m-1" checked={feeds.includes(alert)}
+                  onCheckedChange={(val:boolean)=>val?pushFeed(alert):popFeed(alert)}
+                />
             </td>
             <td className="px-1 py-4 whitespace-no-wrap">
-                <p className="text-bluecustom font-bold">{alert.title}</p>
-                <p>{alert.feed}</p>
+                <Link href={alert?.link ?? "#"}><p className="text-bluecustom font-bold">{alert.title}</p></Link>
+                <p>{alert.description}</p>
             </td>
             <td className="px-1 py-4 whitespace-no-wrap text-right">
                 <p className="whitespace-no-wrap">{dt.toLocaleDateString('en-US', {

@@ -6,12 +6,21 @@ import { app } from "./firebase";
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation";
+import { addNote } from "./indexedDB";
 export default function ForegroundMessage(){
     const router = useRouter();
     const {toast} = useToast();
     useEffect(()=>{
         onMessage(getMessaging(app),(payload)=>{
-            console.log(payload);
+            if(payload.notification?.title && payload.notification?.body && payload.data?.severity){
+                addNote({
+                    title: payload.notification?.title,
+                    description: payload.notification?.body,
+                    severity: payload.data?.severity == "critical"? "critical": "normal",
+                    timeStamp: new Date(),
+                    link: payload.fcmOptions?.link ?? "#"
+                })
+            }
             toast({
                 title: payload.notification?.title,
                 description: payload.notification?.body,

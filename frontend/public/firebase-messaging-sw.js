@@ -1,5 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging-compat.js');
+importScripts("https://cdn.jsdelivr.net/npm/dexie@3.0.3/dist/dexie.min.js");
 
 // Initialize the Firebase app in the service worker by passing the generated config
 const firebaseConfig = {
@@ -14,12 +15,39 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+const db = new Dexie("pings");
+
+// Define a schema
+db.version(2).stores({
+    notes: '++id, title, description, severity, timeStamp, link'
+});
+
+// Open the database
+db.open().catch(function (err) {
+    console.error("Failed to open db: " + (err.stack || err));
+});
+
+function addNote(note) {
+  db.notes.add(note).then(() => {
+      console.log("Note has been added to your database.");
+  }).catch((error) => {
+      console.error("Unable to add data: " + error);
+  });
+}
+
+
 // Retrieve firebase messaging
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage(function(payload) {
   console.log('Received background message ', payload);
-
+  addNote({
+      title: payload.notification.title,
+      description: payload.notification.body,
+      timeStamp: new Date(),
+      severity: payload.data.severity,
+      link: payload.fcmOptions?.link
+  });
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,

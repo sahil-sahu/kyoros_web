@@ -47,3 +47,11 @@ export interface FullLog extends Patientlog {
   patientId: string;
   bedID: number;
 }
+
+export interface NotificationLoad {
+  patientId:string;
+  bedID:number;
+  icuId:number;
+  bedName:string;
+  icuName:string;
+}
