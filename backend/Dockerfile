@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:20
+FROM node:21.7.3-alpine3.20
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -9,15 +9,17 @@ COPY package*.json ./
 
 # Install app dependencies
 RUN npm install
-
+RUN npm install pm2 -g
+# RUN npm install -g typescript
 # Copy the rest of the application code to the working directory
 COPY . .
 
 # Build the TypeScript code
 RUN npm run build
-
+# RUN tsc
+RUN npx prisma generate
 # Expose the port your app runs on
 EXPOSE 5000
 
 # Define the command to start your application
-CMD ["node", "dist/app.js"]
+CMD ["pm2-runtime", "start", "dist/app.js"]
