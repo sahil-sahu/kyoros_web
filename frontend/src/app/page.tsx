@@ -58,17 +58,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="container">
-          <p>
-            Go to <Link className="text-tahiti underline" href={'/doctor'}>Doctor&apos;s Page</Link>
-          </p>
-          <p>
-            Go to <Link className="text-tahiti underline" href={'/nurse'}>Nurse&apos;s Page</Link>
-          </p>
-          <p>
-            Go to <Link className="text-tahiti underline" href={'/request-notify'}>Subscribe to notification service</Link>
-          </p>
-        </section>
     </main>
   );
 }
