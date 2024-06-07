@@ -16,7 +16,12 @@ const AtGlance = () =>{
     const [_refresh,refresh] = useState(false);
     const mysocket = useRef<{room:string; unsubscribe: () => void;}[] | null>(null);
     useLayoutEffect(()=>{
-        const store = localStorage.getItem('glance');
+        var store = localStorage.getItem('glance');
+        if(!store){
+            localStorage.setItem('glance', JSON.stringify([]));
+            store = localStorage.getItem('glance');
+        }
+            
         if(store && data){
             const glances:string[] = JSON.parse(store);
             const arr:GlanceInfo[] = [];
