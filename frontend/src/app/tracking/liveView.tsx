@@ -1,10 +1,11 @@
-import { CSSProperties, useEffect, useState } from 'react';
+import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import styles from "./liveView.module.css"
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchPatientlog, fetchPatientlogs } from './querys/logQuery';
 import { Patientlog } from '@/types/pateintinfo';
+import { connectToSocket, unsubscribeFromRoom } from '@/lib/socket';
 const liveBox:CSSProperties = {
     backgroundColor: "#fff",
     backgroundImage:"linear-gradient(to top right, #A2CCFD 5%, white 60%)"
@@ -14,15 +15,32 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
 
     const [latestInfo, setLatestInfo] = useState<Patientlog|undefined>();
     const { data:logs, isLoading:logLoading, refetch:fetchLogs_a, error:err } = useQuery({queryKey:[patientId], queryFn:fetchPatientlog});
+    const mysocket = useRef<{room:string|null; unsubscribe: () => void;} | null>(null);
     useEffect(()=>{
         if(logs){
             setLatestInfo(logs.logs[logs.logs.length-1]);
         }
     }, [logs])
+    useEffect(()=>{
+        const connectRealtime = ()=>{
+            const socket = connectToSocket(`patient/${patientId}`, setLatestInfo);
+            return {
+                room: patientId,
+                unsubscribe : () => {
+                    unsubscribeFromRoom(`patient/${patientId}`);
+                  }
+            };
+        }
+        if(mysocket.current && mysocket.current?.room != patientId){
+            mysocket.current.unsubscribe();
+            mysocket.current = null;
+        }
+
+       if(mysocket.current == null)  mysocket.current = connectRealtime();
+    }, [patientId])
     if(patientId == null){
         return <div className='text-lg text-center'>Please select the Bed First!</div>
     }
-
 
     if(logLoading){
         return <div className="container shadow-inner max-w-lg my-4 p-3 flex flex-col justify-evenly rounded-lg" style={liveBox}>
