@@ -7,14 +7,37 @@ import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { pintheGlance, unpinGlance } from "@/lib/pintoGlance";
 import { set } from "react-hook-form";
-const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<boolean>>}) =>{
+const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<number>>}) =>{
     const critical = false;
     const log = data.bedLogs[0];
     if(!log){
         return(
             <div className={`${critical? "border-dashed border-red-500":"border-solid" } border-2 w-[100%] h-[100%] p-1`}>
             <div className="flex justify-evenly items-center mb-2">
-                <Toggle pressed={pinned} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(e);}} variant="outline"><Image src={pin_img} alt="📌" className={"border-dotted border-bluecustom"}/></Toggle>
+                <Toggle pressed={pinned} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="#e8eaed"
+                        viewBox="0 -960 960 960"
+                        >
+                        <path d="M680-840v80h-40v327l-80-80v-247H400v87l-87-87-33-33v-47h400zM480-40l-40-40v-240H240v-80l80-80v-46L56-792l56-56 736 736-58 56-264-264h-6v240l-40 40zM354-400h92l-44-44-2-2-46 46zm126-193zm-78 149z"></path>
+                        </svg>
+                    ):(
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="20"
+                    fill="none"
+                    viewBox="0 0 12 20"
+                  >
+                    <path
+                      fill="#0F52BA"
+                      d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
+                    ></path>
+                  </svg>
+                )}</Toggle>
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <Link href={`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`} >
                     <h3 className="text-white">
@@ -29,7 +52,30 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
     return (
         <div className={`${critical? "border-dashed border-red-500":"border-solid" } border-2 w-[100%] h-[100%] p-1`}>
             <div className="flex justify-evenly items-center mb-2">
-                <Toggle pressed={pinned} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(e);}} variant="outline"><Image src={pin_img} alt="📌" className={"border-dotted border-bluecustom"}/></Toggle>
+                <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="#e8eaed"
+                        viewBox="0 -960 960 960"
+                        >
+                        <path d="M680-840v80h-40v327l-80-80v-247H400v87l-87-87-33-33v-47h400zM480-40l-40-40v-240H240v-80l80-80v-46L56-792l56-56 736 736-58 56-264-264h-6v240l-40 40zM354-400h92l-44-44-2-2-46 46zm126-193zm-78 149z"></path>
+                        </svg>
+                    ):(
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="20"
+                    fill="none"
+                    viewBox="0 0 12 20"
+                  >
+                    <path
+                      fill="#0F52BA"
+                      d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
+                    ></path>
+                  </svg>
+                )}</Toggle>
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <Link href={`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`} >
                     <h3 className="text-white">

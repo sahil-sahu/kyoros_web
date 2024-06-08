@@ -13,7 +13,7 @@ import { connectToSocket, unsubscribeFromRoom } from "@/lib/socket";
 const AtGlance = () =>{
     const {data,isLoading,error, refetch} = useQuery({queryKey:['glance'], queryFn: fetchGlance})
     const {glances, setGlances, pushMessage} = useStack();
-    const [_refresh,refresh] = useState(false);
+    const [_refresh,refresh] = useState(new Date().getMilliseconds());
     const mysocket = useRef<{room:string; unsubscribe: () => void;}[] | null>(null);
     useLayoutEffect(()=>{
         var store = localStorage.getItem('glance');
