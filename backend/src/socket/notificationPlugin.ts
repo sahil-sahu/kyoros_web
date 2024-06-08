@@ -4,24 +4,29 @@ import { FullLog, NotificationLoad, Patientlog } from "../types";
 import PatientModel from "../models/patients";
 import { Message, MulticastMessage } from "firebase-admin/messaging";
 import { fireTokensFromICU } from "../helpers/formatwRedis";
+import { alertCheck } from "../helpers/alertChecker";
 
 function getRandomStatus() {
     const randomValue = Math.random();
     return randomValue < 0.7 ? "normal" : "critical";
 }
 export default async function checknSendNotification(log:FullLog, notificationInfo:NotificationLoad){
-    if(!(log.bp[0] > 120 || log.heart_rate > 80)) return; //No need to send notification for
+    const [type, messageLoad] = alertCheck(log);
+    if(type == null) return; //No need to send notification for
     const firetokens = await fireTokensFromICU(notificationInfo.icuId);
+
     console.log("Need to send")
+    console.log(messageLoad + "::" + type)
+
     if(firetokens.length == 0)
         return;
     const message:MulticastMessage = {
         notification: {
-            title: `BP declining for patient at ${notificationInfo.bedName}`,
+            title: messageLoad,
             body: `Patient situated at ${notificationInfo.icuName}, ${notificationInfo.bedName}`,
         },
         data: {
-            severity:getRandomStatus()
+            severity:type
         },
         webpush: {
             fcmOptions: {

@@ -11,16 +11,19 @@ import { io } from './app';
 export const addLog = async(req:AuthRequest,res:Response) => {
     try {
         const body:Patientlog = req.body;
+        body.sensorid = req.user;
         const [log,notificationInfo] = await reformat(body);
         const dblog = prisma.logs.create({
             data: log
         })
         const notified = checknSendNotification(log, notificationInfo);
+
         const [log_res, _] = await Promise.all([dblog, notified]);
         io.to(`patient/${log.patientId}`).emit('patient-event', {data:log_res, room: `patient/${log.patientId}`});
         io.to(`icu/${notificationInfo.icuId}`).emit('patient-event', {data:log_res, room:`icu/${notificationInfo.icuId}`});
-        // return res.json({log_res:true});
         return res.json(log_res);
+
+        // return res.json({log_res:true});
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
