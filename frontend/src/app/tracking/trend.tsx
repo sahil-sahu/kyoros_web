@@ -68,11 +68,11 @@ const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; pa
        if(mysocket.current == null)  mysocket.current = connectRealtime();
     }, [logs, patientId])
 
-    return (<div className="align-center w-100 overflow-x-auto p-3">
+    return (<div className="align-center w-full overflow-x-auto p-3">
                 <Line
                     options={options}
                     data={linechartFormatter(display,data)}
-                    className="m-auto min-h-[50vh]"
+                    className="m-auto min-h-[50vh] lg:min-h-[70vh]"
                 />
             </div>)
 }
