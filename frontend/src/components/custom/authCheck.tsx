@@ -6,7 +6,9 @@ import Link from "next/link";
 import { signOut } from "firebase/auth";
 import logout_ico from './header/icons/logout.png';
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 export function AuthBox(){
+    const router = useRouter();
     const {data, isPending, refetch, error} = useQuery({queryKey: ["authCheck"], queryFn:fetchAuth});
     async function LogOut (){
         await signOut(auth);
@@ -19,6 +21,7 @@ export function AuthBox(){
             const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
             document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
         }
+        router.push('/auth/login');
     }
     if(data){
         return(<Link href='#' onClick={LogOut}>
