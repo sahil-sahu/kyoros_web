@@ -27,9 +27,9 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
         if(icu) ICUSet(icu);
     }
 
-    const setBed = (val:string) =>{
+    const setBed = (val:string) => {
         const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
-        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${trendtype}`)
+        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${trendtype}`);
     }
     useEffect(()=>{
         BedSet(ICU.beds.find(e => e.id == bed))

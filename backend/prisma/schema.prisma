@@ -89,7 +89,7 @@ model Logs {
   heart_rate  Int @default(0)
   pulse       Int @default(0)
   resp_rate   Int @default(0)
-  bp          Int[] //diastolic/systolic
+  bp          Int[] // systolic/diastolic
   spo2        Int
   temp        Float? //in celsius
   timeStamp   DateTime
