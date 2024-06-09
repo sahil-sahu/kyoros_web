@@ -23,6 +23,7 @@ const config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         bluecustom: '#0F52BA',
+        darkblue: '#303778',
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {

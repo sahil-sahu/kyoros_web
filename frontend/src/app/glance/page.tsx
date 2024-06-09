@@ -58,7 +58,7 @@ const AtGlance = () =>{
         return(
             <main>
             <NavBox title={"At a Glance"} />
-            <section className="grid md:grid-cols-3 gap-3 grid-cols-2">
+            <section className="grid md:grid-cols-3 gap-3 grid-cols-2 p-3">
                 <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
                 <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
                 <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>

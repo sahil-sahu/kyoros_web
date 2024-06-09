@@ -33,6 +33,12 @@ export const getAll= async (severity: "normal" | "critical") =>{
     const res = await db.notes.where("severity").equals(severity);
     return await res.toArray();
 }
+interface AlertsCount {moderate:number; critical:number;}
+export const getCounts = async (): Promise<AlertsCount> => {
+    const moderate = await db.notes.where("severity").equals("normal").count()
+    const critical = await db.notes.where("severity").equals("critical").count()
+    return {moderate, critical}
+}
 
 // // Example usage
 // const newNote: notification = {
