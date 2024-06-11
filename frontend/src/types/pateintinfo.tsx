@@ -3,6 +3,8 @@ export interface PatientInfoProps {
     age: number;
     gender: string;
     id: string;
+    diagnosis?: string;
+    dept?: string;
   }
 
 export interface PatientRealtimeObj {
@@ -28,7 +30,7 @@ export interface Patientlog {
   sensorid:string;
 }
 
-export const PatientInfoType = ["bp", "heart_rate", "pulse", "resp_rate", "spo2", "temp"];
+export const PatientInfoType: HealthParameter[] = ["bp", "heart_rate", "pulse", "resp_rate", "spo2", "temp"];
 
 export type HealthParameter = "bp" | "heart_rate" | "pulse" | "resp_rate" | "spo2" | "temp";
 

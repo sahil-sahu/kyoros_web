@@ -77,6 +77,8 @@ model Patient {
   bed        Bed?
   gender     String
   name       String
+  diagnosis  String?
+  dept       String?
   age        Int
   email      String?
   phone      String @db.VarChar(13) //+91 1234567890
