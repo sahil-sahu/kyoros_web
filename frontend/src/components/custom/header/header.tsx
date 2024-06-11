@@ -15,9 +15,9 @@ import navigationMenu from "./navMenu";
 
 export default function NavBox({title}:{title:string|null|undefined}) {
     return <nav className="flex items-center justify-between flex-wrap p-6 border-b border-gray-300">
-        <div className="flex items-center flex-shrink-0 text-white mr-6">
+        <Link href={'/'} className="flex items-center flex-shrink-0 text-white mr-6">
             <Image src={Logo} height={50} alt="Kyoros"/>
-        </div>
+        </Link>
         <div className="flex items-center text-lg font-semibold  flex-shrink-0 mr-6">
             <h3>
                 {title ?? "Overview"}

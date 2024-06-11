@@ -37,12 +37,12 @@ import { Percent } from "lucide-react";
 
 const OccupancyTrend = () =>{
     return (<div className="shadow border border-gray-400 rounded-xl p-4 py-5 lg:pt-3 col-span-2">
-        <div className="heading flex justify-between ">
+        <div className="heading flex justify-between items-center">
           <h3 className="text-lg font-semibold">
             Occupancy Trend
           </h3>
           <Select defaultValue="today">
-            <SelectTrigger className="border-none">
+            <SelectTrigger className="border-none w-1/3">
               <SelectValue placeholder="Select day" />
             </SelectTrigger>
             <SelectContent>
