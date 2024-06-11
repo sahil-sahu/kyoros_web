@@ -7,6 +7,7 @@ import {
   } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast";
 import { ICUInfo, bedInfo } from "@/types/ICU";
+import { PatientInfoType } from "@/types/pateintinfo";
 import { LiveTrend } from "@/types/types";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
     const searchParams = useSearchParams();
     const icu = searchParams.get('icu') ?? "0";
     const type = searchParams.get('type') == LiveTrend.Trend ? LiveTrend.Trend : LiveTrend.Live;
+    const param = PatientInfoType.find((e) => searchParams.get('vital') == e) ?? PatientInfoType[1];
     const bed = parseInt((searchParams.get('bed') ?? "0"));
     const [ICU, ICUSet]  = useState<ICUInfo>(icusInfo.find(e => parseInt(icu) == e.id) ?? icusInfo[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
@@ -35,7 +37,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
         BedSet(ICU.beds.find(e => e.id == bed))
     },[ICU, bed])
     return(
-        <header className="p-2 m-auto max-w-md gap-1 flex justify-evenly items-center">
+        <header className="p-2 m-auto max-w-lg gap-1 flex justify-evenly items-center">
                     <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select ICU" />
@@ -81,6 +83,24 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                             <SelectItem value={LiveTrend.Trend}>Trend</SelectItem>
                         </SelectContent>
                     </Select>
+                    {type == LiveTrend.Trend && (
+                        <Select defaultValue={param} onValueChange={(val:string) => {
+                                const currentParams = new URLSearchParams(searchParams);
+                                currentParams.set('vital', val);
+                                router.push('/tracking?'+currentParams.toString());
+                            }}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="ICU" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {
+                                    PatientInfoType.map(e => (
+                                        <SelectItem key={e} value={e}>{e}</SelectItem>
+                                    ))
+                                }
+                            </SelectContent>
+                        </Select>
+                    )}
                 </header>
     )
 

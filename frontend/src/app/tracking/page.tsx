@@ -11,9 +11,9 @@ import TrendView from "./trend";
 import { LiveTrend } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import { fetchICU } from "./querys/icuQuery";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ICUInfo, bedInfo } from "@/types/ICU";
+import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import AlertBox from "./components/alertBox";
 
 const TrackingContent = () => {
     const searchParams = useSearchParams();
@@ -45,24 +45,22 @@ const TrackingContent = () => {
                         : <TrendView patientId={patientid} />
                 }
             </section>
-            <section className="flex justify-evenly max-w-lg m-auto items-end text-center w-full">
-                <Link className="border-solid border-bluecustom text-bluecustom" href={"#"}>
-                    <h3 className="text-4xl">3</h3>
-                    <p>Alerts</p>
+            <section className="mt-6 mb-4 h-[15rem] grid grid-cols-3 justify-stretch max-w-5xl gap-2 m-auto items-end text-center w-full">
+                <Link className="h-full" href={"#"}>
+                    <AlertBox></AlertBox>
                 </Link>
-                <Link className="border-solid border-bluecustom text-bluecustom" href={"#"}>
-                    <Image src={folder_i} alt={"📂"} />
-                    <p>Alerts</p>
+                <Link className="border-2 border-darkblue h-full p-5 rounded-xl" href={"#"}>
+                    <h3 className="text-lg mb-5 text-left font-semibold">Docs</h3>
+                    <Image className="m-auto" src={folder_i} alt={"📂"} />
                 </Link>
-                <Link className="border-solid border-bluecustom text-bluecustom" href={"#"}>
-                    <Image src={phone_i} alt={"📞"} />
-                    <p>Alerts</p>
+                <Link className="border-2 h-full border-darkblue p-5  rounded-xl" href={"#"}>
+                    <h3 className="mb-5 text-lg text-left font-semibold">Call Nursing Station</h3>
+                    <Image className="m-auto justify-self-center top-[10%] self-center origin-center" src={phone_i} alt={"📞"} />
                 </Link>
             </section>
         </>
     );
 };
-
 const Tracking = () => {
     return (
         <main>
