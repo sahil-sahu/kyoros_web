@@ -7,27 +7,9 @@ import {
   } from "@/components/ui/select"
 import { HealthParameter, PatientInfoType, PatientRealtimeObj, Patientlog, Timeline } from "@/types/pateintinfo";
 import { connectToSocket, unsubscribeFromRoom }from '@/lib/socket';
-import { useEffect, useMemo, useRef } from "react";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-} from 'chart.js';
+import { useEffect, useMemo, useRef, useLayoutEffect } from "react";
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-);
+
 import { Line } from 'react-chartjs-2';
 import { dummyData } from "../glance/dummy";
 import { linechartFormatter, options } from "@/lib/linechartformatter";
@@ -40,13 +22,60 @@ import { useQuery } from "@tanstack/react-query";
 import { useTimeline } from "./hook/timeline";
 import { useDisplay } from "./hook/display";
 import useStack from "./hook/useStack";
-import { useRouter } from "next/navigation";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button"
+import dynamic from 'next/dynamic';
+import zoomPlugin from 'chartjs-plugin-zoom';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; patientId:string}) =>{
     const {messages:data, pushMessage, setMessages} = useStack();
     const mysocket = useRef<{room:string; unsubscribe: () => void;} | null>(null);
     const { data:logs, isLoading:logLoading, refetch:fetchLogs_a, error:err } = useQuery({queryKey:[patientId, old.toISOString()], queryFn:fetchPatientlogs});
     const router = useRouter();
+    const chartRef = useRef<ChartJS<'line', any, any>>();
+    useLayoutEffect(()=>{
+        
+        // import('hammerjs').then(() => {
+        //     import('chartjs-plugin-zoom');
+        // });
+        if(window.innerWidth > 1200){
+            ChartJS.register(
+                CategoryScale,
+                LinearScale,
+                PointElement,
+                LineElement,
+                Title,
+                Tooltip,
+                Legend,
+                zoomPlugin
+            );
+        } else{
+            ChartJS.register(
+                CategoryScale,
+                LinearScale,
+                PointElement,
+                LineElement,
+                Title,
+                Tooltip,
+                Legend,
+                // zoomPlugin
+            );
+        }
+    },[])
+    const resetZoom = () => {
+        if (chartRef.current) {
+            chartRef.current.resetZoom();
+        }
+    };
     useEffect(()=>{
         if(logs){
             setMessages(logs.logs);
@@ -67,41 +96,33 @@ const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; pa
 
        if(mysocket.current == null)  mysocket.current = connectRealtime();
     }, [logs, patientId])
-
-    return (<div className="align-center w-full overflow-x-auto p-3">
+    // const p = ChartJSOrUndefined
+    // button
+    return (<div className="align-center m-auto w-min overflow-x-auto p-3 relative">
+                <Button variant="secondary" onClick={resetZoom} className="absolute right-5">Reset</Button>
                 <Line
                     options={options}
                     data={linechartFormatter(display,data)}
-                    className="m-auto min-h-[50vh] lg:min-h-[70vh]"
+                    className="m-auto min-h-[50vh] lg:min-h-[60vh]"
+                    ref={chartRef}
                 />
             </div>)
 }
 
 const TrendView = ({patientId}:{patientId:string|null}) => {
     
-    const [display, setDisplay] = useDisplay();
+    // const [display, setDisplay] = useDisplay();
     const [timeline, setTimeline] = useTimeline();
-    const ChartView = useMemo(()=> patientId?(<Chart old={timeline} display={display} patientId={patientId} />):<></>, [display, timeline, patientId])
-    
+    const searchParams = useSearchParams();
+    const param: HealthParameter = PatientInfoType.find((e): e is HealthParameter => searchParams.get('vital') === e) ?? PatientInfoType[1];
+    const ChartView = useMemo(()=> patientId?(<Chart old={timeline} display={param} patientId={patientId} />):<></>, [param, timeline, patientId])
+    // const router = useRouter();
     if(patientId == null){
         return <div className='text-lg text-center'>Please select the Bed First!</div>
     }
-    
     return(
         <div className="trend-container">
             <div className="header max-w-2xl m-auto p-2">
-                <Select defaultValue={PatientInfoType[1]} onValueChange={setDisplay}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="ICU" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {
-                            PatientInfoType.map(e => (
-                                <SelectItem key={e} value={e}>{e}</SelectItem>
-                            ))
-                        }
-                    </SelectContent>
-                </Select>
                 <ToggleGroup className="p-2" defaultValue={Timeline.m30} onValueChange={setTimeline} type="single">
                     {Object.entries(Timeline).map(([key, val]) => (
                         <ToggleGroupItem key={key} value={val}>
@@ -115,4 +136,8 @@ const TrendView = ({patientId}:{patientId:string|null}) => {
     )
 }
 
-export default TrendView;
+export default dynamic(() => Promise.resolve(TrendView), {
+    ssr: false
+});
+
+// export default TrendView;

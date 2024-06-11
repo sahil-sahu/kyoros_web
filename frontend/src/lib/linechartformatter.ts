@@ -1,5 +1,8 @@
 import { HealthParameter, PatientInfoType, PatientRealtimeObj, Patientlog } from "@/types/pateintinfo";
-
+import {
+  Chart,
+  ChartOptions,
+} from 'chart.js';
 function getTimeFromISOString(isoString: string): string {
   const date = new Date(isoString);
 
@@ -12,8 +15,37 @@ function getTimeFromISOString(isoString: string): string {
   return `${month} ${day} ${hours}:${minutes}`;
 }
 
+const zoomOptions = {
+  limits: {
+    // x: {min: -200, max: 1000, minRange: 50},
+    y: {min: -200, max: 200, minRange: 50}
+  },
+  pan: {
+    enabled: true,
+    onPanStart({ chart, point }: { chart: Chart; point: { x: number; y: number } }): boolean | void {
+      const area = chart.chartArea;
+      const w25 = area.width * 0.25;
+      const h25 = area.height * 0.25;
+      if (point.x < area.left + w25 || point.x > area.right - w25
+          || point.y < area.top + h25 || point.y > area.bottom - h25) {
+          return false; // abort
+      }
+  },
+    mode: 'xy',
+  }  as any,
+  zoom: {
+    wheel: {
+      enabled: true,
+    },
+    // pinch: {
+    //   enabled: true
+    // },
+    mode: 'xy',
+  } as any
+};
 
-export const options = {
+
+export const options:ChartOptions<'line'> = {
     responsive: true,
     interaction: {
         mode: 'index' as const,
@@ -34,12 +66,13 @@ export const options = {
       legend: {
         position: 'top' as const,
       },
+      zoom: zoomOptions
     },
   };
 export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
     
     const labels = info.map((log)=>getTimeFromISOString(log.timeStamp));
-    console.log(labels);
+    // console.log(labels);
     if(param === "bp"){
         return {
             labels,
