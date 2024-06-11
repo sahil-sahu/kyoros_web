@@ -41,9 +41,43 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <Link href={`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`} >
                     <h3 className="text-white">
-                        {data.name}
+                    {data.name}
                     </h3>
                     </Link>
+                </div>
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <h3 className="text-sm">
+                        BP
+                    </h3>
+                    <p className="text-bluecustom text-lg">
+                        {`-- / --`}
+                    </p>
+                </div>
+            </div>
+            <div className="flex justify-evenly items-center">
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-bluecustom text-lg">
+                        --
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        SPO2
+                    </h3>
+                </div>
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-bluecustom text-lg">
+                        --
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        Pulse
+                    </h3>
+                </div>
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-bluecustom text-lg">
+                        --
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        Temp
+                    </h3>
                 </div>
             </div>
         </div>
