@@ -64,6 +64,9 @@ export const getGlance = async (req:AuthRequest,res:Response) =>{
                                     where:{
                                         occupied:true
                                     },
+                                    orderBy:{
+                                        name:'asc'
+                                    },
                                     select:{
                                         name:true,
                                         id:true,
@@ -87,12 +90,9 @@ export const getGlance = async (req:AuthRequest,res:Response) =>{
         // const bedArr = icus.watcher.flatMap(watcher => watcher.icu.beds)
 
         // res.status(200).json({beds:bedArr, icus: icus.watcher.map(e => e.icuId)});
-        const bedArr = icus.watcher.flatMap((watcher: { icu: { beds: any; }; }) => watcher.icu.beds);
+        // const bedArr = icus.watcher.flatMap((watcher: { icu: { beds: any; }; }) => watcher.icu.beds);
 
-        res.status(200).json({
-            beds: bedArr,
-            icus: icus.watcher.map((e: { icuId: any; }) => e.icuId)
-        });
+        res.status(200).json(icus.watcher);
 
     } catch (error) {
         console.error(error);
