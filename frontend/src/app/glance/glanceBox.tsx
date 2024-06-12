@@ -10,7 +10,7 @@ import { set } from "react-hook-form";
 const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<number>>}) =>{
     const critical = false;
     const log = data.bedLogs[0];
-    if(!log){
+    if(!log || (log && log.patientId != data.patientId)){
         return(
             <div className={`${critical? "border-dashed border-red-500":"border-solid" } border-2 w-[100%] h-[100%] p-1`}>
             <div className="flex justify-evenly items-center mb-2">
