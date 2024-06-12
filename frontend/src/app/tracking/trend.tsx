@@ -24,7 +24,6 @@ import { useDisplay } from "./hook/display";
 import useStack from "./hook/useStack";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button"
-import dynamic from 'next/dynamic';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import {
     Chart as ChartJS,
@@ -98,8 +97,8 @@ const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; pa
     }, [logs, patientId])
     // const p = ChartJSOrUndefined
     // button
-    return (<div className="align-center m-auto w-min overflow-x-auto p-3 relative">
-                <Button variant="secondary" onClick={resetZoom} className="absolute right-5">Reset</Button>
+    return (<div className="align-center m-auto overflow-x-auto p-3 relative">
+                {window.innerWidth > 1200 && <Button variant="secondary" onClick={resetZoom} className="absolute right-5">Reset</Button>}
                 <Line
                     options={options}
                     data={linechartFormatter(display,data)}
@@ -136,8 +135,4 @@ const TrendView = ({patientId}:{patientId:string|null}) => {
     )
 }
 
-export default dynamic(() => Promise.resolve(TrendView), {
-    ssr: false
-});
-
-// export default TrendView;
+export default TrendView;

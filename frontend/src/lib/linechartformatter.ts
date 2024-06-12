@@ -55,7 +55,7 @@ export const options:ChartOptions<'line'> = {
         x: {
           ticks: {
             // For a category axis, the val is the index so the lookup via getLabelForValue is needed
-            maxTicksLimit:12,
+            maxTicksLimit:11,
           },
           grid: {
             display: false, // This disables the grid lines on the y-axis

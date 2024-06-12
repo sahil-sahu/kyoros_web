@@ -7,13 +7,17 @@ import Link from "next/link";
 import folder_i from "./folder.png";
 import phone_i from "./phone.png";
 import Image from "next/image";
-import TrendView from "./trend";
 import { LiveTrend } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
 import { fetchICU } from "./querys/icuQuery";
 import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import AlertBox from "./components/alertBox";
+import dynamic from "next/dynamic";
+const TrendView = dynamic(() => import("./trend"), {
+    ssr: false,
+  });
+const fallback = <Skeleton className="h-[50vh] w-full"></Skeleton>;
 
 const TrackingContent = () => {
     const searchParams = useSearchParams();
@@ -32,30 +36,31 @@ const TrackingContent = () => {
             <section className='p-2'>
                 {
                     (!isLoading && data) ? <TrackingHeader icusInfo={data} /> : (
-                        <div className="p-2 m-auto max-w-md gap-1 flex justify-evenly items-center">
-                            <Skeleton className="h-6 w-16" />
-                            <Skeleton className="h-6 w-16" />
-                            <Skeleton className="h-6 w-16" />
+                        <div className="p-2 m-auto max-w-4xl gap-2 flex justify-stretch w-full items-center">
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
+                            <Skeleton className="h-6 w-full" />
                         </div>
                     )
                 }
                 {
                     displayType === LiveTrend.Live ?
                         <LiveView patientId={patientid} />
-                        : <TrendView patientId={patientid} />
+                        : <Suspense fallback={fallback}><TrendView patientId={patientid} /></Suspense>
                 }
             </section>
-            <section className="mt-6 mb-4 h-[15rem] grid grid-cols-3 justify-stretch max-w-5xl gap-2 m-auto items-end text-center w-full">
-                <Link className="h-full" href={"#"}>
+            <section className="hidden mt-6 mb-4 px-3 md:grid grid-cols-3 justify-stretch max-w-5xl gap-2 m-auto items-stretch text-center w-full">
+                <Link className="" href={"#"}>
                     <AlertBox></AlertBox>
                 </Link>
-                <Link className="border-2 border-darkblue h-full p-5 rounded-xl" href={"#"}>
+                <Link className="border-2 border-darkblue p-5 rounded-xl" href={"#"}>
                     <h3 className="text-lg mb-5 text-left font-semibold">Docs</h3>
-                    <Image className="m-auto" src={folder_i} alt={"📂"} />
+                    <Image className="m-auto w-auto p-1" src={folder_i} alt={"📂"} />
                 </Link>
-                <Link className="border-2 h-full border-darkblue p-5  rounded-xl" href={"#"}>
+                <Link className="border-2 border-darkblue p-5  rounded-xl" href={"#"}>
                     <h3 className="mb-5 text-lg text-left font-semibold">Call Nursing Station</h3>
-                    <Image className="m-auto justify-self-center top-[10%] self-center origin-center" src={phone_i} alt={"📞"} />
+                    <Image className="m-auto justify-self-center w-auto p-1 top-[10%] self-center origin-center" src={phone_i} alt={"📞"} />
                 </Link>
             </section>
         </>
