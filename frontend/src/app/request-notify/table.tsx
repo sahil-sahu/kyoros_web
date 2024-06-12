@@ -53,10 +53,10 @@ function Row({alert, feeds, pushFeed, popFeed}:{alert:notification; feeds: notif
                 />
             </td>
             <td className="px-1 py-4 whitespace-no-wrap">
-                <Link href={alert?.link ?? "#"}><p className="text-bluecustom font-bold">{alert.title}</p></Link>
+                <Link href={alert?.link ?? "#"}><p className="text-bluecustom font-bold text-ellipsis max-w-[85%] overflow-hidden">{alert.title}</p></Link>
                 <p>{alert.description}</p>
             </td>
-            <td className="px-1 py-4 whitespace-no-wrap text-right">
+            <td className="px-1 py-4 whitespace-no-wrap text-right w-full max-w-[20%]">
                 <p className="whitespace-no-wrap">{dt.toLocaleDateString('en-US', {
                     month: 'short', // Use short month name (e.g., Mar)
                     day: 'numeric' // Use numeric day (e.g., 19)

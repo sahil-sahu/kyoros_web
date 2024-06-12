@@ -21,7 +21,7 @@ const AlertBox = () =>{
           )
     }
     return (
-      <div className="h-full text-black rounded-xl text-left shadow col-span-1 border-2 border-darkblue p-5 flex flex-col gap-[15%]">
+      <div className="h-full text-black rounded-xl text-left shadow col-span-1 border-2 border-darkblue p-5 flex flex-col gap-[10%]">
         <h3 className="text-lg  font-semibold">
           Alerts
         </h3>

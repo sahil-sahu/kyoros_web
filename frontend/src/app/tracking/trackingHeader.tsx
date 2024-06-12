@@ -37,7 +37,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
         BedSet(ICU.beds.find(e => e.id == bed))
     },[ICU, bed])
     return(
-        <header className="p-2 m-auto max-w-lg gap-1 flex justify-evenly items-center">
+        <header className="p-2 m-auto max-w-4xl gap-2 grid grid-cols-2 md:grid-cols-4 justify-stretch w-full items-center">
                     <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select ICU" />

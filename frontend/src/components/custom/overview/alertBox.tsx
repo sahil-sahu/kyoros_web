@@ -7,17 +7,19 @@ const AlertBox = () =>{
     const {isLoading,isError, data, refetch} = useQuery({queryKey:["alertcount"], queryFn: getCounts})
     if(isLoading || isError){
         return (
-            <div className="col-span-1 text-white rounded-xl bg-darkblue p-5 flex flex-col gap-[15%]">
-              <h3 className="text-lg font-semibold">
-                Alerts
-              </h3>
-              <p className="text-sm">
-                  <span className="lg:text-6xl text-4xl px-5">0</span> Moderate
-              </p>
-              <p className="text-sm">
-                  <span className="lg:text-6xl text-4xl px-5">0</span> Critical
-              </p>
-            </div>
+          <div style={{
+            background:"linear-gradient(to bottom right, #303778, #4C8484)"
+          }} className="text-white h-full rounded-xl shadow col-span-1 bg-darkblue p-5 flex flex-col gap-[15%]">
+            <h3 className=" text-lg font-semibold">
+              Alerts
+            </h3>
+            <p className="text-sm">
+                <span className="lg:text-6xl text-4xl lg:px-5">0</span> Moderate
+            </p>
+            <p className="text-sm">
+                <span className="lg:text-6xl text-4xl lg:px-5">0</span> Critical
+            </p>
+          </div>
           )
     }
     return (

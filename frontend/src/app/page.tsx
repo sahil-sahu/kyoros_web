@@ -47,7 +47,7 @@ export default function Home() {
           </Link>
           <Link href={'/occupancy'}>
           <div className="shadow border border-gray-400 h-full rounded-xl p-4 col-span-1">
-            <div className="heading lg:flex flex justify-between items-center">
+            <div className="heading lg:flex flex lg:flex-row flex-col justify-between items-center">
               <h3 className="text-lg font-semibold inline">
                 Occupancy
               </h3>
@@ -80,7 +80,7 @@ export default function Home() {
                   <span className="lg:text-6xl text-4xl lg:px-5">2.7</span> days
               </p>
           </div>
-          <Link className="shadow border border-gray-400 col-span-1 rounded-xl p-5 flex flex-col gap-5 relative" href={`/glance`}>
+          <Link className="shadow border border-gray-400 col-span-1 min-h-[12rem] rounded-xl p-5 flex flex-col gap-5 relative" href={`/glance`}>
               <h3 className="lg:text-xl text-lg font-semibold">
                 At a Glance
               </h3>

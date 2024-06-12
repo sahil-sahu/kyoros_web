@@ -85,7 +85,7 @@ export default function Messaging() {
   //   return <div>subscribing our services</div>
   // }
   return (
-    <main>
+    <main className='max-h-dvh overflow-hidden'>
       <NavBox title={"Notifications"}></NavBox>
       <table className="min-w-full divide-y divide-gray-200">
         <thead>
@@ -108,18 +108,20 @@ export default function Messaging() {
           </tr>
       </thead>
       </table>
-      {(!criticalNotification.isLoading && criticalNotification.data && criticalNotification.data.length != 0) && (<section className='p-2'>
-        <h2 className='text-lg font-bold text-gray-600'>
+      <div className='grid grid-cols-1 lg:grid-cols-2'>
+      {(!criticalNotification.isLoading && criticalNotification.data && criticalNotification.data.length != 0) && (<section className='p-2 pt-0 max-h-[45vh] lg:max-h-[80vh] overflow-y-auto'>
+        <h2 className='text-lg font-bold text-gray-600 sticky top-0 bg-white lg:py-3 pt-5'>
           Critical
         </h2>
         <NotificationTab pushFeed={pushFeed} popFeed={popFeed} feeds={feeds} rows={criticalNotification.data} />
       </section>)}
-      {(!normalNotification.isLoading && normalNotification.data  && normalNotification.data.length != 0) && (<section className='p-2'>
-        <h2 className='text-lg font-bold text-gray-600'>
+      {(!normalNotification.isLoading && normalNotification.data  && normalNotification.data.length != 0) && (<section className='p-2 pt-0 max-h-[45vh] lg:max-h-[80vh] overflow-y-auto'>
+        <h2 className='text-lg font-bold text-gray-600 lg:py-3  bg-white  pt-5 sticky top-0'>
           Normal
         </h2>
         <NotificationTab pushFeed={pushFeed} popFeed={popFeed} feeds={feeds} rows={normalNotification.data} />
       </section>)}
+      </div>
     </main>
   );
 }
