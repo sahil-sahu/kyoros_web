@@ -25,6 +25,9 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
                     where:{
                         occupied:true
                     },
+                    orderBy:{
+                        name:'asc',
+                    },
                     select:{
                         name:true,
                         id:true,
