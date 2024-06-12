@@ -30,8 +30,8 @@ export const deleteByid = async (id:number) =>{
     console.log("Note has been deleted from your database.");
 }
 export const getAll= async (severity: "normal" | "critical") =>{
-    const res = await db.notes.where("severity").equals(severity);
-    return await res.toArray();
+    const res = (await db.notes.where("severity").equals(severity).sortBy('timeStamp')).reverse();
+    return await res;
 }
 interface AlertsCount {moderate:number; critical:number;}
 export const getCounts = async (): Promise<AlertsCount> => {
