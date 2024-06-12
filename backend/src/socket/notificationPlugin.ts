@@ -11,7 +11,7 @@ function getRandomStatus() {
     return randomValue < 0.7 ? "normal" : "critical";
 }
 export default async function checknSendNotification(log:FullLog, notificationInfo:NotificationLoad){
-    const [type, messageLoad] = alertCheck(log);
+    const [type, messageLoad, vital] = alertCheck(log);
     if(type == null) return; //No need to send notification for
     const firetokens = await fireTokensFromICU(notificationInfo.icuId);
 
@@ -23,14 +23,15 @@ export default async function checknSendNotification(log:FullLog, notificationIn
     const message:MulticastMessage = {
         notification: {
             title: messageLoad,
-            body: `Patient situated at ${notificationInfo.icuName}, ${notificationInfo.bedName}`,
+            body: `${notificationInfo.icuName}, ${notificationInfo.bedName}`,
         },
         data: {
-            severity:type
+            severity:type,
+            patientId: log.patientId
         },
         webpush: {
             fcmOptions: {
-              link: `tracking?patient=${log.patientId}&icu=${notificationInfo.icuId}&bed=${log.bedID}&type=Trend`
+              link: `tracking?patient=${log.patientId}&icu=${notificationInfo.icuId}&bed=${log.bedID}&type=Trend&vital=${vital}`
             }
           },
         tokens:firetokens
