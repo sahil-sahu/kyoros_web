@@ -7,7 +7,7 @@ import {
   } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast";
 import { ICUInfo, bedInfo } from "@/types/ICU";
-import { PatientInfoType } from "@/types/pateintinfo";
+import { HealthParameter, PatientInfoType } from "@/types/pateintinfo";
 import { LiveTrend } from "@/types/types";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -19,11 +19,12 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
     const searchParams = useSearchParams();
     const icu = searchParams.get('icu') ?? "0";
     const type = searchParams.get('type') == LiveTrend.Trend ? LiveTrend.Trend : LiveTrend.Live;
-    const param = PatientInfoType.find((e) => searchParams.get('vital') == e) ?? PatientInfoType[1];
+    const _param = PatientInfoType.find((e) => searchParams.get('vital') == e) ?? PatientInfoType[1];
     const bed = parseInt((searchParams.get('bed') ?? "0"));
     const [ICU, ICUSet]  = useState<ICUInfo>(icusInfo.find(e => parseInt(icu) == e.id) ?? icusInfo[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
     const [trendtype, typeSet]  = useState<LiveTrend>(type);
+    const [param, setParam] = useState(_param);
     const setICU = (val:string) =>{
         const icu = icusInfo.find(e => (parseInt(val) ?? 0) == e.id);
         if(icu) ICUSet(icu);
@@ -31,13 +32,13 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
 
     const setBed = (val:string) => {
         const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
-        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${trendtype}`);
+        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${trendtype}&vital=${param}`);
     }
     useEffect(()=>{
         BedSet(ICU.beds.find(e => e.id == bed))
     },[ICU, bed])
     return(
-        <header className="p-2 m-auto max-w-4xl gap-2 grid grid-cols-2 md:grid-cols-4 justify-stretch w-full items-center">
+        <header className={`p-2 m-auto max-w-5xl gap-2 grid grid-cols-2 justify-stretch w-full items-center ${trendtype == LiveTrend.Trend? "md:grid-cols-4": "md:grid-cols-3"}`}>
                     <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select ICU" />
@@ -73,7 +74,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                                 duration: 5000,
                             })
                         }
-                        router.push(`/tracking?icu=${ICU?.id}&bed=${Bed?.id}&patient=${Bed?.patient.id}&type=${e}`)    
+                        router.push(`/tracking?icu=${ICU?.id}&bed=${Bed?.id}&patient=${Bed?.patient.id}&type=${e}&vital=${param}`)    
                     }}>
                         <SelectTrigger>
                             <SelectValue placeholder="Display Type" />
@@ -84,9 +85,10 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                         </SelectContent>
                     </Select>
                     {type == LiveTrend.Trend && (
-                        <Select defaultValue={param} onValueChange={(val:string) => {
+                        <Select defaultValue={param} onValueChange={(val:HealthParameter) => {
                                 const currentParams = new URLSearchParams(searchParams);
                                 currentParams.set('vital', val);
+                                setParam(val)
                                 router.push('/tracking?'+currentParams.toString());
                             }}>
                             <SelectTrigger>

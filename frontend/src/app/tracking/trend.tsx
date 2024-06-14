@@ -101,7 +101,7 @@ const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; pa
     }, [logs, patientId])
     // const p = ChartJSOrUndefined
     // button
-    return (<div className="align-center m-auto overflow-x-auto p-3 relative">
+    return (<div className="align-center m-auto w-min overflow-x-auto p-3 relative">
                 {window.innerWidth > 1200 && <Button variant="secondary" onClick={resetZoom} className="absolute right-5">Reset</Button>}
                 <Line
                     options={options}
