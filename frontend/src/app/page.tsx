@@ -84,7 +84,7 @@ export default function Home() {
               <h3 className="lg:text-xl text-lg font-semibold">
                 At a Glance
               </h3>
-              <Image className="justify-self-center top-[10%] self-center origin-center absolute p-2 m-auto h-full w-3/4" src={glance} alt="glance"/>
+              <Image className="justify-self-center top-[10%] self-center origin-center max-h-[10rem] p-2 m-auto h-full w-3/4" src={glance} alt="glance"/>
           </Link>
         </section>
     </main>
