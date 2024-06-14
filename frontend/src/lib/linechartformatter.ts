@@ -83,8 +83,8 @@ export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
                 fill: false,
                 pointRadius: 3,
                 pointHitRadius: 10,
-                borderColor: '#0F52BA',
-                backgroundColor: '#0F52BA',
+                borderColor: '#2F377A',
+                backgroundColor: '#2F377A',
                 tension:.25
             },
             {
@@ -111,8 +111,8 @@ export function linechartFormatter(param : HealthParameter, info:Patientlog[]){
             fill: false,
             pointRadius: 3,
             pointHitRadius: 10,
-            borderColor: '#0F52BA',
-            backgroundColor: '#0F52BA',
+            borderColor: '#2F377A',
+            backgroundColor: '#2F377A',
             tension:.25
         },
         ],

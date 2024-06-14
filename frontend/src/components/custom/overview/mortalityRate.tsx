@@ -52,7 +52,7 @@ const MortalRate = () =>{
           </Select>
         </div>
         <div className="lg:h-[13rem] ">
-            <Line className="lg:h-[13rem] m-auto" options={options} data={{
+            <Line className="lg:h-[13rem] lg:w-auto md:w-2/3 m-auto" options={options} data={{
                                         labels:["Mon","Tue","Wed", "Thu", "Fri", "Sat", "Sun"],
                                         datasets: [
                                         {
@@ -61,8 +61,8 @@ const MortalRate = () =>{
                                             fill: false,
                                             pointRadius: 3,
                                             pointHitRadius: 10,
-                                            borderColor: '#0F52BA',
-                                            backgroundColor: '#0F52BA',
+                                            borderColor: '#2F377A',
+                                            backgroundColor: '#2F377A',
                                             tension:.3
                                         },
                                         ],

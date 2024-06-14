@@ -33,7 +33,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     viewBox="0 0 12 20"
                   >
                     <path
-                      fill="#0F52BA"
+                      fill="#2F377A"
                       d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
                     ></path>
                   </svg>
@@ -105,7 +105,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     viewBox="0 0 12 20"
                   >
                     <path
-                      fill="#0F52BA"
+                      fill="#2F377A"
                       d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
                     ></path>
                   </svg>
