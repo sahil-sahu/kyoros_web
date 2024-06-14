@@ -31,12 +31,16 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                   }
             };
         }
-        if(mysocket.current && mysocket.current?.room != patientId){
-            mysocket.current.unsubscribe();
-            mysocket.current = null;
+        try {
+            if(mysocket.current && mysocket.current?.room != patientId){
+                mysocket.current.unsubscribe();
+                mysocket.current = null;
+            }
+    
+           if(mysocket.current == null)  mysocket.current = connectRealtime();
+        } catch (error) {
+            console.error(error)
         }
-
-       if(mysocket.current == null)  mysocket.current = connectRealtime();
     }, [patientId])
     if(patientId == null){
         return <div className='text-lg text-center'>Please select the Bed First!</div>
@@ -51,10 +55,8 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                 <div className="flex flex-col justify-evenly items-center p-2 w-[40%] ">
                     <Skeleton className="h-12 w-12 rounded-full" />
                     <div className='flex flex-col justify-evenly items-center gap-5'>
-                        <h3 className='text-lg'>
-                            <Skeleton className="h-4 w-[200px]" />
-                        </h3>
-                        <div className='flex justify-between gap-3'>
+                        <Skeleton className="h-4 w-[70%]" />
+                        <div className='hidden md:flex justify-between gap-3'>
                             <Skeleton className="h-4 w-[80px]" />
                             <Skeleton className="h-4 w-[80px]" />
                         </div>
@@ -65,7 +67,7 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                     <h3 className='my-3 text-lg font-semibold'>
                         Diagnosis
                     </h3>
-                    <Skeleton className="h-[100px] w-[200px]" />
+                    <Skeleton className="h-[100px] w-full" />
                 </div>
             </div>
             <div className='p-5 border-2 rounded-xl border-darkblue'>
@@ -148,7 +150,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                 <h3 className='text-center text-2xl font-bold'>
                     Vitals
                 </h3>
-                <ul className={`grid grid-cols-3 h-full justify-center items-center grid-flow-row gap-2 ${styles.PatientInfo}`}>
+                <ul className={`grid grid-cols-3 py-2 h-full justify-center items-center grid-flow-row gap-1 ${styles.PatientInfo}`}>
                     <li>
                         <h4>7</h4>
                         <small>Days in ICU</small>

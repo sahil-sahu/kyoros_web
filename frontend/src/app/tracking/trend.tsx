@@ -88,12 +88,16 @@ const Chart = ({display, old, patientId}:{display:HealthParameter; old: Date; pa
                   }
             };
         }
-        if(mysocket.current && mysocket.current?.room != patientId){
-            mysocket.current.unsubscribe();
-            mysocket.current = null;
+        try {
+            if(mysocket.current && mysocket.current?.room != patientId){
+                mysocket.current.unsubscribe();
+                mysocket.current = null;
+            }
+    
+           if(mysocket.current == null)  mysocket.current = connectRealtime();
+        } catch (error) {
+            console.error(error)
         }
-
-       if(mysocket.current == null)  mysocket.current = connectRealtime();
     }, [logs, patientId])
     // const p = ChartJSOrUndefined
     // button

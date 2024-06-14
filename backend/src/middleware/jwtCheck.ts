@@ -10,7 +10,6 @@ import { Response, NextFunction } from 'express';
   export const verifyToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization;
-
       if (!authHeader) {
         return res.status(401).json({ error: 'No authorization header' });
       }

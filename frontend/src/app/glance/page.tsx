@@ -32,7 +32,7 @@ const AtGlance = () => {
     const searchParams = useSearchParams();
     const icu = searchParams.get('icu') ?? "";
     let icuId = !isNaN(parseInt(icu)) ? parseInt(icu) : -1;
-    if (data) { icuId = !isNaN(parseInt(icu)) ? parseInt(icu) : data[0].icu.id; }
+    if (data && data.length > 0) { icuId = !isNaN(parseInt(icu)) ? parseInt(icu) : data[0].icu.id; }
 
     useLayoutEffect(() => {
         var store = localStorage.getItem('glance');
@@ -41,7 +41,7 @@ const AtGlance = () => {
             store = localStorage.getItem('glance');
         }
 
-        if (store && data) {
+        if (store && data && data.length > 0) {
             const glances: string[] = JSON.parse(store);
             const arr: GlanceInfo[] = [];
             const icuId = !isNaN(parseInt(icu)) ? parseInt(icu) : data[0].icu.id;
@@ -76,7 +76,11 @@ const AtGlance = () => {
             };
         }
 
-        if (mysocket.current == null) mysocket.current = data?.map(e => connectRealtime(e.icu.id.toString()));
+        try {
+            if (mysocket.current == null) mysocket.current = data?.map(e => connectRealtime(e.icu.id.toString()));
+        } catch (error) {
+            console.error(error)
+        }
     }, [data, mysocket]);
 
     if (isLoading) {

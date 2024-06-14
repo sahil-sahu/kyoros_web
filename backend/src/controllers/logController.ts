@@ -35,7 +35,7 @@ export const getPatientLogs = async (req:AuthRequest,res:Response) =>{
 export const getPatientLastLog = async (req:AuthRequest,res:Response) =>{
     try {
         const patientId = req.params.patientid;
-        const patientLogs = prisma.patient.findUnique({
+        const patient = prisma.patient.findUnique({
             where:{
                 id:patientId
             },
@@ -48,7 +48,7 @@ export const getPatientLastLog = async (req:AuthRequest,res:Response) =>{
                     timeStamp: 'desc'
                 }
         })
-        const finalLogs = await Promise.all([patientLogs,logs])
+        const finalLogs = await Promise.all([patient,logs])
         res.status(200).json({...finalLogs[0],logs:[finalLogs[1]]});
 
     } catch (error) {

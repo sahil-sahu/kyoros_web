@@ -14,6 +14,7 @@ import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import AlertBox from "./components/alertBox";
 import dynamic from "next/dynamic";
+import { useToast } from "@/components/ui/use-toast";
 const TrendView = dynamic(() => import("./trend"), {
     ssr: false,
   });
@@ -23,13 +24,24 @@ const TrackingContent = () => {
     const searchParams = useSearchParams();
     const patientid = searchParams.get('patient');
     const displayType = searchParams.get('type') == LiveTrend.Trend ? LiveTrend.Trend : LiveTrend.Live;
-
+    const {toast} = useToast();
     useEffect(() => {
         if (!patientid) return;
         // console.log(patientid);
     }, [patientid]);
 
     const { data, isLoading, refetch, error } = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
+
+    useEffect(()=>{
+        if(error){
+            toast({
+                title: "Configuration Error",
+                description: error.message,
+                variant: "destructive",
+                // duration: 5000,
+            })
+        }
+    },[error, toast]);
 
     return (
         <>
