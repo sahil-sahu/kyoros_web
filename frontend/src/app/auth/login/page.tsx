@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { logUser } from "./mutation";
 import { useMutation } from "@tanstack/react-query";
 
-import Logo from "@/assets/logo.webp";
+import Logo from "./ic_kyoro-01-01 2.webp";
 import Image from "next/image";
 
 
@@ -44,8 +44,8 @@ export default function Login(){
     return <form onSubmit={login}>
     <Card className="w-[350px] bg-white p-8 border-none md:border-solid rounded">
         <CardHeader className="text-center">
-            <Image className="m-auto" src={Logo} alt="Kyoros"/>
-            <CardTitle>Login to Kyoros</CardTitle>
+            <Image className="m-auto object-cover" src={Logo} alt="Kyoros"/>
+            <CardTitle>Login</CardTitle>
         </CardHeader>
         <CardContent>
             <div className="grid w-full items-center gap-4">
