@@ -1,31 +1,37 @@
 import { Request, Response } from 'express';
 import { prisma } from '../prisma';
 import { AuthRequest } from '../types';
-
+import { Logs } from '@prisma/client';
 export const getPatientLogs = async (req:AuthRequest,res:Response) =>{
     try {
         const patientId = req.params.patientid;
         const now = new Date();
         const dt = req.query?.old ?? new Date(now.getTime() - 30 * 60 * 1000);
+        const freq = (req.query?.freq && parseInt(req.query?.freq+"" ?? "0") >= 1)? parseInt(req.query?.freq+"" ?? "0"): 1;
+
         const old = new Date(dt.toString())
-        const patientLogs = await prisma.patient.findUnique({
+        const patient = await prisma.patient.findUniqueOrThrow({
             where:{
                 id:patientId
-            },
-            include:{
-                logs:{
-                    where:{
-                        timeStamp: {
-                            gte: old
-                        }
-                    },
-                    orderBy:{
-                        timeStamp: 'asc'
-                    }
-                }
             }
-        })
-        res.status(200).json(patientLogs);
+        });
+
+        let logs = (freq <= 60)?await prisma.$queryRawUnsafe<Logs[]>(`
+            SELECT DISTINCT ON (date_trunc('hour', "timeStamp") + interval '${freq} minutes' * floor(extract(minute from "timeStamp")::numeric / ${freq})) *
+            FROM "Logs"
+            WHERE "patientId" = '${patient.id}' AND "timeStamp" > '${old.toISOString()}'
+            ORDER BY (date_trunc('hour', "timeStamp") + interval '${freq} minutes' * floor(extract(minute from "timeStamp")::numeric / ${freq}))
+                    `):(
+                await prisma.$queryRawUnsafe<Logs[]>(`
+                    SELECT DISTINCT ON (date_trunc('day', "timeStamp") + interval '${freq/60} hour' * floor(extract(hour from "timeStamp")::numeric / ${freq/60})) *
+                    FROM "Logs"
+                    WHERE "patientId" = '${patient.id}' AND "timeStamp" > '${old.toISOString()}'
+                    ORDER BY (date_trunc('day', "timeStamp") + interval '${freq/60} hour' * floor(extract(hour from "timeStamp")::numeric / ${freq/60}))
+                        `)
+                            )
+
+        // console.log(res2);
+        res.status(200).json({ ...patient, logs });
 
     } catch (error) {
         console.error(error);

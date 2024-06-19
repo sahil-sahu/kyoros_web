@@ -6,10 +6,10 @@ interface LogData extends PatientInfoProps {
     logs : Patientlog[];
 }
 export const fetchPatientlogs = async ({queryKey}: QueryFunctionContext): Promise<LogData> => {
-    const [patientid, old] = queryKey;
+    const [patientid, old, freq] = queryKey;
     if(!patientid) throw "no patient id available";
     const response = await axiosInstance.get(`/logs/trend/${patientid}`, {
-        params:{old},
+        params:{old,freq},
         headers: await setheader(),
       });
     return response.data;
