@@ -22,6 +22,17 @@ import {
   } from "@/components/ui/navigation-menu";
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import Link from "next/link";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+
+const criticalitySort = (a:GlanceInfo, b:GlanceInfo) => {
+    const criticalityA = a.criticality.length ? a.criticality[0].criticality : 0;
+    const criticalityB = b.criticality.length ? b.criticality[0].criticality : 0;
+    return criticalityB - criticalityA; // Sorting in descending order
+  }
+const daysSort_desc = (a:GlanceInfo, b:GlanceInfo) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+const daysSort = (a:GlanceInfo, b:GlanceInfo) => new Date(a.updatedAt).getTime()-new Date(b.updatedAt).getTime()
+
+
 
 const AtGlance = () => {
     const { data, isLoading, error, refetch } = useQuery({ queryKey: ['glance'], queryFn: fetchGlance });
@@ -87,7 +98,12 @@ const AtGlance = () => {
         return (
             <main>
                 <NavBox title={"At a Glance"} />
-                <section className="grid md:grid-cols-3 gap-3 grid-cols-2 p-3">
+                <section className="grid lg:grid-cols-4  md:grid-cols-3 gap-3 grid-cols-2 p-3">
+                    <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
+                    <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
+                    <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
+                    <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
+                    <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
                     <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
                     <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
                     <Skeleton className="border-2 w-[100%] h-[6rem] p-1"></Skeleton>
@@ -115,7 +131,15 @@ const AtGlance = () => {
                     }
                 </NavigationMenuList>
             </NavigationMenu>
-            <section className="grid md:grid-cols-3 grid-cols-2">
+            <div className="w-full p-2 border-t border-b border-solid border-gray-300">
+                <ToggleGroup type="single">
+                    <ToggleGroupItem defaultChecked={true} onClick={()=>{refresh(new Date().getMilliseconds())}} value="d">Default</ToggleGroupItem>
+                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(criticalitySort)}))} value="a">Criticality(Highest First)</ToggleGroupItem>
+                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort)}))} value="b">Date of Admission(Oldest First)</ToggleGroupItem>
+                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort_desc)}))} value="c">Date of Admission(Newest First)</ToggleGroupItem>
+                </ToggleGroup>
+            </div>
+            <section className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2">
                 {
                     glances && glances.map(cell => <GlanceBox refresh={refresh} key={cell.id} pinned={cell.pinned ? true : false} data={cell} />)
                 }
