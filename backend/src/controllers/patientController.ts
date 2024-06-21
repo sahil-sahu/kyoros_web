@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import PatientPeriodicModel from '../models/patientPeriodic';
-import { IPatientPeriodic, IPatient } from '../types';
+import { IPatientPeriodic, IPatient, AuthRequest } from '../types';
 import PatientModel from '../models/patients';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { prisma } from '../prisma';
@@ -92,3 +92,20 @@ export const createPatientPeriodic = async (req: Request, res: Response) => {
     res.status(400).json({ message: 'File upload failed' });
   }
 };
+
+export const setCritcality = async (req:AuthRequest, res:Response) =>{
+  try {
+    const {criticality, bedId:bedID, patientId} = req.body;
+    const criticalityObj = await prisma.criticality.create({
+      data:{
+        criticality,
+        bedID,
+        patientId
+      }
+    })
+    res.status(200).json(criticalityObj);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "failed set criticality" });
+  }
+}

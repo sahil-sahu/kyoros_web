@@ -1,19 +1,29 @@
-import Image from "next/image";
-import { PatientRealtimeObj } from "@/types/pateintinfo"
-import pin_img from "./pin.png"
 import { Toggle } from "@/components/ui/toggle"
 import { GlanceInfo } from "@/types/glance";
 import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { pintheGlance, unpinGlance } from "@/lib/pintoGlance";
-import { set } from "react-hook-form";
+import { getDateDifferenceFromNow } from "@/lib/daysCalc";
+import { PatientInfoProps } from "@/types/pateintinfo";
+import Criticality from "@/components/custom/criticality";
+
+const InfoBox = ({patient}:{patient:PatientInfoProps;}) =>{
+    return (
+        <div className="grid grid-cols-2 justify-between text-center capitalize">
+            <h1 className="font-semibold col-span-2">{patient.name}</h1>
+            <h2 className="text-sm">{patient.age}</h2>
+            <h3 className="text-sm">{patient.gender}</h3>
+        </div>
+    )
+}
 const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<number>>}) =>{
     const critical = false;
     const log = data.bedLogs[0];
+    const [criticality, setCriticality] = useState(data.criticality[0]?.criticality);
     if(!log || (log && log.patientId != data.patientId)){
         return(
-            <div className={`${critical? "border-dashed border-red-500":"border-solid" } border-2 w-[100%] h-[100%] p-1`}>
-            <div className="flex justify-evenly items-center mb-2">
+            <div className={`${critical? "border-dashed border-red-500":"border-solid" } flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+            <div className="flex justify-evenly items-center">
                 <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -46,17 +56,39 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </Link>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
+                    <InfoBox patient={data.patient} />
+                    <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
+                </div>
+            </div>
+            <div className="grid-cols-3 grid justify-evenly items-center">
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-c_lg_blue text-lg">
+                        {getDateDifferenceFromNow(data.updatedAt)}
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        Days
+                    </h3>
+                </div>
+                <div className="flex flex-col gap-0 items-center justify-between">
                     <h3 className="text-sm">
                         BP
                     </h3>
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
                         {`-- / --`}
                     </p>
                 </div>
-            </div>
-            <div className="flex justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
+                        --
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        Heart Rate
+                    </h3>
+                </div>
+            </div>
+            <div className="grid-cols-3 grid justify-evenly items-center">
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-c_lg_blue text-lg">
                         --
                     </p>
                     <h3 className="text-sm leading-none">
@@ -64,15 +96,15 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
                         --
                     </p>
                     <h3 className="text-sm leading-none">
-                        Pulse
+                        Resp Rate
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
                         --
                     </p>
                     <h3 className="text-sm leading-none">
@@ -84,8 +116,8 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
         )
     }
     return (
-        <div className={`${critical? "border-dashed border-red-500":"border-solid" } border-2 w-[100%] h-[100%] p-1`}>
-            <div className="flex justify-evenly items-center mb-2">
+        <div className={`${critical? "border-dashed border-red-500":"border-solid" } flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+            <div className="flex justify-evenly items-center">
                 <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -118,17 +150,39 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </Link>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
+                    <InfoBox patient={data.patient} />
+                    <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
+                </div>
+            </div>
+            <div className="grid-cols-3 grid justify-evenly items-center">
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-c_lg_blue text-lg">
+                        {getDateDifferenceFromNow(data.updatedAt)}
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        Days
+                    </h3>
+                </div>
+                <div className="flex flex-col gap-0 items-center justify-between">
                     <h3 className="text-sm">
                         BP
                     </h3>
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
                         {`${log.bp[0]} / ${log.bp[1]}`}
                     </p>
                 </div>
-            </div>
-            <div className="flex justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
+                        {log.heart_rate}
+                    </p>
+                    <h3 className="text-sm leading-none">
+                        Heart Rate
+                    </h3>
+                </div>
+            </div>
+            <div className="grid-cols-3 grid justify-evenly items-center">
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <p className="text-c_lg_blue text-lg">
                         {log.spo2}
                     </p>
                     <h3 className="text-sm leading-none">
@@ -136,15 +190,15 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-bluecustom text-lg">
-                        {log.heart_rate}
+                    <p className="text-c_lg_blue text-lg">
+                        {log.resp_rate}
                     </p>
                     <h3 className="text-sm leading-none">
-                        Pulse
+                        Resp Rate
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-bluecustom text-lg">
+                    <p className="text-c_lg_blue text-lg">
                         {log.temp}
                     </p>
                     <h3 className="text-sm leading-none">
@@ -155,5 +209,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
         </div>
     );
 }
+
+
 
 export default GlanceBox;

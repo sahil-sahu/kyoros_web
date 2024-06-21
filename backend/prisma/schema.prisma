@@ -36,6 +36,7 @@ model Watcher {
   user        User    @relation(fields: [userid], references: [id], onDelete: Cascade, onUpdate: Cascade)
   icuId       Int
   icu         ICU    @relation(fields: [icuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@unique([userid,icuId])
 }
 
 model Bed {
@@ -48,7 +49,9 @@ model Bed {
   updatedAt DateTime @updatedAt @default(now())
   patient     Patient? @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   bedLogs     Logs[]
+  criticality Criticality[]
   sensor      Sensor?
+  @@index([icuId])
 }
 
 model User {
@@ -83,6 +86,7 @@ model Patient {
   email      String?
   phone      String @db.VarChar(13) //+91 1234567890
   hospitalId  String
+  criticality Criticality[]
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -101,6 +105,9 @@ model Logs {
   bed         Bed @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
   sensorid    String?
   sensor      Sensor? @relation(fields: [sensorid], references: [id], onDelete: NoAction, onUpdate: Cascade)
+
+  @@index([patientId, timeStamp])
+  @@index([bedID, timeStamp])
 }
 
 model PatientDoc {
@@ -118,6 +125,18 @@ model Sensor {
   logs        Logs[]
   bedID       Int? @unique
   bed         Bed? @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
+}
+
+model Criticality {
+  timeStamp   DateTime @default(now()) @db.Timestamp(6)
+  patientId   String
+  patient     Patient @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  bedID       Int
+  bed         Bed @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  criticality Int // 0-10
+  @@id([patientId,bedID,timeStamp])
+  @@index([patientId])
+  @@index([bedID])
 }
 
 

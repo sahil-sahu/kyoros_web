@@ -74,7 +74,22 @@ export const getGlance = async (req:AuthRequest,res:Response) =>{
                                         name:true,
                                         id:true,
                                         patientId:true,
+                                        updatedAt:true,
+                                        criticality:{
+                                            orderBy:{
+                                                timeStamp:'desc',
+                                            },
+                                            take:1,
+                                        },
                                         icuId:true,
+                                        patient:{
+                                             select:{
+                                                 name:true,
+                                                 age:true,
+                                                 gender:true,
+                                                 id:true
+                                             }
+                                        },
                                         bedLogs:{
                                             orderBy:{
                                                 timeStamp: 'desc'
