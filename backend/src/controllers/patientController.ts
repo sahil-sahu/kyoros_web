@@ -83,13 +83,37 @@ export const createPatientPeriodic = async (req: Request, res: Response) => {
       const fileName:string = file.key;
       // Send the response with file info
       res.status(200).json({
-        message: 'File uploaded loodu successfully',
+        message: 'File uploaded successfully',
         s3Link,
         fileName
       });
 
   } catch(err){
     res.status(400).json({ message: 'File upload failed' });
+  }
+};
+
+export const getDocs = async (req: AuthRequest, res: Response) => {
+  try {
+    const patient = await patient_from_redis(req.params.patient);
+    const docs = await prisma.patientDoc.findMany({
+      where:{
+        patientId: patient.id
+      },
+      select:{
+        id: true,
+        name: true,
+        tag: true,
+        fileName: true,
+        s3Link: true,
+        createdAt: true,
+      }
+    })
+    return res.json({patient,docs});
+
+  } catch(err){
+    console.error(err);
+    res.status(400).json({ message: 'File fetching failed' });
   }
 };
 

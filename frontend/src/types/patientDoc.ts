@@ -3,6 +3,5 @@ export interface PatientDoc {
     createdAt: string;
     name: string;
     s3Link: string;
-    patientId: string;
     tag?:"Pathology"|"Radiology"|"Microbiology"|"General";
 }

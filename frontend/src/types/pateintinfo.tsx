@@ -1,11 +1,18 @@
 export interface PatientInfoProps {
-    name: string;
-    age: number;
-    gender: string;
-    id: string;
-    diagnosis?: string;
-    dept?: string;
-  }
+  id: string;
+  uhid?: string;
+  gender: string;
+  name: string;
+  diagnosis?: string;
+  dept?: string;
+  comorbidities: string[];
+  Surgeries: string[];
+  Medicines: string[];
+  age: number;
+  email?: string|null;
+  phone: string;
+  hospitalId: string;
+}
 
 export interface PatientRealtimeObj {
   bp:{bp_d:number;bp_s:number;};

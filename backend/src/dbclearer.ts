@@ -2,7 +2,7 @@ import { prisma } from "./prisma"
 
 const getall = async () =>{
     const now = new Date();
-    const old = new Date(now.getTime() - 4*24*60* 60 * 1000);
+    const old = new Date(now.getTime() - 5*24*60* 60 * 1000);
     // console.log("yo")
     const res = await prisma.logs.deleteMany({
         where:{

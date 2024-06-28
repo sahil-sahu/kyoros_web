@@ -66,7 +66,7 @@ const TrackingContent = () => {
                 <Link className="" href={"#"}>
                     <AlertBox></AlertBox>
                 </Link>
-                <Link className="border-2 border-darkblue p-5 rounded-xl" href={"#"}>
+                <Link className="border-2 border-darkblue p-5 rounded-xl" href={"/docs/"+patientid}>
                     <h3 className="text-lg mb-5 text-left font-semibold">Docs</h3>
                     <Image className="m-auto w-auto p-1" src={folder_i} alt={"📂"} />
                 </Link>
