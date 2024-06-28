@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../prisma';
 import { AuthRequest } from '../types';
 import { Logs } from '@prisma/client';
+import patient_from_redis from '../helpers/fetchPatientfromRedis';
 export const getPatientLogs = async (req:AuthRequest,res:Response) =>{
     try {
         const patientId = req.params.patientid;
@@ -10,11 +11,7 @@ export const getPatientLogs = async (req:AuthRequest,res:Response) =>{
         const freq = (req.query?.freq && parseInt(req.query?.freq+"" ?? "0") >= 1)? parseInt(req.query?.freq+"" ?? "0"): 1;
 
         const old = new Date(dt.toString())
-        const patient = await prisma.patient.findUniqueOrThrow({
-            where:{
-                id:patientId
-            }
-        });
+        const patient = await patient_from_redis(patientId);
 
         let logs = (freq <= 60)?await prisma.$queryRawUnsafe<Logs[]>(`
             SELECT DISTINCT ON (date_trunc('hour', "timeStamp") + interval '${freq} minutes' * floor(extract(minute from "timeStamp")::numeric / ${freq})) *
