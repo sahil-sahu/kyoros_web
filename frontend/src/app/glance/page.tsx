@@ -25,12 +25,12 @@ import Link from "next/link";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 const criticalitySort = (a:GlanceInfo, b:GlanceInfo) => {
-    const criticalityA = a.criticality.length ? a.criticality[0].criticality : 0;
-    const criticalityB = b.criticality.length ? b.criticality[0].criticality : 0;
+    const criticalityA = a.apache ? a.apache : 0;
+    const criticalityB = b.apache ? b.apache : 0;
     return criticalityB - criticalityA; // Sorting in descending order
   }
-const daysSort_desc = (a:GlanceInfo, b:GlanceInfo) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-const daysSort = (a:GlanceInfo, b:GlanceInfo) => new Date(a.updatedAt).getTime()-new Date(b.updatedAt).getTime()
+const daysSort_desc = (a:GlanceInfo, b:GlanceInfo) => new Date(b.bedStamp || "").getTime() - new Date(a.bedStamp || "").getTime()
+const daysSort = (a:GlanceInfo, b:GlanceInfo) => new Date(a.bedStamp || "").getTime()-new Date(b.bedStamp || "").getTime()
 
 
 

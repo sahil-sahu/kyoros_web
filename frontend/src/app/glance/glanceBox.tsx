@@ -18,8 +18,8 @@ const InfoBox = ({patient}:{patient:PatientInfoProps;}) =>{
 }
 const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<number>>}) =>{
     const critical = false;
-    const log = data.bedLogs[0];
-    const [criticality, setCriticality] = useState(data.criticality[0]?.criticality);
+    const log = data.latest;
+    const [criticality, setCriticality] = useState(data.apache);
     if(!log || (log && log.patientId != data.patientId)){
         return(
             <div className={`${critical? "border-dashed border-red-500":"border-solid" } flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
@@ -63,7 +63,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
             <div className="grid-cols-3 grid justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
                     <p className="text-c_lg_blue text-lg">
-                        {getDateDifferenceFromNow(data.updatedAt)}
+                        {data.bedStamp ? getDateDifferenceFromNow(data.bedStamp): "--"}
                     </p>
                     <h3 className="text-sm leading-none">
                         Days
@@ -157,7 +157,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
             <div className="grid-cols-3 grid justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
                     <p className="text-c_lg_blue text-lg">
-                        {getDateDifferenceFromNow(data.updatedAt)}
+                    {data.bedStamp ? getDateDifferenceFromNow(data.bedStamp): "--"}
                     </p>
                     <h3 className="text-sm leading-none">
                         Days

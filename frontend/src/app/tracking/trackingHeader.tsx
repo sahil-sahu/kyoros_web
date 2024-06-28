@@ -32,7 +32,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
 
     const setBed = (val:string) => {
         const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
-        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patient.id}&type=${trendtype}&vital=${param}`);
+        router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patientId}&type=${trendtype}&vital=${param}`);
     }
     useEffect(()=>{
         BedSet(ICU.beds.find(e => e.id == bed))
@@ -74,7 +74,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                                 duration: 5000,
                             })
                         }
-                        router.push(`/tracking?icu=${ICU?.id}&bed=${Bed?.id}&patient=${Bed?.patient.id}&type=${e}&vital=${param}`)    
+                        router.push(`/tracking?icu=${ICU?.id}&bed=${Bed?.id}&patient=${Bed?.patientId}&type=${e}&vital=${param}`)    
                     }}>
                         <SelectTrigger>
                             <SelectValue placeholder="Display Type" />

@@ -5,10 +5,11 @@ export interface GlanceInfo {
     id:number;
     patientId: string;
     icuId:number;
-    updatedAt: string;
+    bedStamp?: string;
     days?: number;
-    bedLogs:[Patientlog];
+    latest?: Patientlog;
+    // bedLogs:[Patientlog];
     pinned?:boolean;
-    criticality: [{criticality:number;}] | [];
+    apache? :number;
     patient: PatientInfoProps;
 }

@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { prisma } from '../prisma';
 import { AuthRequest } from '../types';
+import { watchersfromRedis } from '../helpers/watchersFromRedis';
+import patient_from_redis from '../helpers/fetchPatientfromRedis';
+import { redisClient } from '../redis';
 
 export const getHospitals = async(req:Request,res:Response) =>{
     try {
@@ -18,32 +21,31 @@ export const getHospitals = async(req:Request,res:Response) =>{
 export const getICUs = async (req:AuthRequest,res:Response) =>{
     try {
         const hospital = req.hospital;
-        const icus = await prisma.iCU.findMany({
-            where:{hospitalId:hospital},
-            include:{
-                beds:{
-                    where:{
-                        occupied:true
-                    },
-                    orderBy:{
-                        name:'asc',
-                    },
-                    select:{
-                        name:true,
-                        id:true,
-                        patient:{
-                            select:{
-                                name:true,
-                                age:true,
-                                gender:true,
-                                id:true
-                            }
-                        }
-                    },
+        const hosp = await redisClient.get(`hospitals:${hospital}`);
+        if(!hosp){
+            const icus = await prisma.iCU.findMany({
+                where:{hospitalId:hospital},
+                include:{
+                    beds:{
+                        where:{
+                            occupied:true
+                        },
+                        orderBy:{
+                            name:'asc',
+                        },
+                        select:{
+                            name:true,
+                            id:true,
+                            patientId:true,
+                        },
+                    }
                 }
-            }
-        });
-        res.status(200).json(icus);
+            });
+            await redisClient.set(`hospitals:${hospital}`, JSON.stringify(icus));
+            await redisClient.expire(`hospitals:${hospital}`, 60 * 60 * 6);
+            return res.status(200).json(icus);
+        }
+        res.status(200).json(JSON.parse(hosp));
 
     } catch (error) {
         console.error(error);
@@ -54,63 +56,44 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
 export const getGlance = async (req:AuthRequest,res:Response) =>{
     try {
         const user = req.user;
-        const icus = await prisma.user.findUnique({
-            where:{
-                firebaseUid:user
-            },
-            select:{
-                watcher:{
-                    include:{
-                        icu:{
-                            include:{
-                                beds:{
-                                    where:{
-                                        occupied:true
-                                    },
-                                    orderBy:{
-                                        name:'asc'
-                                    },
-                                    select:{
-                                        name:true,
-                                        id:true,
-                                        patientId:true,
-                                        updatedAt:true,
-                                        criticality:{
-                                            orderBy:{
-                                                timeStamp:'desc',
-                                            },
-                                            take:1,
-                                        },
-                                        icuId:true,
-                                        patient:{
-                                             select:{
-                                                 name:true,
-                                                 age:true,
-                                                 gender:true,
-                                                 id:true
-                                             }
-                                        },
-                                        bedLogs:{
-                                            orderBy:{
-                                                timeStamp: 'desc'
-                                            },
-                                            take:1
-                                        }
-                                    }
-                                }
-                            }
-                        }
+        let icus = await watchersfromRedis(user);
+        const beds = await prisma.bed.findMany(
+            {
+                where:{
+                    occupied:true,
+                    icuId: {
+                        in:icus.map(icu => icu.id)
                     }
+                },
+                orderBy:{
+                    name:'asc'
+                },
+                select:{
+                    name:true,
+                    id:true,
+                    patientId:true,
+                    bedStamp:true,
+                    apache:true,
+                    icuId:true,
+                    latest:true,
                 }
             }
-        })
+        )
+        let icusres = await Promise.all(icus.map(async e =>{
+            return {
+                icu:{
+                    ...e,
+                    beds: await Promise.all(beds.map(async bed => { return {...bed, patient: await patient_from_redis(bed.patientId)} }))
+                }
+            }
+        }))
 
         // const bedArr = icus.watcher.flatMap(watcher => watcher.icu.beds)
 
         // res.status(200).json({beds:bedArr, icus: icus.watcher.map(e => e.icuId)});
         // const bedArr = icus.watcher.flatMap((watcher: { icu: { beds: any; }; }) => watcher.icu.beds);
 
-        res.status(200).json(icus.watcher);
+        res.status(200).json(icusres);
 
     } catch (error) {
         console.error(error);

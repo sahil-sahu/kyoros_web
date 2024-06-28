@@ -19,7 +19,7 @@ import { GlanceInfo } from "@/types/glance"
 import { axiosInstance, setheader } from "@/lib/axios"
 import { useMutation } from "@tanstack/react-query"
 import { useToast } from "../ui/use-toast"
-export default function Criticality({ g_criticality,data:{patientId, criticality, id:bedId}, setCriticality}:{g_criticality:number|undefined;data:GlanceInfo; setCriticality:React.Dispatch<React.SetStateAction<number | undefined>>}){
+export default function Criticality({ g_criticality,data:{patientId, apache:criticality, id:bedId}, setCriticality}:{g_criticality:number|undefined;data:GlanceInfo; setCriticality:React.Dispatch<React.SetStateAction<number | undefined>>}){
     const { toast } = useToast()
     const [_critical, setCritical] = React.useState(g_criticality ?? 0)
     const { isPending:isLoading, error, data, mutateAsync } = useMutation({mutationFn:async (criticality:number) =>{

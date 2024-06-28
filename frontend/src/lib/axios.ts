@@ -14,7 +14,8 @@ export async function fetchAuth(){
     const formData = new FormData();
     formData.append('token', token);
     formData.append('hospital', String(claims.hospitalId || ""));
-    await axios.post("/setCookie", formData)
+    formData.append('userType', String(claims.userType || ""));
+    axios.post("/setCookie", formData)
     sessionStorage.setItem('token', token);
     localStorage.setItem('userType', String(claims.userType || ""));
     localStorage.setItem('hospital', String(claims.hospitalId || ""));

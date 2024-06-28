@@ -95,12 +95,13 @@ export const createPatientPeriodic = async (req: Request, res: Response) => {
 
 export const setCritcality = async (req:AuthRequest, res:Response) =>{
   try {
-    const {criticality, bedId:bedID, patientId} = req.body;
-    const criticalityObj = await prisma.criticality.create({
+    const {criticality, bedId:bedID } = req.body;
+    const criticalityObj = await prisma.bed.update({
+      where:{
+        id: bedID
+      },
       data:{
-        criticality,
-        bedID,
-        patientId
+        apache:criticality,
       }
     })
     res.status(200).json(criticalityObj);

@@ -1,9 +1,25 @@
 import { Timeline } from "@/types/pateintinfo";
 import { useState } from "react";
-
-
+function roundISOToNearestFiveMinutes(): Date {
+    // Parse the input string into a Date object
+    const date = new Date();
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid ISO date string");
+    }
+  
+    // Get the current minutes
+    const minutes = date.getUTCMinutes();
+  
+    // Calculate the nearest 5-minute interval
+    const roundedMinutes = Math.round(minutes / 5) * 5;
+  
+    // Set the minutes to the nearest 5-minute interval
+    date.setUTCMinutes(roundedMinutes, 0, 0); // Set seconds and milliseconds to zero
+  
+    return date;
+  }
 export const useTimeline = () =>{
-    const now = new Date();
+    const now = roundISOToNearestFiveMinutes();
     const [old, _setTimeline] = useState<Date>(new Date(now.getTime() - 30*60*1000));
     const setTimeline = (t:Timeline) =>{
         switch (t) {

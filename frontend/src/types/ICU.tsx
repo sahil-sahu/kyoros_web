@@ -9,7 +9,8 @@ export interface ICU {
 export interface bedInfo{
     name:string;
     id:number;
-    patient:PatientInfoProps
+    patientId:string;
+    // patient:PatientInfoProps
 }
 export interface ICUInfo {
     id:number;
