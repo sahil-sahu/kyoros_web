@@ -17,11 +17,19 @@ export const addLog = async(req:AuthRequest,res:Response) => {
             data: log
         })
         const notified = checknSendNotification(log, notificationInfo);
-
-        const [log_res, _] = await Promise.all([dblog, notified]);
+        const latest = prisma.bed.update({
+            where:{
+                id:log.bedID
+            },
+            data:{
+                latest:{...log}
+            }
+        })
+        
+        const [log_res, _] = await Promise.all([dblog, notified, latest]);
         io.to(`patient/${log.patientId}`).emit('patient-event', {data:log_res, room: `patient/${log.patientId}`});
         io.to(`icu/${notificationInfo.icuId}`).emit('patient-event', {data:log_res, room:`icu/${notificationInfo.icuId}`});
-        return res.json(log_res);
+        res.json(log_res);
 
         // return res.json({log_res:true});
     } catch (error) {

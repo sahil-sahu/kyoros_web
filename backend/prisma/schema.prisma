@@ -28,6 +28,7 @@ model ICU {
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   watcher     Watcher[]
   beds        Bed[]
+  // users       User[]
 }
 
 model Watcher {
@@ -37,6 +38,8 @@ model Watcher {
   icuId       Int
   icu         ICU    @relation(fields: [icuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   @@unique([userid,icuId])
+  @@index([userid])
+  @@index([icuId])
 }
 
 model Bed {
@@ -46,12 +49,15 @@ model Bed {
   ICU         ICU @relation(fields: [icuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   occupied    Boolean @default(false)
   patientId   String? @unique
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt   DateTime @updatedAt @default(now())
+  bedStamp    DateTime?
   patient     Patient? @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   bedLogs     Logs[]
-  criticality Criticality[]
+  apache      Int? @default(0)
   sensor      Sensor?
+  latest      Json?
   @@index([icuId])
+  @@index([patientId])
 }
 
 model User {
@@ -64,6 +70,9 @@ model User {
   hospitalId  String
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: NoAction, onUpdate: Cascade)
   watcher     Watcher[]
+  name        String?
+  // icuIds      Int[]
+  // icus        ICU[] @relation(fields: [icuIds], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 enum UserType {
@@ -74,6 +83,7 @@ enum UserType {
 
 model Patient {
   id         String @id @default(cuid())
+  uhid       String?
   docs       PatientDoc[]
   logs       Logs[]
   bedId      Int?
@@ -82,12 +92,25 @@ model Patient {
   name       String
   diagnosis  String?
   dept       String?
+  comorbidities String[]
+  Surgeries  String[]
+  Medicines  String[]
   age        Int
   email      String?
   phone      String @db.VarChar(13) //+91 1234567890
   hospitalId  String
-  criticality Criticality[]
   hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([uhid, hospitalId])
+}
+
+model PatientHistory{
+  id         String @id @default(cuid())
+  diagnosis  String?
+  comorbidities String[]
+  Surgeries  String[]
+  Medicines  String[]
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
 }
 
 model Logs {
@@ -108,6 +131,7 @@ model Logs {
 
   @@index([patientId, timeStamp])
   @@index([bedID, timeStamp])
+  @@index([timeStamp])
 }
 
 model PatientDoc {
@@ -118,6 +142,14 @@ model PatientDoc {
   s3Link     String   @unique
   patientId  String
   patient    Patient  @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  tag        Tag?
+}
+
+enum Tag {
+  Pathology
+  Radiology
+  Microbiology
+  General
 }
 
 model Sensor {
@@ -126,18 +158,3 @@ model Sensor {
   bedID       Int? @unique
   bed         Bed? @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
 }
-
-model Criticality {
-  timeStamp   DateTime @default(now()) @db.Timestamp(6)
-  patientId   String
-  patient     Patient @relation(fields: [patientId], references: [id], onDelete: NoAction, onUpdate: Cascade)
-  bedID       Int
-  bed         Bed @relation(fields: [bedID], references: [id], onDelete: NoAction, onUpdate: Cascade)
-  criticality Int // 0-10
-  @@id([patientId,bedID,timeStamp])
-  @@index([patientId])
-  @@index([bedID])
-}
-
-
-

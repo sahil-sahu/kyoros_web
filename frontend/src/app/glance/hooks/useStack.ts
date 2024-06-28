@@ -10,7 +10,7 @@ function useStack() {
           const index = _glances.findIndex(e => e.id == message.bedID);
           if(index == -1) return _glances;
           const arr = [..._glances];
-          arr[index].bedLogs[0] = message;
+          arr[index].latest = message;
           return arr;
         });
     }
