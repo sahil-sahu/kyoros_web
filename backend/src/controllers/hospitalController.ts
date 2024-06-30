@@ -55,8 +55,9 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
 
 export const getGlance = async (req:AuthRequest,res:Response) =>{
     try {
-        const user = req.user;
-        let icus = await watchersfromRedis(user);
+        // const user = req.user;
+        const hospital = req.hospital;
+        let icus = await watchersfromRedis(hospital);
         const beds = await prisma.bed.findMany(
             {
                 where:{

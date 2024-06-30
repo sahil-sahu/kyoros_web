@@ -21,7 +21,7 @@ import { Response, NextFunction } from 'express';
       // Add the decoded token to the request object
       req.user = decodedToken.uid;
       req.userType = decodedToken.userType;
-      req.hospital = decodedToken.hospital;
+      req.hospital = decodedToken.hospitalId;
 
       next();
     } catch (error) {

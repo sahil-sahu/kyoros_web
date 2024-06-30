@@ -4,35 +4,20 @@ interface icusInfo{
     name:string;
     id:number;
 }
-export const watchersfromRedis = async (firebaseUid: string): Promise<icusInfo[]> => {
-    const icus = await redisClient.get(`watchers:${firebaseUid}`);
+export const watchersfromRedis = async (hospital: string): Promise<icusInfo[]> => {
+    const icus = await redisClient.get(`watchers:${hospital}`);
     if (!icus) {
-        const user = await prisma.user.findUnique({
+        const icus = await prisma.iCU.findMany({
             where:{
-                firebaseUid
+                hospitalId:hospital
             },
             select:{
-                watcher:{
-                    include:{
-                        icu:{
-                            select:{
-                                id:true,
-                                name:true,
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        const icus = user.watcher.map(e => {
-            return {
-                id: e.icu.id,
-                name: e.icu.name
+                id:true,
+                name:true
             }
         })
-
-        await redisClient.set(`watchers:${firebaseUid}`, JSON.stringify(icus));
-        await redisClient.expire(`watchers:${firebaseUid}`, 60 * 60 * 6);
+        await redisClient.set(`watchers:${hospital}`, JSON.stringify(icus));
+        await redisClient.expire(`watchers:${hospital}`, 60 * 60 * 6);
         return icus;
     }
     return JSON.parse(icus);
