@@ -4,6 +4,7 @@ import { IPatientPeriodic, IPatient, AuthRequest } from '../types';
 import PatientModel from '../models/patients';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { prisma } from '../prisma';
+import { redisClient } from '../redis';
 
 export const createPatient = async (req: Request, res: Response) => {
     try {
@@ -119,7 +120,7 @@ export const getDocs = async (req: AuthRequest, res: Response) => {
 
 export const setCritcality = async (req:AuthRequest, res:Response) =>{
   try {
-    const {criticality, bedId:bedID } = req.body;
+    const {criticality, bedId:bedID, patientId } = req.body;
     const criticalityObj = await prisma.bed.update({
       where:{
         id: bedID
@@ -128,6 +129,7 @@ export const setCritcality = async (req:AuthRequest, res:Response) =>{
         apache:criticality,
       }
     })
+    await redisClient.del(`patient:${patientId}`)
     res.status(200).json(criticalityObj);
   } catch (error) {
     console.error(error);
