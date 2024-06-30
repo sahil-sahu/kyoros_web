@@ -12,6 +12,8 @@ export interface PatientInfoProps {
   email?: string|null;
   phone: string;
   hospitalId: string;
+  apache?:number;
+  bedId:number;
 }
 
 export interface PatientRealtimeObj {

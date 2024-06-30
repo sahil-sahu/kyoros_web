@@ -38,21 +38,32 @@ export const getPatientLogs = async (req:AuthRequest,res:Response) =>{
 export const getPatientLastLog = async (req:AuthRequest,res:Response) =>{
     try {
         const patientId = req.params.patientid;
-        const patient = prisma.patient.findUnique({
-            where:{
-                id:patientId
-            },
-        })
-        const logs = prisma.logs.findFirst({
+        const now = new Date();
+        const dt = req.query?.old ?? new Date(now.getTime() - 5 * 60 * 60 * 1000);
+        const freq = 60;
+
+        const old = new Date(dt.toString())
+        const patient = await patient_from_redis(patientId);
+
+        let logs = await prisma.$queryRawUnsafe<Logs[]>(`
+            SELECT DISTINCT ON (date_trunc('day', "timeStamp") + interval '${freq/60} hour' * floor(extract(hour from "timeStamp")::numeric / ${freq/60})) *
+            FROM "Logs"
+            WHERE "patientId" = '${patient.id}' AND "timeStamp" > '${old.toISOString()}'
+            ORDER BY (date_trunc('day', "timeStamp") + interval '${freq/60} hour' * floor(extract(hour from "timeStamp")::numeric / ${freq/60}))
+                `)
+        if(logs.length == 0){
+            let log = await prisma.logs.findFirst({
                 where:{
-                    patientId
+                    patientId,
                 },
                 orderBy:{
-                    timeStamp: 'desc'
+                    timeStamp:'desc'
                 }
-        })
-        const finalLogs = await Promise.all([patient,logs])
-        res.status(200).json({...finalLogs[0],logs:[finalLogs[1]]});
+            })
+            let logs = [log] || []
+            return res.status(200).json({...patient,logs});
+        }
+        res.status(200).json({...patient,logs});
 
     } catch (error) {
         console.error(error);

@@ -12,7 +12,8 @@ export const fetchPatientlogs = async ({queryKey}: QueryFunctionContext): Promis
         params:{old,freq},
         headers: await setheader(),
       });
-    return response.data;
+    const res:LogData = response.data;
+    return {...res, logs: res.logs || []};  
   };
 export const fetchPatientlog = async ({queryKey}: QueryFunctionContext): Promise<LogData> => {
     const [patientid] = queryKey;
@@ -21,5 +22,6 @@ export const fetchPatientlog = async ({queryKey}: QueryFunctionContext): Promise
         // params:{old},
         headers: await setheader(),
       });
-    return response.data;
+    const res:LogData = response.data;
+    return {...res, logs: res.logs || []};
   };

@@ -6,6 +6,30 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { fetchPatientlog, fetchPatientlogs } from './querys/logQuery';
 import { Patientlog } from '@/types/pateintinfo';
 import { connectToSocket, unsubscribeFromRoom } from '@/lib/socket';
+import { CaretDownIcon, DropdownMenuIcon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
+import folder_i from "./folder.png";
+import Link from 'next/link';
+import AlertBox from '@/components/custom/overview/alertBox';
+import Image from 'next/image';
+import Criticality from '@/components/custom/criticality';
+import { GlanceInfo } from '@/types/glance';
+
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
+ 
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { getTimeFromISOString } from '@/lib/linechartformatter';
+import GetTable from '@/components/custom/logsFormater';
+ 
+type Checked = DropdownMenuCheckboxItemProps["checked"]
+
 const liveBox:CSSProperties = {
     backgroundColor: "#fff",
     backgroundImage:"linear-gradient(to top right, #A2CCFD 5%, white 60%)"
@@ -15,10 +39,16 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
 
     const [latestInfo, setLatestInfo] = useState<Patientlog|undefined>();
     const { data:logs, isLoading:logLoading, refetch:fetchLogs_a, error:err } = useQuery({queryKey:[patientId], queryFn:fetchPatientlog});
+    const [criticality, setCriticality] = useState<number|undefined>();
     const mysocket = useRef<{room:string|null; unsubscribe: () => void;} | null>(null);
+    
+
+    const [params, setparams] = useState<("all"|"moniter"|"ventilator"|"infusion")[]>(["all"])
+
     useEffect(()=>{
         if(logs){
             setLatestInfo(logs.logs[logs.logs.length-1]);
+            setCriticality(logs.apache);
         }
     }, [logs])
     useEffect(()=>{
@@ -46,7 +76,7 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
         return <div className='text-lg text-center'>Please select the Bed First!</div>
     }
 
-    if(logLoading){
+    if(logLoading && logs == undefined){
         return (
             <div className='grid lg:grid-cols-2 grid-cols-1 max-w-5xl m-auto gap-4'>
             <div style={{
@@ -116,23 +146,60 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
     }
 
     return(
-        <div className='grid lg:grid-cols-2 grid-cols-1 max-w-5xl m-auto gap-4'>
+        <>
+            <div className='flex-col md:flex-row flex max-w-6xl m-auto gap-4 mb-2'>
             <div style={{
                 background:"linear-gradient(to bottom right, #303778, #4C8484)"
-            }} className='text-white flex justify-evenly rounded-xl p-4 py-8'>
-                <div className="flex flex-col justify-evenly items-center p-2 w-[40%] ">
+            }} className='text-white flex justify-evenly rounded-xl p-4 md:min-w-[36rem]'>
+                <div className="flex flex-col justify-evenly items-center p-2 w-[50%] ">
+                    <div className='flex w-full gap-4 mb-2 items-center'>
+                        <Criticality setCriticality={setCriticality} g_criticality={criticality} data={{patientId, id:logs?.bedId || -1 , apache:logs?.apache} as GlanceInfo} />
+                        <h3 className="text-lg w-max">
+                            {logs?.uhid ?? "UHID: --"}
+                        </h3>
+                    </div>
                     <Avatar style={{height:"100px", width:"100px"}}>
                         <AvatarImage src="https://github.com/shadcn.png" />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div className='flex flex-col justify-evenly items-center'>
-                        <h3 className='text-lg'>
+                        <h3 className='text-lg capitalize'>
                             {logs?.name}
                         </h3>
                         <div className='flex justify-between gap-3'>
                             <span>{`Age: ${logs?.age}`}</span>
                             <span>{logs?.gender}</span>
                         </div>
+                    </div>
+                    <Link href={"#"}>
+                        <h1 className="bg-clip-text text-transparent bg-gradient-to-r from-[#05BBFF] to-[#4F60FF]">
+                            <span className='inline'>Patient History</span>
+                            <svg className='inline mx-1' width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 13C12.5523 13 13 12.5523 13 12V3C13 2.44771 12.5523 2 12 2H3C2.44771 2 2 2.44771 2 3V6.5C2 6.77614 2.22386 7 2.5 7C2.77614 7 3 6.77614 3 6.5V3H12V12H8.5C8.22386 12 8 12.2239 8 12.5C8 12.7761 8.22386 13 8.5 13H12ZM9 6.5C9 6.5001 9 6.50021 9 6.50031V6.50035V9.5C9 9.77614 8.77614 10 8.5 10C8.22386 10 8 9.77614 8 9.5V7.70711L2.85355 12.8536C2.65829 13.0488 2.34171 13.0488 2.14645 12.8536C1.95118 12.6583 1.95118 12.3417 2.14645 12.1464L7.29289 7H5.5C5.22386 7 5 6.77614 5 6.5C5 6.22386 5.22386 6 5.5 6H8.5C8.56779 6 8.63244 6.01349 8.69139 6.03794C8.74949 6.06198 8.80398 6.09744 8.85143 6.14433C8.94251 6.23434 8.9992 6.35909 8.99999 6.49708L8.99999 6.49738" fill="#4F60FF"></path></svg>
+                        </h1>
+                    </Link>
+                    <div className='divider border-white w-full my-2 border h-0'></div>
+                    <div className='flex justify-between gap-3'>
+                        <div>
+                            <h3 className='text-lg'>
+                                Comordities
+                            </h3>
+                            <ol>
+                                {(logs?.comorbidities && logs?.comorbidities.length) ? logs.comorbidities.map((e,i) => (
+                                    <li key={`comordities${i}`}>{e}</li>
+                                )):("--")}
+                            </ol>
+                        </div>
+                        <div>
+                            <h3 className='text-lg'>
+                                Surgeries
+                            </h3>
+                            <ol>
+                                {(logs?.Surgeries && logs?.Surgeries.length) ? logs.Surgeries.map((e,i) => (
+                                    <li key={`Surgery_${i}`}>{e}</li>
+                                )):("--")}
+                            </ol>
+                        </div>
+                        <div></div>
                     </div>
                 </div>
                 <div className='divider border-white border h-full'></div>
@@ -141,39 +208,83 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                         Diagnosis
                     </h3>
                     <p>
-                        {`Poorly controlled DM-type 2 (HbA1c- 12.8)
+                        {logs?.diagnosis ||`Poorly controlled DM-type 2 (HbA1c- 12.8)
 Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling.`}
                     </p>
                 </div>
             </div>
-            <div className='p-5 border-2 rounded-xl border-darkblue'>
-                <h3 className='text-center text-2xl font-bold'>
-                    Vitals
-                </h3>
-                <ul className={`grid grid-cols-3 py-2 h-full justify-center items-center grid-flow-row gap-1 ${styles.PatientInfo}`}>
-                    <li>
-                        <h4>7</h4>
-                        <small>Days in ICU</small>
-                    </li>
-                    <li>
-                        <h4>{latestInfo?.spo2 ?? "--"}</h4>
-                        <small>SpO2</small>
-                    </li>
-                    <li>
-                        <h4>{`${latestInfo?.bp[0] ?? "--"}/${latestInfo?.bp[1] ?? "--"}`}</h4>
-                        <small>Blood Pressure</small>
-                    </li>
-                    <li>
-                        <h4>{latestInfo?.heart_rate ?? "--"}</h4>
-                        <small>Heart Rate</small>
-                    </li>
-                    <li>
-                        <h4>{latestInfo?.temp ?? "--"}</h4>
-                        <small>Temperature</small>
-                    </li>
-                </ul>
+            <div className='grid grid-rows-2 gap-3'>
+                <Link className="" href={"#"}>
+                    <AlertBox></AlertBox>
+                </Link>
+                <Link className="border-2 border-darkblue p-5 rounded-xl" href={"/docs/"+patientId}>
+                    <h3 className="text-lg mb-5 text-left font-semibold">Docs</h3>
+                    <Image className="m-auto w-auto p-3" src={folder_i} alt={"📂"} />
+                </Link>
             </div>
         </div>
+        <div className='p-5 border-2 max-w-6xl m-auto rounded-xl'>
+            <div className='flex justify-between'>
+                <h3 className='text-center text-2xl font-bold'>
+                    Patient Parameter
+                </h3>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className='capitalize relative w-[10rem] text-left text-ellipsis'> <span className='absolute top-0 text-xs -translate-y-2.5 left-2 bg-white'>Devices</span> <span className='w-[8rem] text-left text-ellipsis overflow-hidden'>{params.join(", ")}</span> <CaretDownIcon className='ml-2 float-end absolute right-2' /> </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                        <DropdownMenuLabel>Devices</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuCheckboxItem
+                        checked={params.includes("all")}
+                        onCheckedChange={()=>setparams(["all"])}
+                        >
+                        All
+                        </DropdownMenuCheckboxItem>
+
+                        <DropdownMenuCheckboxItem
+                        checked={params.includes("moniter")}
+                        onCheckedChange={()=>setparams((params)=>{
+                            let arr = [...params];
+                            arr = arr.filter((e) => e != "all");
+                            arr.push("moniter");
+                            return arr;
+                        })}
+                        >
+                            Vitals Moniter
+                        </DropdownMenuCheckboxItem>
+
+                        <DropdownMenuCheckboxItem
+                            checked={params.includes("ventilator")}
+                            onCheckedChange={() => setparams((params) => {
+                                let arr = [...params];
+                                arr = arr.filter((e) => e != "all");
+                                arr.push("ventilator");
+                                return arr;
+                            })}
+                        >
+                            Ventilator
+                        </DropdownMenuCheckboxItem>
+
+                        <DropdownMenuCheckboxItem
+                            checked={params.includes("infusion")}
+                            onCheckedChange={() => setparams((params) => {
+                                let arr = [...params];
+                                arr = arr.filter((e) => e != "all");
+                                arr.push("infusion");
+                                return arr;
+                            })}
+                        >
+                            Infusion
+                        </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <div className='rounded-t-lg overflow-hidden mt-3'>
+                {(latestInfo && logs) ? <GetTable logs={logs.logs} latestInfo={latestInfo} />: "No Logs for current Patient"}
+                </div>
+            </div>
+        </>
     )
 }
 
