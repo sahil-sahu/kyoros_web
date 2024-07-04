@@ -57,8 +57,8 @@ export default function Criticality({ g_criticality,data:{patientId, apache:crit
     return (
         <Drawer>
             <DrawerTrigger asChild>
-                <h2 className="px-3 cursor-pointer py-0.5 bg-c_lg_blue rounded-full font-semibold text-white">
-                    Criticality: {g_criticality ?? "--"}
+                <h2 className="px-3 cursor-pointer py-0.5 bg-c_lg_blue rounded-full text-sm text-white">
+                    Apache III: {g_criticality ?? "--"}
                 </h2>
             </DrawerTrigger>
             <DrawerContent className="bg-white">

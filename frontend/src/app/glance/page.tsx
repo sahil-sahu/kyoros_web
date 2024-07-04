@@ -132,8 +132,8 @@ const AtGlance = () => {
                 </NavigationMenuList>
             </NavigationMenu>
             <div className="w-full p-2 border-t border-b border-solid border-gray-300">
-                <ToggleGroup type="single">
-                    <ToggleGroupItem defaultChecked={true} onClick={()=>{refresh(new Date().getMilliseconds())}} value="d">Default</ToggleGroupItem>
+                <ToggleGroup defaultValue="d" type="single">
+                    <ToggleGroupItem onClick={()=>{refresh(new Date().getMilliseconds())}} value="d">Default</ToggleGroupItem>
                     <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(criticalitySort)}))} value="a">Criticality(Highest First)</ToggleGroupItem>
                     <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort)}))} value="b">Date of Admission(Oldest First)</ToggleGroupItem>
                     <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort_desc)}))} value="c">Date of Admission(Newest First)</ToggleGroupItem>

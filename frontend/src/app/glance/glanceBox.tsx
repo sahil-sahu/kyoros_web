@@ -48,6 +48,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     ></path>
                   </svg>
                 )}</Toggle>
+                <div className="flex flex-col gap-2 items-center justify-between">
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <Link href={`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`} >
                     <h3 className="text-white">
@@ -55,10 +56,9 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </h3>
                     </Link>
                 </div>
-                <div className="flex flex-col gap-0 items-center justify-between">
-                    <InfoBox patient={data.patient} />
-                    <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
+                <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
                 </div>
+                <InfoBox patient={data.patient} />
             </div>
             <div className="grid-cols-3 grid justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
