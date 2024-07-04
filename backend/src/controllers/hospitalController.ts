@@ -18,6 +18,28 @@ export const getHospitals = async(req:Request,res:Response) =>{
     }
 }
 
+export const getbeds = async (req:AuthRequest,res:Response) =>{
+    try {
+        const icu = req.query?.icu ?? "-1";
+        if(typeof(icu) != 'string') throw Error("Invalid type");
+        const beds = await prisma.bed.findMany({
+            where:{
+                icuId:parseInt(icu)
+            },
+            select:{
+                name:true,
+                id:true,
+                occupied:true,
+                patientId:true,
+            }
+        })
+        return res.status(200).json(beds)
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch beds from db' });
+    }
+}
+
 export const getICUs = async (req:AuthRequest,res:Response) =>{
     try {
         const hospital = req.hospital;
