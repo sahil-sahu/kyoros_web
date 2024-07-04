@@ -29,7 +29,7 @@ const formatData = (logs:Patientlog[]) =>{
 const GetTable = ({logs, latestInfo}:{logs:Patientlog[]; latestInfo: Patientlog}) =>{
     const formattedData = formatData(logs);
     return (
-        <table className="table-auto w-full">
+        <table className="w-full">
                     <thead className='bg-darkblue text-white text-left p-2'>
                         <tr className='-2'>
                             <th className='px-5 p-1'>Parameters</th>
