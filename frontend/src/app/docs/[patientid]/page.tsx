@@ -4,6 +4,8 @@ import { useState } from "react"
 import { DataTableDemo } from "./table"
 import { useQuery } from "@tanstack/react-query"
 import { getDocs } from "./queries/getDocs"
+import { Button } from "@/components/ui/button"
+import UploadBox from "@/app/nurse/upload"
 const PatientDocs = ({ params:{patientid} }: { params: { patientid: string } }) =>{
     console.log(patientid)
     const { data, isLoading, refetch, error } = useQuery({queryKey:["docs",patientid], queryFn:getDocs});
@@ -17,6 +19,9 @@ const PatientDocs = ({ params:{patientid} }: { params: { patientid: string } }) 
                 {data.patient.uhid && <h2 className="text-lg font-semibold">
                     UHID : {data.patient.uhid} 
                 </h2>}
+                <UploadBox patientId={patientid}>
+                    <Button className="text-white bg-darkblue">Upload</Button>
+                </UploadBox>
             </section>}
             
             {data && <DataTableDemo data={data.docs} />}
