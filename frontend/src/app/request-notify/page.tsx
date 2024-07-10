@@ -13,6 +13,15 @@ import { fetchNotifications } from './query/query';
 import { Checkbox } from '@/components/ui/checkbox';
 import { notification } from '@/types/notification';
 import { Button } from '@/components/ui/button';
+import { fetchICU } from '../tracking/querys/icuQuery';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { bedInfo, ICUInfo } from '@/types/ICU';
 
 
 function getData(): Alert[] {
@@ -40,11 +49,41 @@ export default function Messaging() {
     const router = useRouter();
     const normalNotification = useQuery({queryKey:['notification', "normal"], queryFn:fetchNotifications});
     const criticalNotification = useQuery({queryKey:['notification', "critical"], queryFn:fetchNotifications});
+    const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [feeds, setFeeds] = useState<notification[]>([]);
     const allfeeds = useRef<notification[]>([]);
+    const [ICU, ICUSet]  = useState<ICUInfo|undefined>((filterApi.data || [])[0]);
+    const [Bed, BedSet]  = useState<bedInfo|undefined>();
 
     const pushFeed = (feed:notification) => setFeeds((prev)=> [...prev, feed]);
     const popFeed = (feed:notification) => setFeeds((prev)=> prev.filter(f=> f.id!= feed.id));
+
+    const setICU = (val:string) =>{
+      if(val == "none") return ICUSet(undefined);
+      const icu = (filterApi.data || []).find(e => (parseInt(val) ?? 0) == e.id);
+      if(icu) ICUSet(icu);
+    }
+
+    const setBed = (val:string) => {
+        if(val == "none") return BedSet(undefined);
+        const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
+        BedSet(bed);
+    }
+    // useEffect(()=>{
+    //     console.log(ICU, Bed)
+    //     if(!ICU) return;
+    //     setFeeds((feeds) => {
+    //       const arr = [...feeds];
+    //       const icuFilter = arr.filter(e => {
+    //         console.log(e.description);
+    //         return e.description.includes(ICU?.name ?? "")
+    //       })
+    //       console.log(icuFilter)
+    //       const bedFilter = icuFilter.filter(e => e.description.includes( Bed?.name ?? ""))
+    //       console.log(bedFilter)
+    //       return [];
+    //     })
+    // },[ICU, Bed])
 
     // const data1 = normalNotification.data;
     useEffect(() => {
@@ -88,15 +127,46 @@ export default function Messaging() {
     <main className='max-h-dvh overflow-hidden'>
       <NavBox title={"Notifications"}></NavBox>
       <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr>
+        <thead className=''>
+          <tr className=''>
             <th className="py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
               <Checkbox onCheckedChange={(val:boolean)=> val?setFeeds(allfeeds.current):setFeeds([])} className='my-2 mx-3' />
             </th>
-            <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 w-full font-medium text-gray-500 uppercase tracking-wider">
               Feed
             </th>
-            <th className="px-6 py-3 text-right bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-right bg-gray-50 text-xs float-end leading-4 flex gap-2 font-medium text-gray-500 uppercase tracking-wider">
+              <div className='w-min gap-2 flex items-center'>
+              <h3 className='text-lg font-bold w-32'>Filter By : </h3>  
+              <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
+                  <SelectTrigger className='w-32'>
+                      <SelectValue className='w-24' placeholder="Select ICU" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem key={"none"} value={"none"}>All</SelectItem>
+                      {
+                          (filterApi.data || []).map(e => (
+                              <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>
+                          ))
+                      }
+                  </SelectContent>
+              </Select>
+              <Select value={Bed?.id.toString()} defaultValue='none' onValueChange={setBed}>
+
+
+                  <SelectTrigger className='w-32'>
+                      <SelectValue placeholder="Select Bed" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem key={"none"} value={"none"}>All</SelectItem>
+                      {
+                          (ICU || {beds:[]}).beds.map(e => (
+                              <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>
+                          ))
+                      }
+                  </SelectContent>
+              </Select>
+              </div>
               <Button onClick={() =>{feeds.forEach(e => e.id && deleteByid(e.id)); criticalNotification.refetch(); normalNotification.refetch();}} className='bg-bluecustom'>
                 Clear
                 <svg style={{padding: 1}} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
