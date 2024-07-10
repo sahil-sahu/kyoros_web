@@ -35,11 +35,12 @@ ChartJS.register(
 import { Line } from 'react-chartjs-2';
 import AlertBox from "@/components/custom/overview/alertBox";
 import upload_i from "../nurse/image 112.png"
+import OverViewTable from "@/components/custom/overview/table";
 export default function Home() {
   return (
     <main className="">
         <NavBox title={"Overview"}></NavBox>
-        <section className="px-2 py-3 max-w-6xl m-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="px-2 py-3 m-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Link className="" href={'/request-notify'}>
             <AlertBox />
           </Link>
@@ -47,17 +48,8 @@ export default function Home() {
           <div className="shadow border border-gray-400 h-full rounded-xl p-4 col-span-1">
             <div className="heading lg:flex flex lg:flex-row flex-col justify-between items-center">
               <h3 className="text-lg font-semibold inline">
-                Occupancy
+                Bed Occupancy
               </h3>
-              <Select defaultValue="today">
-                <SelectTrigger className="border-none w-min">
-                  <SelectValue placeholder="Select day" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="yesterday">Yesterday</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <div style={{
               background:"linear-gradient(to bottom right, #7CA7EB .5%, #303778 50%)"
@@ -66,6 +58,16 @@ export default function Home() {
                 66%
               </h4>
             </div>
+            <ul className="flex align-top justify-evenly mt-3">
+              <li className="flex items-center flex-col">
+                <h3 className="text-3xl">15</h3>
+                <p>Occupied</p>
+              </li>
+              <li className="flex items-center flex-col">
+                <h3 className="text-3xl">5</h3>
+                <p>Free</p>
+              </li>
+            </ul>
           </div>
           </Link>
           {/* <OccupancyTrend></OccupancyTrend>
@@ -84,6 +86,7 @@ export default function Home() {
               </h3>
               <Image className="justify-self-center top-[10%] self-center origin-center max-h-[10rem] p-2 m-auto h-full w-3/4" src={glance} alt="glance"/>
           </Link>
+          <OverViewTable />
         </section>
     </main>
   );
