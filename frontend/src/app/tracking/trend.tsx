@@ -102,11 +102,11 @@ const Chart = ({display, old, patientId, freq}:{display:HealthParameter; old: Da
     // const p = ChartJSOrUndefined
     // button
     return (<div className="align-center m-auto max-w-[95vw] w-min overflow-x-auto p-3 relative">
-                {window.innerWidth > 1200 && <Button variant="secondary" onClick={resetZoom} className="absolute right-5">Reset</Button>}
+                {window.innerWidth > 550 && <Button variant="secondary" onClick={resetZoom} className="absolute right-5">Reset</Button>}
                 <Line
                     options={options}
                     data={linechartFormatter(display,data)}
-                    className="m-auto min-h-[50vh] lg:min-h-[60vh]"
+                    className="m-auto w-[100vh] sm:w-auto min-h-[50vh] object-contain lg:min-h-[60vh]"
                     ref={chartRef}
                 />
             </div>)

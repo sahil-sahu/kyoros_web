@@ -116,7 +116,7 @@ const ChatArea = () =>{
             </li>
         </ul>
       </header>
-      <div ref={scrollRef} className="grid grid-cols-1 gap-4 my-2  max-h-[80dvh] overflow-y-auto">
+      <div ref={scrollRef} className="grid grid-cols-1 gap-4 my-2 max-h-[60dvh] lg:max-h-[80dvh] overflow-y-auto">
         {chat.map(e => <ChatBox id={e.id} key={e.id} type={e.type} name={e.name} timeStamp={e.timeStamp} note={e.note} />)}
       </div>
     </section>

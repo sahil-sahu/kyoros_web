@@ -62,7 +62,7 @@ const TrackingContent = () => {
                         : <Suspense fallback={fallback}><TrendView patientId={patientid} /></Suspense>
                 }
             </section>
-            <section className="hidden mt-6 mb-4 px-3 md:grid grid-cols-3 justify-stretch max-w-5xl gap-2 m-auto items-stretch text-center w-full">
+            {/* <section className="hidden mt-6 mb-4 px-3 md:grid grid-cols-3 justify-stretch max-w-5xl gap-2 m-auto items-stretch text-center w-full">
                 <Link className="" href={"#"}>
                     <AlertBox></AlertBox>
                 </Link>
@@ -74,14 +74,14 @@ const TrackingContent = () => {
                     <h3 className="mb-5 text-lg text-left font-semibold">Call Nursing Station</h3>
                     <Image className="m-auto justify-self-center w-auto p-1 top-[10%] self-center origin-center" src={phone_i} alt={"📞"} />
                 </Link>
-            </section>
+            </section> */}
         </>
     );
 };
 const Tracking = () => {
     return (
         <main>
-            <NavBox title={"Tracking"} />
+            <NavBox title={"Patient"} />
             <Suspense fallback={<Skeleton className="h-full w-full" />}>
                 <TrackingContent />
             </Suspense>

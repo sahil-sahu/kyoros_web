@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import Logo from "@/assets/logo.webp"
+// import Logo from "@/assets/logo.webp"
+import Logo from "@/assets/ic_kyoro-01-03 3.webp"
 
 import {
     Sheet,

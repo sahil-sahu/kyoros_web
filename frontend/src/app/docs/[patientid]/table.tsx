@@ -211,7 +211,7 @@ export const columns: ColumnDef<PatientDoc>[] = [
   },
 ]
 
-export function DataTableDemo({data}:{data:PatientDoc[]}) {
+export function DataTableDemo({data: dp}:{data:PatientDoc[]}) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [tag, setTag] = React.useState<""|"Pathology"|"Radiology"|"Microbiology"|"General">("")
   const [filter, setFilter] = React.useState("");

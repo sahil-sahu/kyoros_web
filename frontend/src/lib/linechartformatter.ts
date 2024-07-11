@@ -37,16 +37,17 @@ const zoomOptions = {
     wheel: {
       enabled: true,
     },
-    // pinch: {
-    //   enabled: true
-    // },
+    pinch: {
+      enabled: true
+    },
     mode: 'xy',
   } as any
 };
 
 
 export const options:ChartOptions<'line'> = {
-    responsive: true,
+    // responsive: true,
+    
     interaction: {
         mode: 'index' as const,
         intersect: false,
@@ -55,7 +56,7 @@ export const options:ChartOptions<'line'> = {
         x: {
           ticks: {
             // For a category axis, the val is the index so the lookup via getLabelForValue is needed
-            maxTicksLimit:11,
+            maxTicksLimit:10,
           },
           grid: {
             display: false, // This disables the grid lines on the y-axis

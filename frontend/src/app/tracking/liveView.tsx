@@ -148,10 +148,10 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
     }
 
     return(
-        <section className='grid md:grid-cols-4 lg:grid-cols-7 grid-rows-2 grid-flow-row auto-rows-min gap-2'>
+        <section className='grid md:grid-cols-4 lg:grid-cols-7 grid-rows-2 grid-flow-row auto-rows-min items-start gap-2'>
         <div style={{
                 background:"linear-gradient(to bottom right, #303778, #4C8484)"
-            }} className='text-white flex justify-evenly rounded-xl p-4 md:min-w-[36rem] col-span-3'>
+            }} className='text-white flex justify-evenly rounded-xl p-4 col-span-3 lg:h-auto h-[90%]'>
                 <div className="flex flex-col justify-evenly items-center p-2 w-[50%]">
                     <div className='flex w-full gap-4 mb-2 items-center'>
                         <Criticality setCriticality={setCriticality} g_criticality={criticality} data={{patientId, id:logs?.bedId || -1 , apache:logs?.apache} as GlanceInfo} />
@@ -218,7 +218,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                 <Image className="m-auto w-24 object-contain" src={folder_i} alt={"📂"} />
             </Link>
         </div>
-        <Tabs defaultValue="notes" className="col-span-3 p-2 rounded border row-span-2">
+        <Tabs defaultValue="notes" className="col-span-full lg:col-span-3 p-2 rounded border row-span-2 h-auto">
             <TabsList className='bg-white patient rounded-none border-b gap-1 flex justify-evenly w-max'>
                 <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="notes">Notes</TabsTrigger>
                 <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="medication">Medication</TabsTrigger>
@@ -228,7 +228,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
             <TabsContent value="medication">Medication section</TabsContent>
             <TabsContent value="i_o">I/O</TabsContent>
         </Tabs>
-        <div className='p-5 border-2 col-span-4 h-full w-full max-w-6xl m-auto rounded-xl'>
+        <div className='p-5 border-2 col-span-full lg:col-span-4 h-full w-full max-w-6xl m-auto rounded-xl'>
             <div className='flex justify-between'>
                 <h3 className='text-center text-2xl font-bold'>
                     Patient Parameter
