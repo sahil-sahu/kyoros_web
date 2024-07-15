@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+:root {
+  --background: #fff;
+}
 @layer base {
   :root {
     --background: #2F377A;
@@ -79,4 +81,17 @@
 }
 .notes button[data-state=on] {
   @apply !border-b-2 !border-b-darkblue;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(-2%); /* Reduced translation for subtlety */
+  }
+  50% {
+    transform: translateY(0);
+  }
+}
+
+.bounce {
+  animation: bounce-subtle 2s infinite ease-in-out;
 }
