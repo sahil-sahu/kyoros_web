@@ -24,7 +24,7 @@ const PatientDocs = ({ params:{patientid} }: { params: { patientid: string } }) 
                 </UploadBox>
             </section>}
             
-            {data && <DataTableDemo data={data.docs} />}
+            {data && <DataTableDemo refetch={refetch} data={data.docs} />}
         </main>
     )
 }

@@ -5,7 +5,7 @@ import { verifyToken } from '../middleware/jwtCheck';
 
 const patientRouter: Router = express.Router();
 
-patientRouter.post('/docupload', upload.single("file"), createPatientPeriodic);
+patientRouter.post('/docupload', verifyToken ,upload.single("file"), createPatientPeriodic);
 patientRouter.get('/:patient/docs', verifyToken, getDocs);
 patientRouter.post('', createPatient);
 patientRouter.get('', getPatients);

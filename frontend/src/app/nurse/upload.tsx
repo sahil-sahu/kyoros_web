@@ -1,6 +1,7 @@
 "use client"
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -19,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import upload_i from "./image 112.png"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { fetchICU } from "../tracking/querys/icuQuery"
 import { ReactNode, useEffect, useState } from "react"
 import { bedInfo, ICUInfo } from "@/types/ICU"
@@ -38,13 +39,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+import { formSchema, UploadDoc } from "./query/docUpload"
+import { useToast } from "@/components/ui/use-toast"
+import { Divide } from "lucide-react"
+import { UploadIcon } from "@radix-ui/react-icons"
+import { ToastAction } from "@/components/ui/toast"
+import Link from "next/link"
 export default function UploadBox({patientId, children}:{patientId:string|undefined; children:ReactNode}) {
+    const {toast} = useToast()
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [ICU, ICUSet]  = useState<ICUInfo|undefined>((filterApi.data || [])[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
-
+    const [open, setOpen] = useState<boolean|undefined>()
     const setICU = (val:string) =>{
       const icu = (filterApi.data || []).find(e => (parseInt(val) ?? 0) == e.id);
       if(icu) ICUSet(icu);
@@ -53,26 +59,9 @@ export default function UploadBox({patientId, children}:{patientId:string|undefi
     const setBed = (val:string, onChange: (...event: any[]) => void) => {
         const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
         if(!bed) return;
-        onChange("patientId", bed.patientId)
+        onChange(bed.patientId)
     }
 
-    const formSchema = z.object({
-        patientId:z.string(),
-        tag: z.string(),
-        fileName: z.string(),
-        file: z
-                .any().refine(
-                    (file: File) => file instanceof File,
-                    'Please select a file'
-                )
-                .refine((file: File) => {
-                    if(!(file instanceof File)) return 'No file selected';
-
-                    return file.size <= MAX_FILE_SIZE
-                }, {
-                message: 'File must be less than 10MB',
-                }),
-    })
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onSubmit",
@@ -83,14 +72,34 @@ export default function UploadBox({patientId, children}:{patientId:string|undefi
         form.setValue("patientId", patientId)
     }, [patientId])
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            toast({
+                description: "Uploading Document...",
+                duration: 3000,
+            })
+            const res = await UploadDoc(values);
+            setOpen(false)
+            toast({
+                description: "Your document has been uploaded successfully.",
+                duration: 3000,
+                action: <ToastAction altText="Go Patient"><Link href={'/docs/'+form.getValues().patientId}>Go to docs</Link></ToastAction>
+            })
+            form.reset();
+        }
+         catch(err){
+            toast({
+                title: "Try again",
+                description: "Error in Uploading",
+                variant: "destructive",
+                duration: 3000,
+            })
+         }
       }
 
+
     return (
-            <Dialog>
+            <Dialog open={open}>
               <DialogTrigger asChild>
                 {children}
               </DialogTrigger>
@@ -155,7 +164,7 @@ export default function UploadBox({patientId, children}:{patientId:string|undefi
                     />
                 <FormField
                     control={form.control}
-                    name="fileName"
+                    name="name"
                     render={({ field }) => (
                         <FormItem>
                         <FormControl>

@@ -76,20 +76,28 @@ export const getLatestlog = async(req: Request, res: Response) => {
       res.status(500).json({ message: err.message });
     }
 }
-export const createPatientPeriodic = async (req: Request, res: Response) => {
+export const createPatientPeriodic = async (req: AuthRequest, res: Response) => {
   try {
-    if (!req.file) throw "Failed";
+    if (!req.file) throw "Failed from S3";
+      
       const file:any = req.file;
       const s3Link:string = file.location;
       const fileName:string = file.key;
+      const {tag, name, patientId} = req.body;
+      const doc = await prisma.patientDoc.create({
+        data:{
+          name,
+          patientId,
+          fileName,
+          s3Link,
+          tag: tag
+        }
+      })
       // Send the response with file info
-      res.status(200).json({
-        message: 'File uploaded successfully',
-        s3Link,
-        fileName
-      });
+      res.status(200).json(doc);
 
   } catch(err){
+    console.log(err)
     res.status(400).json({ message: 'File upload failed' });
   }
 };

@@ -5,6 +5,7 @@ import {
   ChevronDownIcon,
   DotsHorizontalIcon,
   OpenInNewWindowIcon,
+  ReloadIcon,
 } from "@radix-ui/react-icons"
 import { Label } from "@/components/ui/label"
 import {
@@ -211,7 +212,7 @@ export const columns: ColumnDef<PatientDoc>[] = [
   },
 ]
 
-export function DataTableDemo({data: dp}:{data:PatientDoc[]}) {
+export function DataTableDemo({data, refetch}:{data:PatientDoc[]; refetch: () => void}) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [tag, setTag] = React.useState<""|"Pathology"|"Radiology"|"Microbiology"|"General">("")
   const [filter, setFilter] = React.useState("");
@@ -276,13 +277,15 @@ export function DataTableDemo({data: dp}:{data:PatientDoc[]}) {
         </ul>
     </section>
     <div className="w-full p-5">
-      <div className="flex items-center py-4">
+      <div className="flex items-center w-full justify-between py-4">
         <Input
           placeholder="Filter name..."
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
           className="max-w-sm"
         />
+        <div className="flex items-center">
+        <Button variant={"outline"} className="mx-2" onClick={refetch}><ReloadIcon /></Button>  
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -309,6 +312,7 @@ export function DataTableDemo({data: dp}:{data:PatientDoc[]}) {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
