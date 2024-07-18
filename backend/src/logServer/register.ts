@@ -7,7 +7,8 @@ const registerRouter = Router();
 
 registerRouter.post('', verifyToken, async(req:Request,res:Response) => {
     try {
-        const sensor = await prisma.sensor.create({data:{}});
+        const {hospitalId} = req.body;
+        const sensor = await prisma.sensor.create({data:{hospitalId}});
         const token = sign(sensor.id, process.env.SENSORSECRET)
         return res.json({...sensor, token});
     } catch (error) {

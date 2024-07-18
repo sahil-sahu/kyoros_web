@@ -1,3 +1,4 @@
+import { redisClient } from "../redis";
 import { prisma } from "../prisma";
 import { AuthRequest } from "../types";
 import { Request, Response } from 'express';
@@ -24,7 +25,8 @@ export const setSensor = async (req: AuthRequest, res: Response) => {
             bedID
         }
       })
-      res.json(sensor);
+      await redisClient.del(`sensor:${sensorId}`);
+      return res.json(sensor);
     } catch (err) {
       console.error(err)
       res.status(500).json({ message: err.message });
