@@ -17,6 +17,7 @@ import patientRouter from './routes/patient';
 import icuRouter from './routes/hospital';
 import logRouter from './routes/log';
 import sensorRouter from './routes/sensor'
+import sessionRouter from './routes/session'
 
 const app: Express = express();
 
@@ -33,6 +34,7 @@ app.use('/patient', patientRouter);
 app.use('/hospital', icuRouter);
 app.use('/logs', logRouter);
 app.use('/sensor', sensorRouter);
+app.use('/session', sessionRouter);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Application is healthy' });

@@ -1,0 +1,131 @@
+import { prisma } from '../prisma';
+import { IPatientPeriodic, IPatient, AuthRequest } from '../types';
+import { Request, Response } from 'express';
+
+interface sessionLoad {
+  patientInfo: {
+      uhid: string;
+      dob: Date;
+      gender: string;
+      name: string;
+  };
+  session: {
+      icu: number;
+      bed: number;
+      diagnosis: string;
+      comorbidities: string;
+      doctor: string[];
+      apache: number;
+      nurse: string[];
+      icuName: string;
+      bedName: string;
+  };
+  found?: string;
+}
+
+export const makeSession = async (req: AuthRequest, res: Response) => {
+    try {
+      const values:sessionLoad = req.body;
+      if(values.found){
+        const session = await prisma.$transaction(async (prisma) => {
+          let patientCheck = await prisma.bed.findMany({
+            where:{
+              patientId:values.found,
+              occupied: true
+            }
+          })
+          if(patientCheck.length > 0) throw Error("Patient Already admitted at"+ patientCheck.map(e => e.id))
+          let patient = await prisma.patient.update({
+            where:{
+              id: values.found
+            },
+            data:{
+              comorbidities: values.session.comorbidities.split("\n"),
+              diagnosis: values.session.diagnosis,
+            }
+        })
+            let session = await prisma.session.create({
+                data:{
+                    patientId: values.found,
+                    icuId: values.session.icu,
+                    bedId: values.session.bed,
+                    diagnosis: values.session.diagnosis,
+                    comorbidities: values.session.comorbidities.split("\n"),
+                    doctorIds: values.session.doctor,
+                    apache: values.session.apache,
+                    nurseIds: values.session.nurse,
+                    hospitalId: req.hospital,
+                    icuName: values.session.icuName,
+                    bedName: values.session.bedName,
+                }
+            })
+            let bedCheck = await prisma.bed.findFirstOrThrow({
+              where:{
+                id: values.session.bed,
+                occupied: false
+              }
+            })
+            let bedAllot = await prisma.bed.update({
+              where: {id: values.session.bed},
+              data:{
+                patientId: values.found,
+                apache: values.session.apache,
+                bedStamp: new Date(),
+                occupied:true,
+              }
+            })
+            return [patient, session, bedCheck, bedAllot];
+        })
+        return res.status(200).json(session);
+      }
+
+      const session = await prisma.$transaction(async (prisma) => {
+                            let patient = await prisma.patient.create({
+                                data:{
+                                  name: values.patientInfo.name,
+                                  dob: new Date(values.patientInfo.dob),
+                                  gender: values.patientInfo.gender,
+                                  uhid: values.patientInfo.uhid,
+                                  hospitalId: req.hospital,
+                                  comorbidities: values.session.comorbidities.split("\n"),
+                                  diagnosis: values.session.diagnosis,
+                                }
+                            })
+                            let session = await prisma.session.create({
+                              data:{
+                                patientId: patient.id,
+                                icuId: values.session.icu,
+                                bedId: values.session.bed,
+                                diagnosis: values.session.diagnosis,
+                                comorbidities: values.session.comorbidities.split("\n"),
+                                doctorIds: values.session.doctor,
+                                apache: values.session.apache,
+                                nurseIds: values.session.nurse,
+                                hospitalId: req.hospital,
+                                icuName: values.session.icuName,
+                                bedName: values.session.bedName,
+                            }
+                            })
+                            let bedCheck = await prisma.bed.findFirstOrThrow({
+                              where:{
+                                id: values.session.bed,
+                                occupied: false
+                              }
+                            })
+                            let bedAllot = await prisma.bed.update({
+                              where: {id: values.session.bed},
+                              data:{
+                                patientId: patient.id,
+                                apache: values.session.apache,
+                                bedStamp: new Date(),
+                                occupied:true,
+                              }
+                            })
+                            return [patient, session, bedCheck, bedAllot];
+                        })
+      return res.status(200).json(session);
+    } catch (err) {
+      console.error(err)
+      res.status(500).json({ message: err.message });
+    }
+  }

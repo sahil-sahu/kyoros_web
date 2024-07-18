@@ -18,6 +18,26 @@ export const getHospitals = async(req:Request,res:Response) =>{
     }
 }
 
+export const getUsers = async(req:AuthRequest,res:Response) =>{
+    try {
+        const users = await prisma.user.findMany({
+            where:{
+                hospitalId: req.hospital,
+                verified:true
+            },
+            select:{
+                id:true,
+                name:true,
+                userType:true,
+            }
+        });
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch users from db' });
+    }
+}
+
 export const getbeds = async (req:AuthRequest,res:Response) =>{
     try {
         const icu = req.query?.icu ?? "-1";
@@ -68,6 +88,33 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
             return res.status(200).json(icus);
         }
         res.status(200).json(JSON.parse(hosp));
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch icus from db' });
+    }
+}
+export const getICUs_w_unoccupied = async (req:AuthRequest,res:Response) =>{
+    try {
+        const hospital = req.hospital;
+        const icus = await prisma.iCU.findMany({
+            where:{hospitalId:hospital},
+            include:{
+                beds:{
+                    where:{
+                        occupied:false
+                    },
+                    orderBy:{
+                        name:'asc',
+                    },
+                    select:{
+                        name:true,
+                        id:true,
+                    },
+                }
+            }
+        })
+        return res.status(200).json(icus);
 
     } catch (error) {
         console.error(error);

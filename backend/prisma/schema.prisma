@@ -83,9 +83,9 @@ model Patient {
   bedId         Int?
   gender        String
   name          String
-  age           Int
+  age           Int?
   email         String?
-  phone         String       @db.VarChar(13)
+  phone         String?       @db.VarChar(13)
   hospitalId    String
   dept          String?
   diagnosis     String?
@@ -169,7 +169,7 @@ model Session {
   apache        Int
   admittedAt    DateTime  @default(now()) @db.Timestamp(6)
   dischargedAt  DateTime?  @default(now()) @db.Timestamp(6)
-  reason        String //discharging reason
+  reason        String? //discharging reason
   comorbidities String[]
   diagnosis     String
 

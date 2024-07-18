@@ -15,9 +15,17 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from "@/components/ui/dropdown-menu"
 
 import { Calendar } from "@/components/ui/calendar"
-import { CalendarIcon, PersonIcon } from "@radix-ui/react-icons"
+import { CalendarIcon, CaretDownIcon, PersonIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
 import {
     Popover,
@@ -35,16 +43,38 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import { useEffect, useState } from "react"
-  
-  
-  export default function PatientForm() {
-    const [found, setFound] = useState<boolean>(false);
+import { getByUhid } from "./query/getbyUhid"
+import { fetchICU } from "@/app/tracking/querys/icuQuery"
+import { useQuery } from "@tanstack/react-query"
+import { Textarea } from "@/components/ui/textarea"
+import { getUsers } from "./query/getUsers"
+import { fetchICU_Unoccupied } from "./query/getICUs"
+import { makeSession } from "./query/admitPatient"
+import { useRouter } from "next/navigation"
+import { useToast } from "@/components/ui/use-toast"
+
+export default function PatientForm() {
+    const router = useRouter()
+    const {toast} = useToast();
+    const [found, setFound] = useState<string|undefined>();
+    const [_, refresh] = useState(new Date().getMilliseconds())
+    const icuInfos = useQuery({ queryKey: ['icu_unoccupied'], queryFn: fetchICU_Unoccupied });
+    const users = useQuery({ queryKey: ['users'], queryFn: getUsers });
     const formSchema = z.object({
         patientInfo: z.object({
-            uhid: z.string().refine((uhid)=>{
-                setFound(uhid.length > 6)
-                console.log("yup", uhid.length > 6)
-                return uhid.length < 6
+            uhid: z.string().refine(async (uhid)=>{
+                try {
+                    const res = await getByUhid({uhid});
+                    if(!res || (!res.id)) {
+                        setFound(undefined)
+                        return true;
+                    }
+                    form.setValue("patientInfo", {uhid: res.uhid ?? uhid, name: res.name,dob:new Date(res.dob), gender: res.gender})
+                    setFound(res.id)
+                } catch (error) {
+                    setFound(undefined)
+                }
+                return true;
               },{
                 message: "UHID Found"
               }),
@@ -54,13 +84,15 @@ import { useEffect, useState } from "react"
           }),
         session: z.object(
             {
-                icu: z.number(),
-                bed: z.number(),
+                icu: z.number().min(0),
+                icuName: z.string(),
+                bed: z.number().min(0),
+                bedName: z.string(),
                 diagnosis: z.string(),
                 comorbidities: z.string(),
-                doctor: z.string(),
+                doctor: z.array(z.string()).min(1,{ message: "At least one doctor is required" }),
                 apache: z.number(),
-                nurse: z.string(),
+                nurse: z.array(z.string()).min(1,{ message: "At least one nurse is required" }),
             }
         )  
     })
@@ -68,16 +100,20 @@ import { useEffect, useState } from "react"
     resolver: zodResolver(formSchema),
     mode: "onBlur",
   })
-  useEffect(()=>{
-    if(!found) return;
-    form.setValue("patientInfo", {uhid:"fdfdfdf", name: "kjhdkg",dob:new Date(), gender: "gay"})
-  }, [found, form])
-
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
+    toast({description:"Admitting current patient"})
+    let payload = {...values, found}
+    const session = await makeSession(payload);
+    console.log(session)
+    if(session.status == 200){
+        const data = session.data;
+        return router.replace(`/tracking?icu=${values.session.icu}&bed=${values.session.bed}&patient=${(data[0].patientId || found) ?? ""}&type=Live`)
+    }
+    toast({description:"Failed amit patient", variant:"destructive"})
+    
   }
   return (
         <main>
@@ -160,7 +196,7 @@ import { useEffect, useState } from "react"
                         <FormLabel className="">Gender</FormLabel>
                         <FormControl>
                             <div className="flex items-center gap-2">
-                            <Select onValueChange={field.onChange}>
+                            <Select value={field.value} onValueChange={field.onChange}>
                                 <SelectTrigger className="w-48 mp-1 flex">
                                     <SelectValue placeholder="Select Gender" />
                                 </SelectTrigger>
@@ -173,16 +209,16 @@ import { useEffect, useState } from "react"
                                     <div className="flex items-center"><PersonIcon color="#fff" strokeWidth="2" className="m-2 rounded-full bg-[#FF007D] p-1 w-8 h-8" />
                                     <span>Female</span></div>
                                     </SelectItem>
-                                    <SelectItem value="other" className="flex items-center">
+                                    {/* <SelectItem value="other" className="flex items-center">
                                         <span>Other</span>
-                                    </SelectItem>
+                                    </SelectItem> */}
                                 </SelectContent>
                             </Select>
-                            {
-                                field.value == "other"?(
+                            {/* {
+                                (field.value == "other" || field.value)?(
                                     <Input className="inline" placeholder="Enter Other Gender" {...field} />
                                 ):null
-                            }
+                            } */}
                             </div>
                         </FormControl>
                         <FormMessage />
@@ -196,9 +232,24 @@ import { useEffect, useState } from "react"
                     name="session.icu"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>ICU Number</FormLabel>
+                        <FormLabel>ICU</FormLabel>
                         <FormControl>
-                            <Input type="number" placeholder="Enter ICU Number" {...field} onChange={(({target:{value}}) =>{field.onChange(parseInt(value))})} />
+                        <Select value={(field.value ?? -1).toString()} onValueChange={(e:string)=>{
+                                        const icu = (icuInfos.data || []).find(k => k.id == +e)
+                                        if(icu) {
+                                            field.onChange(+e)
+                                            form.setValue("session.icuName", icu.name)
+                                        }
+                                        form.setValue("session.bed", -1)
+                                        refresh(new Date().getMilliseconds())
+                                    }}>
+                            <SelectTrigger className="">
+                                <SelectValue placeholder="Select ICU" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {(icuInfos.data || []).map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -209,9 +260,26 @@ import { useEffect, useState } from "react"
                     name="session.bed"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Bed Number</FormLabel>
+                        <FormLabel>Bed</FormLabel>
                         <FormControl>
-                            <Input type="number" placeholder="Enter Bed Number" {...field} onChange={(({target:{value}}) =>{field.onChange(parseInt(value))})} />
+                            <Select value={(field.value ?? -1).toString()} onValueChange={(e:string)=>{
+                                        const bed = ((icuInfos.data || []).find(k => k.id == form.getValues().session.icu) || {beds:[]}).beds.find(k => k.id == +e)
+                                        if(bed){
+                                             field.onChange(+e)
+                                             form.setValue("session.bedName", bed.name)
+                                        }
+                                    }}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Bed" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {
+                                        ((icuInfos.data || []).find(e => e.id == form.getValues().session.icu) || {beds:[]}).beds.map(e => (
+                                            <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>
+                                        ))
+                                    }
+                                </SelectContent>
+                            </Select>
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -224,7 +292,7 @@ import { useEffect, useState } from "react"
                         <FormItem>
                         <FormLabel>Diagnosis</FormLabel>
                         <FormControl>
-                            <Input placeholder="Enter Diagnosis" {...field} />
+                            <Textarea placeholder="Enter Diagnosis" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -237,7 +305,7 @@ import { useEffect, useState } from "react"
                         <FormItem>
                         <FormLabel>Comorbidities</FormLabel>
                         <FormControl>
-                            <Input placeholder="Enter Comorbidities" {...field} />
+                            <Textarea placeholder="Enter Comorbidities , add multiple by pressing (enter)" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -256,14 +324,37 @@ import { useEffect, useState } from "react"
                         </FormItem>
                     )}
                     />
+                    <div className="flex gap-5">
                     <FormField
                     control={form.control}
                     name="session.doctor"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Doctor Name</FormLabel>
                         <FormControl>
-                            <Input placeholder="Enter Doctor Name" {...field} />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <div className="w-min inline"><Button variant="outline" className='relative w-fit text-left text-ellipsis'> <span className="mr-12">Doctors</span>  <CaretDownIcon className='ml-2 float-end absolute right-2' /> </Button>
+                            <small className="p-2">{field.value && field.value.length? `selected ${field.value.length}`: null}</small></div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>Doctors</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {(users.data || []).filter(e => e.userType == "doctor").map(e => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                        key={e.id}
+                                        checked={field.value?.includes(e.id)}
+                                        onCheckedChange={(val)=>{
+                                            if(val) field.onChange([...(field.value || []), e.id])
+                                            else field.onChange(field.value.filter(k => k != e.id))
+                                        }}
+                                        >
+                                            {e.name}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                            </DropdownMenuContent>
+                            </DropdownMenu>
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -274,14 +365,37 @@ import { useEffect, useState } from "react"
                     name="session.nurse"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Nurse Name</FormLabel>
                         <FormControl>
-                            <Input placeholder="Enter Nurse Name" {...field} />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="w-min inline"><Button variant="outline" className='relative w-fit text-left text-ellipsis'> <span className="mr-12">Nurses</span>  <CaretDownIcon className='ml-2 float-end absolute right-2' /> </Button>
+                                <small className="p-2">{field.value && field.value.length? `selected ${field.value.length}`: null}</small></div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>Nurses</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {(users.data || []).filter(e => e.userType == "nurse").map(e => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                        key={e.id}
+                                        checked={field.value?.includes(e.id)}
+                                        onCheckedChange={(val)=>{
+                                            if(val) field.onChange([...(field.value || []), e.id])
+                                            else field.onChange(field.value.filter(k => k != e.id))
+                                        }}
+                                        >
+                                            {e.name}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                            </DropdownMenuContent>
+                            </DropdownMenu>
                         </FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
                     />
+                    </div>
                     <Button className="bg-darkblue" type="submit">Submit</Button>
                 </form>
                 </Form>
