@@ -8,14 +8,17 @@ const formatData = (logs:Patientlog[]) =>{
     const spo2_s:number[] = [];
     const temp_s:number[] = [];
     const timeStamps:string[] = [];
-    logs.forEach(log=>{
+    if(logs != null && logs.length)
+    console.log(logs)
+     {logs.forEach(log=>{
+        if(!log) return;
         heartrates.push(log.heart_rate);
         bp_s.push(log.bp);
         resp_rates.push(log.resp_rate);
         spo2_s.push(log.spo2);
         temp_s.push(log.temp);
         timeStamps.push(getTimeFromISOString(log.timeStamp));
-    })
+    })}
     return {
         heartrates,
         bp_s,

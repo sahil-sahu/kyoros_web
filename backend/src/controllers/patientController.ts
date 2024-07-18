@@ -8,7 +8,7 @@ import { redisClient } from '../redis';
 
 export const createPatient = async (req: Request, res: Response) => {
     try {
-      const { name, age, gender, email, phone, hospitalId } = req.body;
+      const { name, age, dob, gender, email, phone, hospitalId } = req.body;
       let user = await prisma.patient.findFirst({
         where:{
           hospitalId,
@@ -22,6 +22,7 @@ export const createPatient = async (req: Request, res: Response) => {
                 age,
                 gender,
                 email,
+                dob,
                 phone,
                 hospitalId
               }
@@ -55,6 +56,26 @@ export const getPatient = async (req: Request, res: Response) => {
       res.status(500).json({ message: err.message });
     }
   }
+
+export const getPatientbyUhid = async (req: AuthRequest, res: Response) => {
+    try {
+      const uhid = req.query?.uhid ?? "";
+      if(typeof(uhid) != 'string') throw Error("Invalid type");
+      const patient_res = await prisma.patient.findUniqueOrThrow({
+                                      where:{
+                                        uhid_hospitalId: {
+                                          uhid,
+                                          hospitalId: req.hospital
+                                        }
+                                      }});
+      res.json(patient_res);
+    } catch (err) {
+      // console.error(err)
+      res.status(200).json({ message: err.message });
+    }
+  }
+
+
 
 export const getLatestlog = async(req: Request, res: Response) => {
     try{

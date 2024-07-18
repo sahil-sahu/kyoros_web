@@ -9,6 +9,7 @@ export interface PatientInfoProps {
   Surgeries: string[];
   Medicines: string[];
   age: number;
+  dob: string;
   email?: string|null;
   phone: string;
   hospitalId: string;
