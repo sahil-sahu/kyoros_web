@@ -46,6 +46,9 @@ export const getbeds = async (req:AuthRequest,res:Response) =>{
             where:{
                 icuId:parseInt(icu)
             },
+            orderBy:{
+                name:"asc"
+            },
             select:{
                 name:true,
                 id:true,
@@ -53,7 +56,19 @@ export const getbeds = async (req:AuthRequest,res:Response) =>{
                 patientId:true,
             }
         })
-        return res.status(200).json(beds)
+        const beds_session = await Promise.all(beds.map(async e =>{
+            const sessions = await prisma.session.findMany({
+                where:{
+                    bedId:{
+                        has: e.id
+                    },
+                    reason: null
+                }
+            })
+            const session = sessions.find(s => s.bedId[s.bedId.length -1] == e.id)
+            return {...e,sessionId : session?.id ?? null}
+        }))
+        return res.status(200).json(beds_session)
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch beds from db' });

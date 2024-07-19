@@ -47,8 +47,8 @@ export const makeSession = async (req: AuthRequest, res: Response) => {
             let session = await prisma.session.create({
                 data:{
                     patientId: values.found,
-                    icuId: values.session.icu,
-                    bedId: values.session.bed,
+                    icuId: [values.session.icu],
+                    bedId: [values.session.bed],
                     diagnosis: values.session.diagnosis,
                     comorbidities: values.session.comorbidities.split("\n"),
                     doctorIds: values.session.doctor,
@@ -94,8 +94,8 @@ export const makeSession = async (req: AuthRequest, res: Response) => {
                             let session = await prisma.session.create({
                               data:{
                                 patientId: patient.id,
-                                icuId: values.session.icu,
-                                bedId: values.session.bed,
+                                icuId: [values.session.icu],
+                                bedId: [values.session.bed],
                                 diagnosis: values.session.diagnosis,
                                 comorbidities: values.session.comorbidities.split("\n"),
                                 doctorIds: values.session.doctor,
@@ -129,3 +129,83 @@ export const makeSession = async (req: AuthRequest, res: Response) => {
       res.status(500).json({ message: err.message });
     }
   }
+
+export const transfer = async (req: AuthRequest, res: Response) => {
+  try {
+    const {bedId, bedName, icuName ,oldId, icuId, sessionId} = req.body;
+    const session = await prisma.$transaction(async (prisma) => {
+      let oldSession = await prisma.session.findUniqueOrThrow({
+        where:{id:sessionId}
+      })
+      let bedCheck = await prisma.bed.findFirstOrThrow({
+        where:{
+          id: bedId,
+          occupied: false
+        }
+      })
+      let session = await prisma.session.update({
+        where:{id:sessionId},
+        data:{
+          //append new ids to icu and bed to an array + updatedAt clause
+          bedId: [...oldSession.bedId, bedId],
+          icuId:  [...oldSession.icuId, icuId],
+          icuName,
+          bedName
+      }
+      })
+      let bedRemove = await prisma.bed.update({
+        where:{
+          id: oldId,
+        },
+        data:{
+          patientId: null,
+          apache: null,
+          occupied:false,
+        }
+      })
+      let bedAllot = await prisma.bed.update({
+        where: {id: bedId},
+        data:{
+          patientId: session.patientId,
+          apache: session.apache,
+          bedStamp: new Date(),
+          occupied:true,
+        }
+      })
+      return [session, bedCheck, bedRemove,bedAllot];
+  })
+  return res.status(200).json(session);
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json("Failed to transfer");
+  }
+}
+export const discharge = async (req: AuthRequest, res: Response) => {
+  try {
+    const {sessionId, reason} = req.body;
+    const session = await prisma.$transaction(async (prisma) => {
+      let session = await prisma.session.update({
+        where:{
+          id: sessionId
+        },
+        data:{
+          reason,
+          dischargedAt: new Date()
+      }
+      })
+      let bedDischarge = await prisma.bed.update({
+        where: {id: session.bedId[session.bedId.length -1]},
+        data:{
+          patientId: null,
+          apache: null,
+          occupied:false,
+        }
+      })
+      return [session, bedDischarge];
+  })
+  return res.status(200).json(session);
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json("Failed to discharge");
+  }
+}

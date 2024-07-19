@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import e, { Request, Response } from 'express';
 import PatientPeriodicModel from '../models/patientPeriodic';
 import { IPatientPeriodic, IPatient, AuthRequest } from '../types';
 import PatientModel from '../models/patients';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { prisma } from '../prisma';
 import { redisClient } from '../redis';
+import user_from_redis from '../helpers/userfromRedis';
 
 export const createPatient = async (req: Request, res: Response) => {
     try {
@@ -163,5 +164,52 @@ export const setCritcality = async (req:AuthRequest, res:Response) =>{
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "failed set criticality" });
+  }
+}
+
+export const makeNote = async (req:AuthRequest, res:Response) =>{
+  try {
+    const {note, patientId } = req.body;
+    const user = await prisma.user.findUniqueOrThrow({
+      where:{
+        firebaseUid: req.user
+      }
+    })
+    const noteObj = await prisma.notes.create({
+      data:{
+        userid: user.id,
+        note,
+        patientId,
+        hospitalId:req.hospital
+      }
+    })
+    res.status(200).json(noteObj);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "failed make to note" });
+  }
+}
+
+export const getNotes = async (req:AuthRequest, res:Response) =>{
+  try {
+    const patient = req.params.patient;
+    const now = new Date();
+    now.setHours(0,0,0,0)
+    const timeStamp = (req.query?.timeStamp)? new Date(req.query?.timeStamp.toString()) : new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const notes = await prisma.notes.findMany({
+      where:{
+        patientId: patient,
+        createdAt:{
+          gte: timeStamp
+        }
+      }
+    });
+    const notes_user = await Promise.all(notes.map(async e => {
+      const user = await user_from_redis(e.userid);
+      return {...e, name: user.name, type: user.userType}
+    }))
+    res.json(notes_user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 }

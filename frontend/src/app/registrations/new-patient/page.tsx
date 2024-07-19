@@ -112,7 +112,7 @@ export default function PatientForm() {
         const data = session.data;
         return router.replace(`/tracking?icu=${values.session.icu}&bed=${values.session.bed}&patient=${(data[0].patientId || found) ?? ""}&type=Live`)
     }
-    toast({description:"Failed amit patient", variant:"destructive"})
+    toast({description:"Failed admit patient", variant:"destructive"})
     
   }
   return (
@@ -274,7 +274,7 @@ export default function PatientForm() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     {
-                                        ((icuInfos.data || []).find(e => e.id == form.getValues().session.icu) || {beds:[]}).beds.map(e => (
+                                        ((icuInfos.data || []).find(e => e.id === form.getValues().session?.icu) || {beds:[]}).beds.map(e => (
                                             <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>
                                         ))
                                     }

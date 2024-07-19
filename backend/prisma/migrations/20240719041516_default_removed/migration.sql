@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Session" ALTER COLUMN "dischargedAt" DROP DEFAULT,
+ALTER COLUMN "dischargedAt" SET DATA TYPE TIMESTAMP(3);

@@ -26,7 +26,7 @@ model ICU {
   beds       Bed[]
   hospital   Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   watcher    Watcher[]
-  sessions Session[]
+  // sessions Session[]
 }
 
 model Watcher {
@@ -57,7 +57,7 @@ model Bed {
   patient    Patient?  @relation(fields: [patientId], references: [id], onDelete: NoAction)
   bedLogs    Logs[]
   sensor     Sensor?
-  sessions Session[]
+  // sessions Session[]
 
   @@index([icuId])
   @@index([patientId])
@@ -161,20 +161,21 @@ model Session {
   doctorIds     String[]
   nurseIds      String[]
   patientId     String
-  bedId         Int
+  bedId         Int[]
   bedName       String
   icuName       String
-  icuId         Int
+  icuId         Int[]
   hospitalId    String
   apache        Int
+  updatedAt     DateTime  @default(now()) @db.Timestamp(6)
   admittedAt    DateTime  @default(now()) @db.Timestamp(6)
-  dischargedAt  DateTime?  @default(now()) @db.Timestamp(6)
+  dischargedAt  DateTime?
   reason        String? //discharging reason
   comorbidities String[]
   diagnosis     String
 
-  bed        Bed      @relation(fields: [bedId], references: [id], onDelete: NoAction)
-  ICU        ICU      @relation(fields: [icuId], references: [id], onDelete: NoAction)
+  // bed        Bed[]      @relation(fields: [bedId], references: [id], onDelete: NoAction)
+  // ICU        ICU      @relation(fields: [icuId], references: [id], onDelete: NoAction)
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   patient   Patient   @relation(fields: [patientId], references: [id], onDelete: NoAction)
 
