@@ -1,11 +1,13 @@
 import express, { Router } from 'express';
-import { createPatient, createPatientPeriodic, getDocs, getLatestlog, getPatientbyUhid, getPatients, setCritcality } from '../controllers/patientController';
+import { createPatient, createPatientPeriodic, getDocs, getLatestlog, getNotes, getPatientbyUhid, getPatients, makeNote, setCritcality } from '../controllers/patientController';
 import { upload } from '../helpers/docUpload';
 import { verifyToken } from '../middleware/jwtCheck';
 
 const patientRouter: Router = express.Router();
 
 patientRouter.post('/docupload', verifyToken ,upload.single("file"), createPatientPeriodic);
+patientRouter.post('/notes', verifyToken , makeNote);
+patientRouter.get('/:patient/notes', verifyToken , getNotes);
 patientRouter.get('/:patient/docs', verifyToken, getDocs);
 patientRouter.post('', createPatient);
 patientRouter.get('', getPatients);

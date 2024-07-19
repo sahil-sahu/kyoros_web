@@ -224,7 +224,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                 <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="medication">Medication</TabsTrigger>
                 <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="i_o">I/O</TabsTrigger>
             </TabsList>
-            <TabsContent value="notes"><Notes /></TabsContent>
+            <TabsContent value="notes"><Notes patientId={patientId}/></TabsContent>
             <TabsContent value="medication">Medication section</TabsContent>
             <TabsContent value="i_o">I/O</TabsContent>
         </Tabs>
