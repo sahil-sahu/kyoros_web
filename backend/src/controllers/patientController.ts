@@ -37,9 +37,14 @@ export const createPatient = async (req: Request, res: Response) => {
     }
   };
 
-export const getPatients = async (req: Request, res: Response) => {
+export const getPatients = async (req: AuthRequest, res: Response) => {
     try {
-      const patients = await prisma.patient.findMany();
+      //cache it
+      const patients = await prisma.patient.findMany({
+        where:{
+          hospitalId: req.hospital,
+        }
+      });
       res.json(patients);
     } catch (err) {
       res.status(500).json({ message: err.message });
@@ -73,6 +78,34 @@ export const getPatientbyUhid = async (req: AuthRequest, res: Response) => {
     } catch (err) {
       // console.error(err)
       res.status(200).json({ message: err.message });
+    }
+  }
+
+  export const searchPatients = async (req: AuthRequest, res: Response) => {
+    try {
+      const s = req.query?.s ?? "";
+      if(typeof(s)!='string' || s == "") throw Error("Invalid type");
+      const patients = await prisma.patient.findMany({
+        where: {
+          OR: [
+            {
+              uhid: {
+                contains: s,
+              },
+            },
+            {
+              name: {
+                contains: s,
+              },
+            },
+          ],
+          hospitalId: req.hospital
+        },
+      });
+      res.status(200).json(patients);
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({ message: error.message });
     }
   }
 

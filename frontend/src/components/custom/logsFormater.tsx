@@ -9,7 +9,6 @@ const formatData = (logs:Patientlog[]) =>{
     const temp_s:number[] = [];
     const timeStamps:string[] = [];
     if(logs != null && logs.length)
-    console.log(logs)
      {logs.forEach(log=>{
         if(!log) return;
         heartrates.push(log.heart_rate);

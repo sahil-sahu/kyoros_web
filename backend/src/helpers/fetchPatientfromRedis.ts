@@ -21,9 +21,9 @@ export default async function patient_from_redis(patientId:string):Promise<_Pati
                 }
             }
         })
-        await redisClient.set(`patient:${patientId}`,JSON.stringify({...patient, apache: patient.bed.apache, bedId: patient.bed.id}));
+        await redisClient.set(`patient:${patientId}`,JSON.stringify({...patient, apache: patient.bed?.apache ?? 0, bedId: patient.bed?.id}));
         await redisClient.expire(`patient:${patientId}`, 60 * 60 * 6);
-        return {...patient, apache: patient.bed.apache};
+        return {...patient, bedId: patient.bed?.id, apache: patient.bed?.apache ?? 0};
     }
     return JSON.parse(patient);
 }
