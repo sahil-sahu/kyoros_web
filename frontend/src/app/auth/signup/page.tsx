@@ -35,6 +35,7 @@ enum Color {
 export default function Login(){
 
     const [email, setEmail] = React.useState("");
+    const [name, setname] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [hospital, setHospital] = React.useState<Hospital|undefined>();
     const [designation, setDesignation] = React.useState<Color | ''>("");
@@ -46,7 +47,7 @@ export default function Login(){
     async function signup(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
       if(hospital != undefined)
-        mutate({ email, userType:designation, password, hospital });
+        mutate({ email, userType:designation, password, hospital, name });
     }
 
     React.useEffect(()=>{
@@ -63,6 +64,10 @@ export default function Login(){
         </CardHeader>
         <CardContent>
             <div className="grid w-full items-center gap-4">
+                <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="email">Name</Label>
+                    <Input id="name" onChange={(e) => setname(e.target.value)} value={name} type="text" placeholder="" />
+                </div>
                 <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" onChange={(e) => setEmail(e.target.value)} value={email} type="email" placeholder="john@hospital.com" />

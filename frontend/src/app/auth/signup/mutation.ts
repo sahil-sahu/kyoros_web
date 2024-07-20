@@ -4,7 +4,7 @@ import { axiosInstance, setheader } from '@/lib/axios';
 import { CreateUserBody } from "@/types/auth";
 import axios from "axios";
 
-export const createUser = async ({ email, userType, password, hospital }: CreateUserBody):Promise<string> => {
+export const createUser = async ({ email, userType, password, hospital, name }: CreateUserBody):Promise<string> => {
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = await userCred.user.getIdToken();
@@ -14,6 +14,7 @@ export const createUser = async ({ email, userType, password, hospital }: Create
       await axiosInstance.post('/api/auth/signup', {
         email,
         userType,
+        name,
         hospitalId: hospital.id
       }, {
         headers: await setheader(),

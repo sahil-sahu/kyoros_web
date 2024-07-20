@@ -5,11 +5,12 @@ import { AuthRequest } from '../types';
 export const signup = async (req: AuthRequest, res: any) => {
   try {
     if(req.user){
-      const { email, userType, hospitalId } = req.body;
+      const { email, userType, hospitalId, name } = req.body;
       const user =  await prisma.user.create({
         data:{
           userType,
           email,
+          name,
           firebaseUid: req.user,
           hospitalId
         }

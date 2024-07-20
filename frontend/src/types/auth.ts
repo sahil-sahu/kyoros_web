@@ -4,5 +4,6 @@ export interface CreateUserBody {
     email: string;
     userType: string;
     password:string;
+    name:string;
     hospital: Hospital
   }
