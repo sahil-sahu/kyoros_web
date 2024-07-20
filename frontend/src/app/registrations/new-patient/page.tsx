@@ -52,7 +52,8 @@ import { fetchICU_Unoccupied } from "./query/getICUs"
 import { makeSession } from "./query/admitPatient"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 export default function PatientForm() {
     const router = useRouter()
     const {toast} = useToast();
@@ -159,7 +160,8 @@ export default function PatientForm() {
                         <Popover>
                             <PopoverTrigger asChild>
                             <FormControl>
-                                <Button
+                                <DatePicker selected={field.value} onChange={field.onChange} />
+                                {/* <Button
                                 variant={"outline"}
                                 className={"w-[240px] pl-3 text-left font-normal"}
                                 >
@@ -169,7 +171,7 @@ export default function PatientForm() {
                                     <span>Pick a date</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
+                                </Button> */}
                             </FormControl>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
