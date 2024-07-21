@@ -4,6 +4,7 @@ import { AuthRequest } from '../types';
 import { watchersfromRedis } from '../helpers/watchersFromRedis';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { redisClient } from '../redis';
+import user_from_redis, { fireuser_from_redis } from '../helpers/userfromRedis';
 
 export const getHospitals = async(req:Request,res:Response) =>{
     try {
@@ -179,6 +180,44 @@ export const getGlance = async (req:AuthRequest,res:Response) =>{
         // const bedArr = icus.watcher.flatMap((watcher: { icu: { beds: any; }; }) => watcher.icu.beds);
 
         res.status(200).json(icusres);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch glance of icus from db' });
+    }
+}
+
+export const getOverviewforUser = async (req:AuthRequest,res:Response) =>{
+    try {
+        const user = await fireuser_from_redis(req.user);
+        const hospital = req.hospital;
+
+        const sessions = await prisma.session.findMany({
+            where:{
+                reason:null,
+                OR:[
+                    {
+                        doctorIds:{
+                            has: user.id
+                        }
+                    },
+                    {
+                        nurseIds:{
+                            has: user.id
+                        }
+                    }
+                ]
+            }
+        })
+
+        let completeSessions = await Promise.all(
+            sessions.map(async s => {
+                const patient = await patient_from_redis(s.patientId);
+                return {...s, patient, summary:"Need to fetch From gemini"}
+            })
+        )
+
+        res.status(200).json(completeSessions);
 
     } catch (error) {
         console.error(error);
