@@ -6,6 +6,7 @@ import { pintheGlance, unpinGlance } from "@/lib/pintoGlance";
 import { getDateDifferenceFromNow } from "@/lib/daysCalc";
 import { PatientInfoProps } from "@/types/pateintinfo";
 import Criticality from "@/components/custom/criticality";
+import { alertCheck } from "./alertChecker";
 
 const InfoBox = ({patient}:{patient:PatientInfoProps;}) =>{
     return (
@@ -17,12 +18,12 @@ const InfoBox = ({patient}:{patient:PatientInfoProps;}) =>{
     )
 }
 const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<number>>}) =>{
-    const critical = false;
+    const level = alertCheck(data.latest);
     const log = data.latest;
     const [criticality, setCriticality] = useState(data.apache);
     if(!log || (log && log.patientId != data.patientId)){
         return(
-            <div className={`${critical? "border-dashed border-red-500":"border-solid" } flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+            <div className={`${level[1]} flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
             <div className="flex justify-evenly items-center">
                 <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg
@@ -116,7 +117,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
         )
     }
     return (
-        <div className={`${critical? "border-dashed border-red-500":"border-solid" } flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+        <div className={`${level[1]}  flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
             <div className="flex justify-evenly items-center">
                 <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg
