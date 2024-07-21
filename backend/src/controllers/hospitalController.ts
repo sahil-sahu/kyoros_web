@@ -84,9 +84,9 @@ export const getICUs = async (req:AuthRequest,res:Response) =>{
                 where:{hospitalId:hospital},
                 include:{
                     beds:{
-                        where:{
-                            occupied:true
-                        },
+                        // where:{
+                        //     occupied:true
+                        // },
                         orderBy:{
                             name:'asc',
                         },

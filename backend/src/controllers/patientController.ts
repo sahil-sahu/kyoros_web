@@ -226,9 +226,16 @@ export const makeNote = async (req:AuthRequest, res:Response) =>{
 export const getNotes = async (req:AuthRequest, res:Response) =>{
   try {
     const patient = req.params.patient;
+    const patient_r = await patient_from_redis(patient);
+    const {bedStamp} = await prisma.bed.findUnique({where:{id:patient_r.bedId},select:{bedStamp:true}})
     const now = new Date();
     now.setHours(0,0,0,0)
-    const timeStamp = (req.query?.timeStamp)? new Date(req.query?.timeStamp.toString()) : new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    let timeStamp;
+    if(req.query?.timeStamp){
+      timeStamp = new Date(req.query.timeStamp as string);
+    } else{
+      timeStamp = new Date(bedStamp || now.getTime() - 24 * 60 * 60 * 1000);
+    }
     const notes = await prisma.notes.findMany({
       where:{
         patientId: patient,
@@ -241,7 +248,10 @@ export const getNotes = async (req:AuthRequest, res:Response) =>{
       const user = await user_from_redis(e.userid);
       return {...e, name: user.name, type: user.userType}
     }))
-    res.json(notes_user);
+    res.json({
+      notes: notes_user,
+      bedStamp
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

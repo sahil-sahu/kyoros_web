@@ -2,7 +2,7 @@
     ToggleGroup,
     ToggleGroupItem,
   } from "@/components/ui/toggle-group"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { getTimeFromISOString } from "@/lib/linechartformatter";
@@ -16,6 +16,7 @@ import { QueryFunctionContext } from "@tanstack/query-core";
 import { axiosInstance, setheader } from "@/lib/axios";
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useToast } from "../ui/use-toast";
+import Link from "next/link";
 
 interface ChatBox_t {
   name: string;
@@ -24,9 +25,13 @@ interface ChatBox_t {
   note: string;
   createdAt: string;
 }
+interface ChatRes {
+  notes: ChatBox_t[];
+  bedStamp: string; //date string
+}
 const ChatBox = ({name, createdAt, note, type}:ChatBox_t) =>{
   return (
-    <div className="chatbox flex gap-3 items-center">
+    <div id={new Date(createdAt).toISOString()} className="chatbox flex gap-3 items-center">
       <Checkbox />
       <div className={`p-4 py-2 text-white rounded-lg ${type.includes("doctor")? "bg-darkblue":"bg-[#4C8484]"}`}>
         <p className="font-bold">{name}</p>
@@ -82,12 +87,12 @@ const dummy:ChatBox_t[] = [
   }
 ]
 
-export const fetchNotes = async ({queryKey}: QueryFunctionContext): Promise<ChatBox_t[]> => {
+export const fetchNotes = async ({queryKey}: QueryFunctionContext): Promise<ChatRes> => {
   const [_, patientId] = queryKey;
   const response = await axiosInstance.get(`/patient/${patientId}/notes`, {
       headers: await setheader(),
     });
-  const notes: ChatBox_t[] = response.data;  
+  const notes: ChatRes = response.data;  
   return notes;
 };
 export const makeNote = async (body: {note:string; patientId:string;}): Promise<ChatBox_t> => {
@@ -98,7 +103,7 @@ export const makeNote = async (body: {note:string; patientId:string;}): Promise<
   return note;
 };
 
-const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Date, notes:UseQueryResult<ChatBox_t[], Error>}) =>{
+const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Date, notes:UseQueryResult<ChatRes, Error>}) =>{
   const [params, setparams] = useState<("all"|"doctor"|"nurse")>("all")
   const [chat, setchat] = useState<ChatBox_t[]>([])
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -110,13 +115,13 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
   });
 
   useEffect(()=>{
-    if(notes.data) setchat(notes.data)
+    if(notes.data) setchat(notes.data.notes)
   },[notes.data])
 
   useEffect(()=>{
-    if(params === "doctor") return setchat((notes.data || []).filter( k => k.type === "doctor"))
-    if(params === "nurse") return setchat((notes.data || []).filter( k => k.type === "nurse"))
-    return setchat((notes.data || [])) ;
+    if(params === "doctor") return setchat((notes.data?.notes || []).filter( k => k.type === "doctor"))
+    if(params === "nurse") return setchat((notes.data?.notes || []).filter( k => k.type === "nurse"))
+    return setchat((notes.data?.notes || [])) ;
   }, [params, notes.data])
   
   return (
@@ -140,7 +145,7 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
             </li>
         </ul>
       </header>
-      <div ref={scrollRef} className="grid grid-cols-1 gap-4 my-2 max-h-[60dvh] lg:max-h-[80dvh] overflow-y-auto">
+      <div ref={scrollRef} className="grid grid-cols-1 gap-4 my-2 max-h-[65dvh] overflow-y-auto">
         {
           (chat.length == 0) && "No new messages"
         }
@@ -158,6 +163,27 @@ export default function Notes({patientId}:{patientId:string}) {
     const message = useRef<string>("");
     const inputRef = useRef<HTMLInputElement>(null);
     const {toast} = useToast();
+    const bedStamp = notes.data?.bedStamp ?? ""
+
+    const getDays = useCallback(() => {
+      const dateObj1 = new Date(bedStamp);
+      const dateObj2 = new Date();
+      dateObj1.setHours(0,0,0,0)
+      dateObj2.setHours(0,0,0,0)
+  
+      const timeDiff = Math.abs(dateObj2.getTime() - dateObj1.getTime());
+      const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      const days = [];
+      for(let i = 1; i <= dayDiff+1; i++) {
+        let iso = new Date(dateObj1.getMilliseconds() + 1000 * 3600 * 24 * (i-1));
+        days.push({
+          day: `Day ${i}`,
+          id: iso.toISOString(),
+        })
+      }
+      return days;
+    }, [bedStamp]);
+
     const handleAddNote = async () => {
       if(message.current === "") return;
       try {
@@ -173,24 +199,13 @@ export default function Notes({patientId}:{patientId:string}) {
       <>
         <div className="flex justify-between">
           <ToggleGroup defaultValue={dayId} className="notes w-full justify-start grid grid-cols-5" type="single" onValueChange={(val)=>setDay(val)}>
-              <ToggleGroupItem value="day1" aria-label="Toggle bold">
-              Day 1
-              </ToggleGroupItem>
-              <ToggleGroupItem value="day2" aria-label="Toggle italic">
-              Day 2
-              </ToggleGroupItem>
-              <ToggleGroupItem value="day3" aria-label="Toggle strikethrough">
-              Day 3
-              </ToggleGroupItem>
-              <ToggleGroupItem value="day4" aria-label="Toggle strikethrough">
-              Day 4
-              </ToggleGroupItem>
-              <ToggleGroupItem value="day5" aria-label="Toggle strikethrough">
-              Day 5
-              </ToggleGroupItem>
-              <ToggleGroupItem value="day6" aria-label="Toggle strikethrough">
-              Day 6
-              </ToggleGroupItem>
+              {getDays().map(e => (
+                <ToggleGroupItem key={e.id} value={e.id} aria-label="Toggle bold">
+                  <a href={"#"+e.id}>
+                    {e.day}
+                  </a>
+                </ToggleGroupItem>
+              ))}
           </ToggleGroup>
           <Button variant={"outline"}>
             <Image src={print_i} className="mx-1" alt={"🖨️"} />
