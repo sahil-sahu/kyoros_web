@@ -1,10 +1,13 @@
 'use client';
 
-import { getCounts } from "@/lib/indexedDB";
-import { useQuery } from "@tanstack/react-query";
+import { getByPatient, getCounts } from "@/lib/indexedDB";
+import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 
-const AlertBox = () =>{
-    const {isLoading,isError, data, refetch} = useQuery({queryKey:["alertcount"], queryFn: getCounts})
+const AlertBox = ({patientId}:{patientId:string}) =>{
+    const {isLoading,isError, data, refetch} = useQuery({queryKey:["alertcount", patientId], queryFn: async ({queryKey}: QueryFunctionContext)=>{
+      const [_, filter]=queryKey;
+      return await getByPatient(typeof(filter) == "string"? filter: undefined);
+    }})
     if(isLoading || isError){
         return (
           <div className="h-full text-black rounded-xl text-left shadow col-span-1 border-2 border-darkblue p-5 flex mb-6 flex-col gap-[10%]">

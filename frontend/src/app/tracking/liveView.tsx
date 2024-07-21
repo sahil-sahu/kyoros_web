@@ -210,8 +210,8 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                 </div>
             </div>
         <div className='grid grid-rows-2 col-span-1 gap-3'>
-            <Link className="" href={"#"}>
-                <AlertBox></AlertBox>
+            <Link className="" href={`/request-notify`}>
+                <AlertBox patientId={patientId}></AlertBox>
             </Link>
             <Link className="border-2 border-darkblue p-5 rounded-xl" href={"/docs/"+patientId}>
                 <h3 className="text-lg mb-5 text-left font-semibold">Docs</h3>

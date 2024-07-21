@@ -29,9 +29,16 @@ export const deleteByid = async (id:number) =>{
     await db.notes.delete(id);
     console.log("Note has been deleted from your database.");
 }
-export const getAll= async (severity: "normal" | "critical") =>{
+export const getAll= async (severity: "normal" | "critical", filter? : string) =>{
     const res = (await db.notes.where("severity").equals(severity).sortBy('timeStamp')).reverse();
+    if(filter) return res.filter(n => n.title.includes(filter) || n.description.includes(filter));
     return await res;
+}
+export const getByPatient= async (filter : string|undefined) =>{
+    if(!filter) return {critical:0,moderate:0}
+    const critical = await db.notes.filter(note => note.link.includes(filter) && note.severity == "critical").count()
+    const moderate = await db.notes.filter(note => note.link.includes(filter) && note.severity == "normal").count()
+    return {critical,moderate};
 }
 interface AlertsCount {moderate:number; critical:number;}
 export const getCounts = async (): Promise<AlertsCount> => {

@@ -4,7 +4,7 @@ import { getMessaging, getToken, isSupported } from 'firebase/messaging';
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { setFcm } from './query/mutation';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { app } from '@/lib/firebase';
 import NavBox from '@/components/custom/header/header';
 import { NotificationTab, Alert } from './table';
@@ -47,21 +47,33 @@ function getData(): Alert[] {
 export default function Messaging() {
     const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:setFcm});
     const router = useRouter();
-    const normalNotification = useQuery({queryKey:['notification', "normal"], queryFn:fetchNotifications});
-    const criticalNotification = useQuery({queryKey:['notification', "critical"], queryFn:fetchNotifications});
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [feeds, setFeeds] = useState<notification[]>([]);
     const allfeeds = useRef<notification[]>([]);
-    const [ICU, ICUSet]  = useState<ICUInfo|undefined>((filterApi.data || [])[0]);
+    const searchParams = useSearchParams();
+    const icu = +(searchParams.get('icu') || "kyoros");
+    const bed = +(searchParams.get('bed') || "kyoros");
+    const [ICU, ICUSet]  = useState<ICUInfo|undefined>(!Number.isNaN(icu)?(filterApi.data || []).find(e=>e.id == icu):(filterApi.data || [])[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
+    useEffect(()=>{
+      if(!ICU) return;
+      BedSet(ICU.beds.find(e => e.id == bed))
+  },[ICU, bed])
+    const normalNotification = useQuery({queryKey:['notification', "normal", [ICU?.name, Bed?.name].join(", ")], queryFn:fetchNotifications});
+    const criticalNotification = useQuery({queryKey:['notification', "critical", [ICU?.name, Bed?.name].join(", ")], queryFn:fetchNotifications});
 
     const pushFeed = (feed:notification) => setFeeds((prev)=> [...prev, feed]);
     const popFeed = (feed:notification) => setFeeds((prev)=> prev.filter(f=> f.id!= feed.id));
 
     const setICU = (val:string) =>{
-      if(val == "none") return ICUSet(undefined);
+      if(val == "none"){
+        BedSet(undefined)
+        return ICUSet(undefined);}
       const icu = (filterApi.data || []).find(e => (parseInt(val) ?? 0) == e.id);
-      if(icu) ICUSet(icu);
+      if(icu){
+        BedSet(undefined)
+        ICUSet(icu)
+      };
     }
 
     const setBed = (val:string) => {
@@ -138,7 +150,7 @@ export default function Messaging() {
             <th className="px-6 py-3 text-right bg-gray-50 text-xs float-end leading-4 flex gap-2 font-medium text-gray-500 uppercase tracking-wider">
               <div className='w-min gap-2 flex items-center'>
               <h3 className='text-lg font-bold w-32'>Filter By : </h3>  
-              <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
+              <Select value={ICU?.id.toString() || "none"} onValueChange={setICU} defaultValue={ICU?.id.toString()}>
                   <SelectTrigger className='w-32'>
                       <SelectValue className='w-24' placeholder="Select ICU" />
                   </SelectTrigger>
@@ -151,7 +163,7 @@ export default function Messaging() {
                       }
                   </SelectContent>
               </Select>
-              <Select value={Bed?.id.toString()} defaultValue='none' onValueChange={setBed}>
+              <Select value={Bed?.id.toString() || "none"} defaultValue='none' onValueChange={setBed}>
 
 
                   <SelectTrigger className='w-32'>

@@ -18,9 +18,9 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
     const router = useRouter()
     const searchParams = useSearchParams();
     const icu = searchParams.get('icu') ?? "0";
+    const bed = parseInt((searchParams.get('bed') ?? "0"));
     const type = searchParams.get('type') == LiveTrend.Trend ? LiveTrend.Trend : LiveTrend.Live;
     const _param = PatientInfoType.find((e) => searchParams.get('vital') == e) ?? PatientInfoType[1];
-    const bed = parseInt((searchParams.get('bed') ?? "0"));
     const [ICU, ICUSet]  = useState<ICUInfo>(icusInfo.find(e => parseInt(icu) == e.id) ?? icusInfo[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
     const [trendtype, typeSet]  = useState<LiveTrend>(type);
