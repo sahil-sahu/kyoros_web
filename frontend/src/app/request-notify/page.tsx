@@ -1,7 +1,7 @@
 // pages/index.tsx
 "use client";
 import { getMessaging, getToken, isSupported } from 'firebase/messaging';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { setFcm } from './query/mutation';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -44,7 +44,7 @@ function getData(): Alert[] {
     // Add more dummy data as needed
   ];
 }
-export default function Messaging() {
+function _Messaging() {
     const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:setFcm});
     const router = useRouter();
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
@@ -205,5 +205,13 @@ export default function Messaging() {
       </section>)}
       </div>
     </main>
+  );
+}
+
+export default function Messaging(){
+  return (
+    <Suspense>
+      <_Messaging />
+    </Suspense>
   );
 }
