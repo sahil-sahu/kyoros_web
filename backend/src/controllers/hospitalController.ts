@@ -224,3 +224,29 @@ export const getOverviewforUser = async (req:AuthRequest,res:Response) =>{
         res.status(500).json({ error: 'Failed to fetch glance of icus from db' });
     }
 }
+export const getOccupancy = async (req:AuthRequest,res:Response) =>{
+    try {
+        const hospitalId = req.hospital;
+
+        const data = await prisma.iCU.findMany({
+            where:{
+                hospitalId
+            },
+        })
+
+        let icus = await Promise.all(
+            data.map(async icu => {
+                const total = await prisma.bed.count({where:{ICU:icu}})
+                const filled = await prisma.bed.count({where:{ICU:icu, occupied:true}})
+                return {name:icu.name, total, filled}
+            })
+        )
+
+        res.status(200).json(icus);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch glance of icus from db' });
+    }
+}
+

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getGlance, getHospitals, getICUs, getICUs_w_unoccupied, getOverviewforUser, getUsers, getbeds } from "../controllers/hospitalController";
+import { getGlance, getHospitals, getICUs, getICUs_w_unoccupied, getOccupancy, getOverviewforUser, getUsers, getbeds } from "../controllers/hospitalController";
 import { verifyToken } from "../middleware/jwtCheck";
 
 const router = Router();
@@ -11,6 +11,7 @@ router.get("/users", verifyToken, getUsers)
 router.get("", getHospitals)
 router.get("/glance", verifyToken,getGlance)
 router.get("/overview", verifyToken, getOverviewforUser)
+router.get("/occupancy", verifyToken, getOccupancy)
 
 
 export default router;
