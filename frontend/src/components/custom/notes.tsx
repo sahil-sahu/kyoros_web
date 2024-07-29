@@ -2,7 +2,7 @@
     ToggleGroup,
     ToggleGroupItem,
   } from "@/components/ui/toggle-group"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { FormEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { getTimeFromISOString } from "@/lib/linechartformatter";
@@ -17,6 +17,7 @@ import { axiosInstance, setheader } from "@/lib/axios";
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useToast } from "../ui/use-toast";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface ChatBox_t {
   name: string;
@@ -30,8 +31,10 @@ interface ChatRes {
   bedStamp: string; //date string
 }
 const ChatBox = ({name, createdAt, note, type}:ChatBox_t) =>{
+  const dt = new Date(createdAt);
+  dt.setHours(0,0,0,0)
   return (
-    <div id={new Date(createdAt).toISOString()} className="chatbox flex gap-3 items-center">
+    <div id={dt.toISOString()} className="chatbox flex gap-3 items-center">
       <Checkbox />
       <div className={`p-4 py-2 text-white rounded-lg ${type.includes("doctor")? "bg-darkblue":"bg-[#4C8484]"}`}>
         <p className="font-bold">{name}</p>
@@ -107,25 +110,33 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
   const [params, setparams] = useState<("all"|"doctor"|"nurse")>("all")
   const [chat, setchat] = useState<ChatBox_t[]>([])
   const scrollRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const currentParams = new URLSearchParams(searchParams);
+  const dt = currentParams.get("dt")
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  });
+  },[params, notes.data]);
 
-  useEffect(()=>{
-    if(notes.data) setchat(notes.data.notes)
-  },[notes.data])
-
+  
   useEffect(()=>{
     if(params === "doctor") return setchat((notes.data?.notes || []).filter( k => k.type === "doctor"))
-    if(params === "nurse") return setchat((notes.data?.notes || []).filter( k => k.type === "nurse"))
-    return setchat((notes.data?.notes || [])) ;
-  }, [params, notes.data])
-  
-  return (
-    <section className="chatarea">
+      if(params === "nurse") return setchat((notes.data?.notes || []).filter( k => k.type === "nurse"))
+        return setchat((notes.data?.notes || [])) ;
+    }, [params, notes.data])
+    useLayoutEffect(()=>{
+      if(dt && dt != "all") return setchat((notes.data?.notes || []).filter( k => {
+        const date = new Date(k.createdAt);
+        date.setHours(0,0,0,0)
+        return date.toISOString() == dt
+      }))
+      return setchat((notes.data?.notes || [])) ;
+    }, [dt, notes.data])
+    
+    return (
+      <section className="chatarea h-max">
       <header>
       <ul className="flex justify-evenly items-center gap-4">
             <li className="font-bold text-lg">
@@ -145,7 +156,7 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
             </li>
         </ul>
       </header>
-      <div ref={scrollRef} className="grid grid-cols-1 gap-4 my-2 max-h-[65dvh] overflow-y-auto">
+      <div ref={scrollRef} className="flex flex-col justify-start gap-4 my-2 max-h-[61dvh] mb-16 overflow-y-auto">
         {
           (chat.length == 0) && "No new messages"
         }
@@ -161,6 +172,9 @@ export default function Notes({patientId}:{patientId:string}) {
     const notes = useQuery({queryKey:["notes", patientId], queryFn:fetchNotes})
     const addNote = useMutation({mutationFn:makeNote})
     const message = useRef<string>("");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentParams = new URLSearchParams(searchParams);
     const inputRef = useRef<HTMLInputElement>(null);
     const {toast} = useToast();
     const bedStamp = notes.data?.bedStamp ?? ""
@@ -175,7 +189,7 @@ export default function Notes({patientId}:{patientId:string}) {
       const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
       const days = [];
       for(let i = 1; i <= dayDiff+1; i++) {
-        let iso = new Date(dateObj1.getMilliseconds() + 1000 * 3600 * 24 * (i-1));
+        let iso = new Date(dateObj1.getTime() + 1000 * 3600 * 24 * (i-1));
         days.push({
           day: `Day ${i}`,
           id: iso.toISOString(),
@@ -196,9 +210,18 @@ export default function Notes({patientId}:{patientId:string}) {
       }
     }
     return (
-      <>
+      <div className="h-full items-stretch relative">
         <div className="flex justify-between">
-          <ToggleGroup defaultValue={dayId} className="notes w-full justify-start grid grid-cols-5" type="single" onValueChange={(val)=>setDay(val)}>
+          <ToggleGroup defaultValue={dayId} className="notes w-full justify-start grid grid-cols-5" type="single" onValueChange={(val)=>{
+            currentParams.set("dt", val)
+            router.push('/tracking?'+currentParams.toString())
+            setDay(val)
+          }}>
+              <ToggleGroupItem key={"all"} value={"all"} aria-label="Toggle bold">
+                  <a href={"#"}>
+                    {"All"}
+                  </a>
+                </ToggleGroupItem>
               {getDays().map(e => (
                 <ToggleGroupItem key={e.id} value={e.id} aria-label="Toggle bold">
                   <a href={"#"+e.id}>
@@ -213,11 +236,14 @@ export default function Notes({patientId}:{patientId:string}) {
           </Button>
         </div>
         <ChatArea notes={notes} patientId={patientId} timeStamp={new Date()} />
-        <div className="flex gap-2 items-center">
+        <form onSubmit={(e)=>{
+          e.preventDefault()
+          handleAddNote()
+        }} className="flex gap-2 float-end absolute bottom-12 w-full items-center">
           <Input ref={inputRef} onChange={(e)=>{message.current = e.target.value}} className="rounded-full" />
           <Button onClick={handleAddNote} variant={"outline"} className="rounded-full w-12 h-12">{addNote.isPending? <DotsHorizontalIcon />: <PaperPlaneIcon className="-rotate-45" />}</Button>
-        </div>
-      </>
+        </form>
+      </div>
     )
   }
   

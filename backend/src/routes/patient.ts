@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { createPatient, createPatientPeriodic, getDocs, getLatestlog, getNotes, getPatient, getPatientbyUhid, getPatients, makeNote, searchPatients, setCritcality } from '../controllers/patientController';
+import { createPatient, createPatientPeriodic, getBedInfobyPatient, getDocs, getLatestlog, getNotes, getPatient, getPatientbyUhid, getPatients, makeNote, searchPatients, setCritcality } from '../controllers/patientController';
 import { upload } from '../helpers/docUpload';
 import { verifyToken } from '../middleware/jwtCheck';
 
@@ -16,4 +16,5 @@ patientRouter.get('/byuhid', verifyToken, getPatientbyUhid);
 patientRouter.get('/:patient', getPatient);
 patientRouter.get('/:patient/realtimelog', getLatestlog)
 patientRouter.post('/setcriticality', verifyToken, setCritcality);
+patientRouter.get('/getBedInfobyPatient', verifyToken, getBedInfobyPatient);
 export default patientRouter;

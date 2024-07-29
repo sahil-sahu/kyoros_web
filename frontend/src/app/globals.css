@@ -95,3 +95,7 @@
 .bounce {
   animation: bounce-subtle 2s infinite ease-in-out;
 }
+
+#authbox{
+  padding: 15px 0 !important;
+}

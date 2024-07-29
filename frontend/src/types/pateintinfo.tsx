@@ -14,6 +14,7 @@ export interface PatientInfoProps {
   phone: string;
   hospitalId: string;
   apache?:number;
+  bedStamp?: string; //Date
   bedId:number;
 }
 

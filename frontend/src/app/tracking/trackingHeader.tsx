@@ -64,7 +64,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                             }
                         </SelectContent>
                     </Select>
-                    <Select defaultValue={trendtype} onValueChange={(e:LiveTrend) => {
+                    {type == LiveTrend.Trend && <Select defaultValue={LiveTrend.Trend} onValueChange={(e:LiveTrend) => {
                         typeSet(LiveTrend[e])
                         if(Bed?.id === undefined){
                             return toast({
@@ -83,7 +83,7 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
                             <SelectItem value={LiveTrend.Live}>Live</SelectItem>
                             <SelectItem value={LiveTrend.Trend}>Trend</SelectItem>
                         </SelectContent>
-                    </Select>
+                    </Select>}
                     {type == LiveTrend.Trend && (
                         <Select defaultValue={param} onValueChange={(val:HealthParameter) => {
                                 const currentParams = new URLSearchParams(searchParams);

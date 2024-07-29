@@ -1,4 +1,4 @@
-.navlist > li > a{
+.navlist li button{
     display: flex;
     gap: 5px;
     align-items: center;

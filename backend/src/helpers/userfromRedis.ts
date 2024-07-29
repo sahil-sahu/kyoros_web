@@ -8,7 +8,7 @@ export default async function user_from_redis(userId:string):Promise<User> {
         const user = await prisma.user.findUniqueOrThrow({
             where:{
                 id:userId,
-                verified:true,
+                // verified:true,
             },
             // select:{
             //     name:true,

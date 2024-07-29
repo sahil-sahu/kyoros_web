@@ -52,7 +52,8 @@ export default function Login(){
 
     React.useEffect(()=>{
       if(data){
-        router.push("/");
+        if(data=="admin") return router.push("/");
+        router.push("/"+data);
       }
     }, [data, router]);
 

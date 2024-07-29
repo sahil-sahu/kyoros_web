@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/table"
 import Link from "next/link"
 import { PatientDoc } from "@/types/patientDoc"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 
 
@@ -171,6 +172,7 @@ export const columns: ColumnDef<PatientDoc>[] = [
       return (
         <Button
           variant="ghost"
+          id="file_created"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Created at
@@ -249,13 +251,13 @@ export function DataTableDemo({data, refetch}:{data:PatientDoc[]; refetch: () =>
 
   return (
     <>
-    <section className="w-full bg-gray-100 flex flex-col gap-16 md:flex-row justify-center p-2">
+    <section className="w-full bg-gray-100 flex flex-col gap-2 p-2">
         <ul className="flex justify-evenly items-center gap-4">
             <li className="font-bold text-lg">
                 Filter:
             </li>
             <li className="flex justify-between items-center gap-2">
-                <Checkbox className="bg-c_lg_blue" onClick={()=>setTag("")} checked={tag==""} id="all" />
+                <Checkbox className="" onClick={()=>setTag("")} checked={tag==""} id="all" />
                 <Label htmlFor="all">All</Label>
             </li>
             <li className="flex justify-between items-center gap-2">
@@ -273,6 +275,30 @@ export function DataTableDemo({data, refetch}:{data:PatientDoc[]; refetch: () =>
             <li className="flex justify-between items-center gap-2">
                 <Checkbox onClick={()=>setTag("General")} checked={tag=="General"} id="General"></Checkbox>
                 <Label htmlFor="General">General</Label>
+            </li>
+        </ul>
+        <ul className="flex max-w-5xl w-full m-auto items-center gap-4">
+            <li className="font-bold text-lg">
+                Sort by:
+            </li>
+            <li className="flex justify-between items-center gap-2">
+            <Select defaultValue="desc" onValueChange={(e)=>{
+              let button = document.getElementById("file_created")
+              button?.click()
+            }}>
+                  <SelectTrigger>
+                      <SelectValue className='w-24 my-2' />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value={"asc"}>Date (Oldest First)</SelectItem>
+                      <SelectItem value={"desc"}>Date (Newest First)</SelectItem>
+                      {/* {
+                          (filterApi.data || []).map(e => (
+                              <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>
+                          ))
+                      } */}
+                  </SelectContent>
+          </Select>
             </li>
         </ul>
     </section>

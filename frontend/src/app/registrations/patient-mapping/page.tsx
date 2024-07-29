@@ -39,6 +39,10 @@ import { ICUInfo, bedInfo } from "@/types/ICU";
 import { transferPatient } from "./queries/transfer";
 import { dischargePatient } from "./queries/discharge";
 import { fetchICU_Unoccupied } from "../new-patient/query/getICUs";
+import { useSearchParams } from "next/navigation";
+import { getAllBeds, Occupiedinfos } from "./queries/allOccupiedBeds";
+import Fuse from "fuse.js";
+import { PatientInfoProps } from "@/types/pateintinfo";
 
 const Box:CSSProperties = {
     backgroundColor: "#fff",
@@ -53,19 +57,52 @@ interface infos {
     sessionId? : string;
 }
 
+const fuseOptions = {
+	// isCaseSensitive: false,
+	// includeScore: false,
+	// shouldSort: true,
+	// includeMatches: false,
+	// findAllMatches: false,
+	// minMatchCharLength: 1,
+	// location: 0,
+	// threshold: 0.6,
+	// distance: 100,
+	// useExtendedSearch: false,
+	// ignoreLocation: false,
+	// ignoreFieldNorm: false,
+	// fieldNormWeight: 1,
+	keys: [
+		"name",
+		"uhid",
+	]
+};
 
 const bedArr = [222,223,225,264,963,698,642,756,742,638,753]
 interface transferObj {bedId?:number, bedName?:string, icuName?:string , icuId?:number}
 const PatientMapping = () => {
 
     const { data, isLoading, refetch, error } = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
+    const occupiedBeds = useQuery({queryKey:['icu_occupied'], queryFn: getAllBeds});
     const icuInfos = useQuery({ queryKey: ['icu_unoccupied'], queryFn: fetchICU_Unoccupied });
     const [_, refresh] = useState(new Date().getMilliseconds())
     const transferMutation =  useMutation({mutationFn:transferPatient})
     const dischargeMutation =  useMutation({mutationFn:dischargePatient})
     const transferRef = useRef<transferObj>({bedId: undefined, bedName: undefined, icuName:undefined , icuId:undefined})
     const dischargeRef = useRef<{sessionId?: string, reason?: string}>({sessionId:undefined, reason: undefined})
-    const [selectedICU, setSelectedICU] = useState<number|undefined>();
+    const [value, setValue] = useState("")
+    const debounce = useRef(setTimeout(() => {}, 1000));
+    const fuseRef= useRef(new Fuse([] as Occupiedinfos[], fuseOptions));
+    const [patient, setpatient] = useState<Occupiedinfos[]>([]);
+    const icu = +(useSearchParams().get('icu') ?? "0");
+    const [selectedICU, setSelectedICU] = useState<number|undefined>(icu);
+    useEffect(()=>{
+        if(value == "") return setpatient(occupiedBeds.data || []);
+        clearTimeout(debounce.current);
+        debounce.current = setTimeout(() => {
+          setpatient(fuseRef.current.search(value).map(({item})=>item))
+        }, 500);
+        }
+      ,[occupiedBeds.data, value])
     const {data: bedInfos, isLoading:loading, error: bedError, refetch: bedRefetch} = useQuery({queryKey:["icu", selectedICU], queryFn: async ({queryKey}: QueryFunctionContext): Promise<infos[]> => {
         const [_, icuId] = queryKey;
         if(undefined || typeof(icuId) != 'number') throw Error("No Valid Icu Provided");
@@ -127,7 +164,7 @@ const PatientMapping = () => {
             <section className='p-2 py-5 max-w-3xl m-auto'>
                 <div className="relative">
                     <span className="text-xs absolute -top-2 left-5 bg-white px-2">ICU</span>
-                <Select onValueChange={(e)=>{setSelectedICU(+e);}}>
+                <Select defaultValue={icu?.toString()}  onValueChange={(e)=>{setSelectedICU(+e);}}>
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select ICU" />
                     </SelectTrigger>
@@ -144,20 +181,22 @@ const PatientMapping = () => {
                     {bedError && bedError.message }
                     {(bedInfos || []).map((e)=>(
                         <Dialog key={e.id}>
-                        <DialogTrigger>
-                            <div className="text center">
-                                <div className={`m-auto bg w-10 p-3 h-10 rounded ${e.occupied? 'bg-red-500': 'bg-green-500'}`}></div>
+                        <DialogTrigger disabled={(!e.sessionId && e.occupied)}>
+                            <div title={(!e.sessionId && e.occupied)?"not configured properly":""} className="text center">
+                                <div  className={`m-auto bg w-10 p-3 h-10 rounded ${e.occupied? 'bg-red-500': 'bg-green-500'} ${(!e.sessionId && e.occupied) ? "!bg-gray-500": ''}`}></div>
                                 <p className="py-1 text-xs">{e.name}
                                 </p>
                             </div>
                         </DialogTrigger>
                         {e.occupied?(
-                            <DialogContent className="bg-white">
+                            <DialogContent className="border-none shadow-none">
                                 <RadioGroup defaultValue="transfer">
-                                    <div className="flex gap-4">
-                                        <RadioGroupItem value="transfer" id="option-one" />
-                                        <Label htmlFor="option-one">Transfer Patient</Label>
-                                    </div>
+                                    <div className="flex flex-col bg-white shadow rounded space-x-2 p-4 gap-4">
+                                        <div>
+                                            <RadioGroupItem value="transfer" id="option-one" />
+                                            <Label className="px-2" htmlFor="option-one">Transfer Patient</Label>
+                                        </div>
+                                    
                                     <div className="flex items-center space-x-2">
                                         <Select onValueChange={(e:string)=>{
                                         const icu = (icuInfos.data || []).find(k => k.id == +e)
@@ -192,28 +231,36 @@ const PatientMapping = () => {
                                                 }
                                             </SelectContent>
                                         </Select>
+                                        </div>
+                                        <div className="w-full flex justify-center items-center">
                                         <Button onClick={()=>{transferPatientfn(e.sessionId, e.id)}} className="bg-darkblue p-2 px-3 rounded m-auto">
                                             Transfer
                                         </Button>
+                                        </div>
                                     </div>
-                                    <div className="space-x-2">
-                                        <RadioGroupItem value="option-two" id="option-two" />
-                                        <Label htmlFor="option-two">Discharge Patient</Label>
+
+                                    <div className="space-x-2 bg-white shadow rounded my-0.5 p-4">
+                                        <div className="gap-1 flex items-center">
+                                            <RadioGroupItem value="option-two" id="option-two" />
+                                            <Label className="px-2" htmlFor="option-two">Discharge Patient</Label>
+                                        </div>
                                         <Select onValueChange={(e:string)=>{
                                                     dischargeRef.current.reason = e
                                                 }}>
-                                            <SelectTrigger>
-                                                <SelectValue className="my-2" placeholder="Select Bed" />
+                                            <SelectTrigger className="my-4">
+                                                <SelectValue  placeholder="Reason" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem key={"Patient Deceased"} value={"Patient Deceased"}>{"Patient Deceased"}</SelectItem>
-                                                <SelectItem key={"patient Stable"} value={"patient Stable"}>{"patient Stable"}</SelectItem>
+                                                <SelectItem key={"Patient Stable"} value={"Patient Stable"}>{"Patient Stable"}</SelectItem>
                                                 <SelectItem key={"Patient's wish"} value={"Patient's wish"}>{"Patient's wish"}</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <Button onClick={()=>{dischargePatientfn(e.sessionId, dischargeRef.current.reason)}} className="bg-darkblue my-1 p-2 px-3 rounded m-auto">
+                                        <div className="w-full flex justify-center items-center">
+                                        <Button onClick={()=>{dischargePatientfn(e.sessionId, dischargeRef.current.reason)}} className="bg-darkblue p-2 px-3 rounded">
                                             Discharge
                                         </Button>
+                                        </div>
                                     </div>
                                 </RadioGroup>
 

@@ -73,13 +73,15 @@ const data: historyModel[] = [
 export default function PatientHistory({patientId}:{patientId:string;}){
     return (
         <Dialog onOpenChange={undefined}>
-          <DialogTrigger asChild>
+          <DialogTrigger className={"w-full text-center m-auto"} asChild>
             <h1 className="bg-clip-text cursor-pointer text-transparent bg-gradient-to-r from-[#05BBFF] to-[#4F60FF]">
+                    Patient History
                     <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
                 fill="none"
+                className="inline"
                 viewBox="0 0 15 15"
                 >
                 <path

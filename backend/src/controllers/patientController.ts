@@ -253,6 +253,25 @@ export const getNotes = async (req:AuthRequest, res:Response) =>{
       bedStamp
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
+}
+
+export const getBedInfobyPatient = async (req:AuthRequest, res:Response) =>{
+    try {
+      const patientId = req.query.patientId;
+      if(!patientId || typeof(patientId) != "string") throw Error("Invalid patientId");
+      const info = await prisma.bed.findUnique({
+        where:{
+          patientId
+        }
+      })
+      return res.status(200).json(info);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        message: "Error from db"
+      });
+    }
 }

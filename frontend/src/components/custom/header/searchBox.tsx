@@ -22,39 +22,56 @@ import { useQuery } from "@tanstack/react-query"
 import { searchPatient } from "./query/searchPatient"
 import { Search, SearchCheckIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Input } from "@/components/ui/input"
+import { PatientInfoProps } from "@/types/pateintinfo"
+import Fuse from 'fuse.js'
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-]
+const fuseOptions = {
+	// isCaseSensitive: false,
+	// includeScore: false,
+	// shouldSort: true,
+	// includeMatches: false,
+	// findAllMatches: false,
+	// minMatchCharLength: 1,
+	// location: 0,
+	// threshold: 0.6,
+	// distance: 100,
+	// useExtendedSearch: false,
+	// ignoreLocation: false,
+	// ignoreFieldNorm: false,
+	// fieldNormWeight: 1,
+	keys: [
+		"name",
+		"uhid",
+	]
+};
+
 
 export default function SearchBox() {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
-  const router = useRouter()
+  const router = useRouter();
+  const debounce = React.useRef(setTimeout(() => {}, 1000));
+  const fuseRef= React.useRef(new Fuse([] as PatientInfoProps[], fuseOptions));
+  const [patient, setpatient] = React.useState<PatientInfoProps[]>([]);
   const resultPatients = useQuery({queryKey:["search"], queryFn:searchPatient})
     const onSubmit = (data: FormData) => {
         resultPatients.refetch()
       };
-      
+  React.useEffect(()=>{
+    if(resultPatients.data){
+      fuseRef.current = new Fuse(resultPatients.data, fuseOptions)
+    }
+  },[resultPatients.data])
+  React.useEffect(()=>{
+    if(value == "") return setpatient(resultPatients.data || []);
+    clearTimeout(debounce.current);
+    debounce.current = setTimeout(() => {
+      console.log("hi")
+      setpatient(fuseRef.current.search(value).map(({item})=>item))
+    }, 500);
+    }
+  ,[resultPatients.data, value])
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -62,21 +79,19 @@ export default function SearchBox() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[200px] px-2 justify-evenly"
         >
-          {value
-            ? ((resultPatients.data || [])).find((patient) => patient.uhid === value)?.name
-            : "Search patient"}
+          Search patient
           <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="S p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <Input onChange={(e)=>{setValue(e.target.value)}} placeholder="Enter Name or UHID" className="h-9"  />
           <CommandList>
-          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandEmpty>No patient found.</CommandEmpty>
           <CommandGroup>
-          {(resultPatients.data || []).map((patient) => (
+          {(patient).map((patient) => (
                 <CommandItem
                 key={patient.id}
                 value={patient.uhid}

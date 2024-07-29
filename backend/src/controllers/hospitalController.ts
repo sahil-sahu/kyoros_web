@@ -75,6 +75,51 @@ export const getbeds = async (req:AuthRequest,res:Response) =>{
         res.status(500).json({ error: 'Failed to fetch beds from db' });
     }
 }
+export const getbedsAll = async (req:AuthRequest,res:Response) =>{
+    try {
+        const beds = await prisma.bed.findMany({
+            where:{
+                hospitalId:req.hospital
+            },
+            orderBy:{
+                name:"asc"
+            },
+            select:{
+                name:true,
+                id:true,
+                occupied:true,
+                patientId:true,
+            }
+        })
+        const beds_session = await Promise.all(beds.map(async e =>{
+            const sessions = await prisma.session.findMany({
+                where:{
+                    bedId:{
+                        has: e.id
+                    },
+                    reason: null,
+                },
+                include:{
+                    patient:{
+                        select:{
+                            id:true,
+                            uhid:true,
+                            name:true
+                        }
+                    }
+                }
+
+            })
+            const session = sessions.find(s => s.bedId[s.bedId.length -1] == e.id)
+            return {...e, patient: session.patient, sessionId : session?.id ?? null, icuId: session?.icuId[session.icuId.length -1] ?? null, icuName: session?.icuName ?? null}
+        }))
+
+        return res.status(200).json(beds_session.filter(e => e.sessionId != null))
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch beds from db' });
+    }
+}
 
 export const getICUs = async (req:AuthRequest,res:Response) =>{
     try {
@@ -238,7 +283,7 @@ export const getOccupancy = async (req:AuthRequest,res:Response) =>{
             data.map(async icu => {
                 const total = await prisma.bed.count({where:{ICU:icu}})
                 const filled = await prisma.bed.count({where:{ICU:icu, occupied:true}})
-                return {name:icu.name, total, filled}
+                return {name:icu.name, total, filled, id:icu.id}
             })
         )
 

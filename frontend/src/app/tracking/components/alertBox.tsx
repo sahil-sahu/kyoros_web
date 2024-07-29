@@ -28,12 +28,14 @@ const AlertBox = ({patientId}:{patientId:string}) =>{
         <h3 className="text-lg  font-semibold">
           Alerts
         </h3>
+        <div className="flex justify-evenly text-center items-center h-full">
         <p className="text-sm text-darkblue">
-            <span className="text-4xl px-3 lg:pr-5">{data?.moderate}</span> Moderate
+            <span className="text-4xl px-3 block lg:pr-5">{data?.moderate}</span> Moderate
         </p>
         <p className="text-sm text-darkblue">
-            <span className="text-4xl px-3  lg:pr-5">{data?.critical}</span> Critical
+            <span className="text-4xl px-3 block lg:pr-5">{data?.critical}</span> Critical
         </p>
+        </div>
       </div>
     );
   }

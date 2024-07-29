@@ -25,7 +25,7 @@ const AlertBox = () =>{
     return (
       <div style={{
         background:"linear-gradient(to bottom right, #303778, #4C8484)"
-      }} className="text-white h-full rounded-xl shadow col-span-1 bg-darkblue p-5 flex flex-col gap-[15%]">
+      }} className="text-white aspect-square h-full rounded-xl shadow col-span-1 bg-darkblue p-5 flex flex-col gap-[15%]">
         <h3 className=" text-lg font-semibold">
           Alerts
         </h3>

@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { bedInfo, ICUInfo } from '@/types/ICU';
+import { DotFilledIcon } from '@radix-ui/react-icons';
+import { Radio, Wifi, WifiOff } from 'lucide-react';
 
 
 function getData(): Alert[] {
@@ -49,12 +51,17 @@ function _Messaging() {
     const router = useRouter();
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [feeds, setFeeds] = useState<notification[]>([]);
+    const [connected, setConnected] = useState(false)
     const allfeeds = useRef<notification[]>([]);
     const searchParams = useSearchParams();
     const icu = +(searchParams.get('icu') || "kyoros");
     const bed = +(searchParams.get('bed') || "kyoros");
     const [ICU, ICUSet]  = useState<ICUInfo|undefined>(!Number.isNaN(icu)?(filterApi.data || []).find(e=>e.id == icu):(filterApi.data || [])[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
+    useEffect(()=>{
+      const fcm = localStorage.getItem("fcmSet")
+      if(fcm && fcm == "true") setConnected(true);
+    },[])
     useEffect(()=>{
       if(!ICU) return;
       BedSet(ICU.beds.find(e => e.id == bed))
@@ -138,6 +145,7 @@ function _Messaging() {
   return (
     <main className='max-h-dvh overflow-hidden'>
       <NavBox title={"Notifications"}></NavBox>
+      
       <table className="min-w-full divide-y divide-gray-200">
         <thead className=''>
           <tr className=''>
@@ -145,7 +153,15 @@ function _Messaging() {
               <Checkbox onCheckedChange={(val:boolean)=> val?setFeeds(allfeeds.current):setFeeds([])} className='my-2 mx-3' />
             </th>
             <th className="px-6 py-3 bg-gray-50 text-left text-xs leading-4 w-full font-medium text-gray-500 uppercase tracking-wider">
-              Feed
+                Feeds
+            </th>
+            <th className={"p-2 bg-gray-50 text-left text-gray-500 !text-xs justify-end "}>
+            {/* <div className={'flex gap-2 items-center }>
+            </div> */}
+              <span className='w-[10rem]'>
+                {!connected && <div title='Not connected messaging service'><WifiOff xlinkTitle='Not connected message service' color='red' /></div>}
+                {connected && <div title='Connected messaging service'><Radio xlinkTitle='Not connected message service' color='green' /></div>}
+                </span>
             </th>
             <th className="px-6 py-3 text-right bg-gray-50 text-xs float-end leading-4 flex gap-2 font-medium text-gray-500 uppercase tracking-wider">
               <div className='w-min gap-2 flex items-center'>

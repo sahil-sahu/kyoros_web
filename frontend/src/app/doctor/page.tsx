@@ -40,7 +40,7 @@ export default function Home() {
   return (
     <main className="">
         <NavBox title={"Overview"}></NavBox>
-        <section className="px-2 py-3 m-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="px-2 py-3 m-auto grid grid-cols-2 w-fit lg:grid-cols-4 gap-4">
           <Link className="" href={'/request-notify'}>
             <AlertBox />
           </Link>

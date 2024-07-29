@@ -17,7 +17,8 @@ export const fetchPatientlogs = async ({queryKey}: QueryFunctionContext): Promis
   };
 export const fetchPatientlog = async ({queryKey}: QueryFunctionContext): Promise<LogData> => {
     const [patientid] = queryKey;
-    if(!patientid) throw "no patient id available";
+    console.log(patientid, patientid == "null")
+    if(!patientid || patientid == "null") throw Error("Bed is unoccupied");
     const response = await axiosInstance.get(`/logs/latest/${patientid}`, {
         // params:{old},
         headers: await setheader(),

@@ -29,6 +29,11 @@ import GetTable from '@/components/custom/logsFormater';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Notes from '@/components/custom/notes';
 import PatientHistory from '@/components/custom/patientHistory';
+import ageCalc from '@/lib/ageCalc';
+import { getDateDifferenceFromNow } from '@/lib/daysCalc';
+import { LiveTrend } from '@/types/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -38,9 +43,13 @@ const liveBox:CSSProperties = {
 }
 
 const LiveView =({patientId}:{patientId:string|null}) =>{
-
+    const router = useRouter()
+    const searchParams = useSearchParams();
+    const currentParams = new URLSearchParams(searchParams);
+    const icu = currentParams.get("icu")
+    const bed = currentParams.get("bed")
     const [latestInfo, setLatestInfo] = useState<Patientlog|undefined>();
-    const { data:logs, isLoading:logLoading, refetch:fetchLogs_a, error:err } = useQuery({queryKey:[patientId], queryFn:fetchPatientlog});
+    const { data:logs, isLoading:logLoading, refetch:fetchLogs_a, error:err } = useQuery({queryKey:[patientId], queryFn:fetchPatientlog, retry:false});
     const [criticality, setCriticality] = useState<number|undefined>();
     const mysocket = useRef<{room:string|null; unsubscribe: () => void;} | null>(null);
     
@@ -144,39 +153,42 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
     }
 
     if(err){
-        return <div className='text-lg text-center'>Failed to fetch patient Info!</div>
+        return <div className='text-lg text-center'>{err.message || "Failed to fetch patient Info!"}</div>
     }
 
     return(
         <section className='grid md:grid-cols-4 lg:grid-cols-7 grid-rows-2 grid-flow-row auto-rows-min items-start gap-2'>
         <div style={{
                 background:"linear-gradient(to bottom right, #303778, #4C8484)"
-            }} className='text-white flex justify-evenly rounded-xl p-4 col-span-3 lg:h-auto h-[90%]'>
+            }} className='text-white flex items-stretch justify-evenly rounded-xl p-4 col-span-3 lg:h-auto h-[90%]'>
                 <div className="flex flex-col justify-evenly items-center p-2 w-[50%]">
-                    <div className='flex w-full gap-4 mb-2 items-center'>
+                    <div className='flex flex-wrap w-full gap-4 mb-2 items-center'>
                         <Criticality setCriticality={setCriticality} g_criticality={criticality} data={{patientId, id:logs?.bedId || -1 , apache:logs?.apache} as GlanceInfo} />
                         <h3 className="text-lg w-max">
                             {logs?.uhid ?? "UHID: --"}
                         </h3>
                     </div>
-                    <Avatar style={{height:"100px", width:"100px"}}>
-                        <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div className='flex flex-col justify-evenly items-center'>
-                        <h3 className='text-lg capitalize'>
-                            {logs?.name}
-                        </h3>
-                        <div className='flex justify-between gap-3'>
-                            <span>{`Age: ${logs?.age}`}</span>
-                            <span>{logs?.gender}</span>
+                    <div className='grid grid-cols-5 items-stretch gap-3 w-full'>
+                        <Avatar className='aspect-square col-span-2 h-full w-full' >
+                            <AvatarImage className='h-full aspect-square object-cover w-full' src="https://github.com/shadcn.png" />
+                            <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
+                        <div className='flex flex-col col-span-3 justify-evenly items-center'>
+                            <h3 className='text-lg capitalize font-bold'>
+                                {logs?.name}
+                            </h3>
+                            <div className='flex justify-between gap-3 mb-3'>
+                                <span>{`${logs?.dob ? ageCalc(logs?.dob): logs?.age}`}yrs</span>
+                                <span>{logs?.gender}</span>
+                                <span>Days {getDateDifferenceFromNow(logs?.bedStamp ?? "0")}</span>
+                            </div>
+                            <PatientHistory  patientId={patientId} />
                         </div>
                     </div>
-                    <PatientHistory patientId={patientId} />
                     <div className='divider border-white w-full my-2 border h-0'></div>
-                    <div className='flex justify-between gap-3'>
+                    <div className='flex justify-between gap-5'>
                         <div>
-                            <h3 className='text-lg'>
+                            <h3 className='text-lg font-bold'>
                                 Comordities
                             </h3>
                             <ol>
@@ -186,7 +198,7 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                             </ol>
                         </div>
                         <div>
-                            <h3 className='text-lg'>
+                            <h3 className='text-lg font-bold'>
                                 Surgeries
                             </h3>
                             <ol>
@@ -198,7 +210,7 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                         <div></div>
                     </div>
                 </div>
-                <div className='divider border-white border h-full'></div>
+                <div className='divider border-white border w-0 bg-white h-[20rem]'></div>
                 <div className='p-3 py-5 w-[40%] text-center'>
                     <h3 className='my-3 text-lg font-semibold'>
                         Diagnosis
@@ -209,8 +221,8 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                     </p>
                 </div>
             </div>
-        <div className='grid grid-rows-2 col-span-1 gap-3'>
-            <Link className="" href={`/request-notify`}>
+        <div className='grid grid-rows-2 h-full items-stretch col-span-1 gap-3'>
+            <Link className="" href={`/request-notify?icu=${icu}&bed=${bed}`}>
                 <AlertBox patientId={patientId}></AlertBox>
             </Link>
             <Link className="border-2 border-darkblue p-5 rounded-xl" href={"/docs/"+patientId}>
@@ -218,13 +230,13 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                 <Image className="m-auto w-24 object-contain" src={folder_i} alt={"📂"} />
             </Link>
         </div>
-        <Tabs defaultValue="notes" className="col-span-full lg:col-span-3 p-2 rounded border row-span-2 h-auto">
-            <TabsList className='bg-white patient rounded-none border-b gap-1 flex justify-evenly w-max'>
-                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="notes">Notes</TabsTrigger>
-                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="medication">Medication</TabsTrigger>
-                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white' value="i_o">I/O</TabsTrigger>
+        <Tabs defaultValue="notes" className="col-span-full lg:col-span-3 p-2 rounded border row-span-2 h-full">
+            <TabsList className='bg-white patient rounded-none border-b gap-1 flex justify-evenly w-full text-black'>
+                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="notes">Notes</TabsTrigger>
+                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="medication">Medication</TabsTrigger>
+                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="i_o">I/O</TabsTrigger>
             </TabsList>
-            <TabsContent value="notes"><Notes patientId={patientId}/></TabsContent>
+            <TabsContent className='h-full' value="notes"><Notes patientId={patientId}/></TabsContent>
             <TabsContent value="medication">Medication section</TabsContent>
             <TabsContent value="i_o">I/O</TabsContent>
         </Tabs>
@@ -233,6 +245,19 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                 <h3 className='text-center text-2xl font-bold'>
                     Patient Parameter
                 </h3>
+                <div className='grid grid-cols-2 gap-2 '>
+                <Select defaultValue={LiveTrend.Live} onValueChange={(e:LiveTrend)=>{
+                    currentParams.set('type', LiveTrend.Trend);
+                    if(e == LiveTrend.Trend) router.push('/tracking?'+currentParams.toString())
+                }}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Display Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value={LiveTrend.Live}>Live</SelectItem>
+                        <SelectItem value={LiveTrend.Trend}>Trend</SelectItem>
+                    </SelectContent>
+                </Select>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className='capitalize relative w-[10rem] text-left text-ellipsis'> <span className='absolute top-0 text-xs -translate-y-2.5 left-2 bg-white'>Devices</span> <span className='w-[8rem] text-left text-ellipsis overflow-hidden'>{params.join(", ")}</span> <CaretDownIcon className='ml-2 float-end absolute right-2' /> </Button>
@@ -284,8 +309,9 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                         </DropdownMenuCheckboxItem>
                     </DropdownMenuContent>
                     </DropdownMenu>
+                </div>
             </div>
-            <div className='rounded-t-lg overflow-auto mt-3 w-full'>
+            <div className='rounded-t-lg overflow-auto mt-3 h-[85%] w-full'>
                 {(latestInfo && logs) ? <GetTable logs={logs.logs} latestInfo={latestInfo} />: "No Logs for current Patient"}
             </div>
             </div>

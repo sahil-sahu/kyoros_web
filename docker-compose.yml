@@ -31,7 +31,7 @@ services:
     depends_on:
       - clientServer
     image: kyoros-frontend:latest
-    environment:
+    # environment:
       # - NEXT_PUBLIC_API_URL=http://clientServer:5000
       # - NEXT_PUBLIC_EVENT_URL=http://logServer:8000
     build:

@@ -29,8 +29,8 @@ const criticalitySort = (a:GlanceInfo, b:GlanceInfo) => {
     const criticalityB = b.apache ? b.apache : 0;
     return criticalityB - criticalityA; // Sorting in descending order
   }
-const daysSort_desc = (a:GlanceInfo, b:GlanceInfo) => new Date(b.bedStamp || "").getTime() - new Date(a.bedStamp || "").getTime()
-const daysSort = (a:GlanceInfo, b:GlanceInfo) => new Date(a.bedStamp || "").getTime()-new Date(b.bedStamp || "").getTime()
+const daysSort_desc = (a:GlanceInfo, b:GlanceInfo) => new Date(b.bedStamp || 0).getTime() - new Date(a.bedStamp || 0).getTime()
+const daysSort = (a:GlanceInfo, b:GlanceInfo) => new Date(a.bedStamp || 0).getTime()-new Date(b.bedStamp || 0).getTime()
 
 
 
@@ -131,13 +131,18 @@ const AtGlance = () => {
                     }
                 </NavigationMenuList>
             </NavigationMenu>
-            <div className="w-full p-2 border-t border-b border-solid border-gray-300">
-                <ToggleGroup defaultValue="d" type="single">
+            <div className="w-full border-t border-b border-solid border-gray-300">
+            <div className="w-full m-auto max-w-7xl p-2 flex items-center gap-5 justify-evenly ">
+                <div className="font-bold w-[5rem] text-right">
+                    SORT BY:
+                </div>
+                <ToggleGroup className="justify-evenly w-full flex-5" defaultValue="d" type="single">
                     <ToggleGroupItem onClick={()=>{refresh(new Date().getMilliseconds())}} value="d">Default</ToggleGroupItem>
-                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(criticalitySort)}))} value="a">Criticality(Highest First)</ToggleGroupItem>
+                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(criticalitySort)}))} value="a">Apache III(Highest First)</ToggleGroupItem>
                     <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort)}))} value="b">Date of Admission(Oldest First)</ToggleGroupItem>
                     <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort_desc)}))} value="c">Date of Admission(Newest First)</ToggleGroupItem>
                 </ToggleGroup>
+            </div>
             </div>
             <section className="grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2">
                 {

@@ -87,7 +87,7 @@ export const columns: ColumnDef<OverViewModel>[] = [
   {
     accessorKey: "admittedAt",
     cell: ({ row }) => (
-      <div className="capitalize m-auto text-center">{getDateDifferenceFromNow(row.getValue("admittedAt"))}</div>
+      <div className="capitalize pl-5 w-full m-auto">{getDateDifferenceFromNow(row.getValue("admittedAt"))}</div>
     ),
     header: ({ column }) => {
       return (
@@ -104,7 +104,7 @@ export const columns: ColumnDef<OverViewModel>[] = [
   {
     accessorKey: "apache",
     cell: ({ row }) => (
-      <div className="capitalize m-auto text-center">{row.getValue("apache")}</div>
+      <div className="capitalize pl-5 w-full m-auto">{row.getValue("apache")}</div>
     ),
     header: ({ column }) => {
       return (
@@ -118,13 +118,13 @@ export const columns: ColumnDef<OverViewModel>[] = [
       )
     },
   },
-  {
-    accessorKey: "patientId",
-    header: "Patient History",
-    cell: ({ row }) => (
-      <PatientHistory patientId={row.getValue("patientId")} />
-    ),
-  },
+  // {
+  //   accessorKey: "patientId",
+  //   header: "Patient History",
+  //   cell: ({ row }) => (
+  //     <PatientHistory patientId={row.getValue("patientId")} />
+  //   ),
+  // },
   {
     accessorKey: "patient.diagnosis",
     header: "Primary Diagnosis",
@@ -200,7 +200,7 @@ export function OverViewTable() {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {(typeof(column.columnDef.header) == "string")? column.columnDef.header?.toString() : column.id}
                   </DropdownMenuCheckboxItem>
                 )
               })}

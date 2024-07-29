@@ -7,6 +7,7 @@ import { getDateDifferenceFromNow } from "@/lib/daysCalc";
 import { PatientInfoProps } from "@/types/pateintinfo";
 import Criticality from "@/components/custom/criticality";
 import { alertCheck } from "./alertChecker";
+import { useRouter } from "next/navigation";
 
 const InfoBox = ({patient}:{patient:PatientInfoProps;}) =>{
     return (
@@ -20,10 +21,11 @@ const InfoBox = ({patient}:{patient:PatientInfoProps;}) =>{
 const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; refresh:Dispatch<SetStateAction<number>>}) =>{
     const level = alertCheck(data.latest);
     const log = data.latest;
+    const router = useRouter()
     const [criticality, setCriticality] = useState(data.apache);
     if(!log || (log && log.patientId != data.patientId)){
         return(
-            <div className={`${level[1]} flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+            <div onClick={()=>{router.push(`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`)}} className={`${level[1]} cursor-pointer flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
             <div className="flex justify-evenly items-center">
                 <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg
@@ -49,7 +51,6 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     ></path>
                   </svg>
                 )}</Toggle>
-                <div className="flex flex-col gap-2 items-center justify-between">
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <Link href={`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`} >
                     <h3 className="text-white">
@@ -57,9 +58,10 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </h3>
                     </Link>
                 </div>
-                <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
+                <div className="flex flex-col gap-0 items-center justify-between">
+                    <InfoBox patient={data.patient} />
+                    <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
                 </div>
-                <InfoBox patient={data.patient} />
             </div>
             <div className="grid-cols-3 grid justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
@@ -117,7 +119,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
         )
     }
     return (
-        <div className={`${level[1]}  flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+        <div onClick={()=>{router.push(`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`)}} className={`${level[1]} cursor-pointer flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
             <div className="flex justify-evenly items-center">
                 <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg

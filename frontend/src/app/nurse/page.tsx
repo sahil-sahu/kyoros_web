@@ -24,7 +24,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import { Line } from 'react-chartjs-2';
 import AlertBox from "@/components/custom/overview/alertBox";
 import upload_i from "./image 112.png"
 import OverViewTable from "@/components/custom/overview/table";
@@ -33,7 +32,7 @@ export default function Home() {
   return (
     <main className="">
         <NavBox title={"Overview"}></NavBox>
-        <section className="px-2 py-3  m-auto grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="px-2 py-3  m-auto w-fit grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Link className="" href={'/request-notify'}>
             <AlertBox />
           </Link>

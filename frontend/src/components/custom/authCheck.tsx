@@ -25,12 +25,12 @@ export function AuthBox(){
     }
     if(data){
         return(<Link href='#' onClick={LogOut}>
-                    <Image height={20} width={20} src={logout_ico} alt=''/>
+                    <Image height={20} className="inline mr-2" width={20} src={logout_ico} alt=''/>
                     Logout
                 </Link>)
     }
     return  <Link href="/auth/login">
-                <Image height={20} width={20} src={logout_ico} alt=''/>
+                <Image height={20} className="inline mr-2" width={20} src={logout_ico} alt=''/>
                 Login
             </Link>
 
