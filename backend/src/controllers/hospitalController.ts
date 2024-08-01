@@ -5,6 +5,7 @@ import { watchersfromRedis } from '../helpers/watchersFromRedis';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { redisClient } from '../redis';
 import user_from_redis, { fireuser_from_redis } from '../helpers/userfromRedis';
+import { generate_summary } from '../helpers/gemini';
 
 export const getHospitals = async(req:Request,res:Response) =>{
     try {
@@ -258,7 +259,8 @@ export const getOverviewforUser = async (req:AuthRequest,res:Response) =>{
         let completeSessions = await Promise.all(
             sessions.map(async s => {
                 const patient = await patient_from_redis(s.patientId);
-                return {...s, patient, summary:"Need to fetch From gemini"}
+                const summary = await generate_summary(s.patientId)
+                return {...s, patient, summary}
             })
         )
 
