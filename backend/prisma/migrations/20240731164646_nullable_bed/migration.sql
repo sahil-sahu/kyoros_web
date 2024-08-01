@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Session" ALTER COLUMN "bedName" DROP NOT NULL,
+ALTER COLUMN "icuName" DROP NOT NULL;

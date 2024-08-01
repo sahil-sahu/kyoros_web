@@ -1,3 +1,4 @@
+import { clearMapping } from '../helpers/clearMappings';
 import { prisma } from '../prisma';
 import { IPatientPeriodic, IPatient, AuthRequest } from '../types';
 import { Request, Response } from 'express';
@@ -47,25 +48,25 @@ export const makeSession = async (req: AuthRequest, res: Response) => {
             let session = await prisma.session.create({
                 data:{
                     patientId: values.found,
-                    icuId: [values.session.icu],
-                    bedId: [values.session.bed],
+                    icuId: values.session?.icu ? [values.session?.icu]:[],
+                    bedId: values.session?.bed ? [values.session?.bed] : [],
+                    icuName: values.session?.icuName,
+                    bedName: values.session?.bedName,
                     diagnosis: values.session.diagnosis,
                     comorbidities: values.session.comorbidities.split("\n"),
                     doctorIds: values.session.doctor,
                     apache: values.session.apache,
                     nurseIds: values.session.nurse,
                     hospitalId: req.hospital,
-                    icuName: values.session.icuName,
-                    bedName: values.session.bedName,
                 }
             })
-            let bedCheck = await prisma.bed.findFirstOrThrow({
+            let bedCheck = values.session.bed && await prisma.bed.findFirstOrThrow({
               where:{
                 id: values.session.bed,
                 occupied: false
               }
             })
-            let bedAllot = await prisma.bed.update({
+            let bedAllot = values.session.bed && await prisma.bed.update({
               where: {id: values.session.bed},
               data:{
                 patientId: values.found,
@@ -94,25 +95,25 @@ export const makeSession = async (req: AuthRequest, res: Response) => {
                             let session = await prisma.session.create({
                               data:{
                                 patientId: patient.id,
-                                icuId: [values.session.icu],
-                                bedId: [values.session.bed],
+                                icuId: values.session?.icu ? [values.session?.icu]:[],
+                                bedId: values.session?.bed ? [values.session?.bed] : [],
+                                icuName: values.session?.icuName,
+                                bedName: values.session?.bedName,
                                 diagnosis: values.session.diagnosis,
                                 comorbidities: values.session.comorbidities.split("\n"),
                                 doctorIds: values.session.doctor,
                                 apache: values.session.apache,
                                 nurseIds: values.session.nurse,
                                 hospitalId: req.hospital,
-                                icuName: values.session.icuName,
-                                bedName: values.session.bedName,
                             }
                             })
-                            let bedCheck = await prisma.bed.findFirstOrThrow({
+                            let bedCheck = values.session.bed && await prisma.bed.findFirstOrThrow({
                               where:{
                                 id: values.session.bed,
                                 occupied: false
                               }
                             })
-                            let bedAllot = await prisma.bed.update({
+                            let bedAllot = values.session.bed && await prisma.bed.update({
                               where: {id: values.session.bed},
                               data:{
                                 patientId: patient.id,
@@ -153,7 +154,7 @@ export const transfer = async (req: AuthRequest, res: Response) => {
           bedName
       }
       })
-      let bedRemove = await prisma.bed.update({
+      let bedRemove = oldId && await prisma.bed.update({
         where:{
           id: oldId,
         },
@@ -163,6 +164,7 @@ export const transfer = async (req: AuthRequest, res: Response) => {
           occupied:false,
         }
       })
+      // console.log(bedRemove)
       let bedAllot = await prisma.bed.update({
         where: {id: bedId},
         data:{
@@ -172,7 +174,12 @@ export const transfer = async (req: AuthRequest, res: Response) => {
           occupied:true,
         }
       })
+      if(oldId) await clearMapping(oldId)
+      await clearMapping(bedId)
       return [session, bedCheck, bedRemove,bedAllot];
+  }, {
+    maxWait: 10000,
+    timeout: 10000
   })
   return res.status(200).json(session);
   } catch (error) {
@@ -201,9 +208,37 @@ export const discharge = async (req: AuthRequest, res: Response) => {
           occupied:false,
         }
       })
+      await clearMapping(session.bedId[session.bedId.length -1]);
       return [session, bedDischarge];
   })
   return res.status(200).json(session);
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json("Failed to discharge");
+  }
+}
+
+export const getSessionsActive = async (req: AuthRequest, res: Response) =>{
+  try {
+    const sessions = await prisma.session.findMany({
+      where:{
+        hospitalId: req.hospital,
+        dischargedAt: null,
+        reason:null
+      },
+      select:{
+        id: true,
+        bedId:true,
+        patient:{
+          select:{
+            name:true,
+            uhid:true,
+            id:true
+          }
+        }
+      }
+    })
+    return res.status(200).json(sessions)
   } catch (error) {
     console.error(error)
     return res.status(500).json("Failed to discharge");

@@ -9,22 +9,10 @@ import {
   } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { CSSProperties, useEffect, useRef, useState } from "react"
-import {
-    Drawer,
-    DrawerClose,
-    DrawerContent,
-    DrawerDescription,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger,
-  } from "@/components/ui/drawer"
-
+import { CSSProperties, Suspense, useEffect, useRef, useState } from "react"
   import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -40,14 +28,9 @@ import { transferPatient } from "./queries/transfer";
 import { dischargePatient } from "./queries/discharge";
 import { fetchICU_Unoccupied } from "../new-patient/query/getICUs";
 import { useSearchParams } from "next/navigation";
-import { getAllBeds, Occupiedinfos } from "./queries/allOccupiedBeds";
-import Fuse from "fuse.js";
-import { PatientInfoProps } from "@/types/pateintinfo";
-
-const Box:CSSProperties = {
-    backgroundColor: "#fff",
-    backgroundImage:"linear-gradient(to top right, #A2CCFD 5%, white 60%)"
-}
+import { getActiveSessions } from "./queries/sessionActive";
+import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 
 interface infos {
     name:string;
@@ -57,52 +40,28 @@ interface infos {
     sessionId? : string;
 }
 
-const fuseOptions = {
-	// isCaseSensitive: false,
-	// includeScore: false,
-	// shouldSort: true,
-	// includeMatches: false,
-	// findAllMatches: false,
-	// minMatchCharLength: 1,
-	// location: 0,
-	// threshold: 0.6,
-	// distance: 100,
-	// useExtendedSearch: false,
-	// ignoreLocation: false,
-	// ignoreFieldNorm: false,
-	// fieldNormWeight: 1,
-	keys: [
-		"name",
-		"uhid",
-	]
-};
-
-const bedArr = [222,223,225,264,963,698,642,756,742,638,753]
-interface transferObj {bedId?:number, bedName?:string, icuName?:string , icuId?:number}
+interface transferObj {bedId?:number, bedName?:string, icuName?:string , oldId?: number; icuId?:number, sessionId?:string}
 const PatientMapping = () => {
 
+    const {toast} = useToast();
+
     const { data, isLoading, refetch, error } = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
-    const occupiedBeds = useQuery({queryKey:['icu_occupied'], queryFn: getAllBeds});
+    const activeSessions = useQuery({queryKey:['activeSessions'], queryFn: getActiveSessions});
     const icuInfos = useQuery({ queryKey: ['icu_unoccupied'], queryFn: fetchICU_Unoccupied });
+
     const [_, refresh] = useState(new Date().getMilliseconds())
+
     const transferMutation =  useMutation({mutationFn:transferPatient})
     const dischargeMutation =  useMutation({mutationFn:dischargePatient})
-    const transferRef = useRef<transferObj>({bedId: undefined, bedName: undefined, icuName:undefined , icuId:undefined})
+
+    const transferRef = useRef<transferObj>({bedId: undefined, bedName: undefined, icuName:undefined, oldId: undefined , icuId:undefined, sessionId:undefined})
     const dischargeRef = useRef<{sessionId?: string, reason?: string}>({sessionId:undefined, reason: undefined})
-    const [value, setValue] = useState("")
-    const debounce = useRef(setTimeout(() => {}, 1000));
-    const fuseRef= useRef(new Fuse([] as Occupiedinfos[], fuseOptions));
-    const [patient, setpatient] = useState<Occupiedinfos[]>([]);
+
     const icu = +(useSearchParams().get('icu') ?? "0");
     const [selectedICU, setSelectedICU] = useState<number|undefined>(icu);
-    useEffect(()=>{
-        if(value == "") return setpatient(occupiedBeds.data || []);
-        clearTimeout(debounce.current);
-        debounce.current = setTimeout(() => {
-          setpatient(fuseRef.current.search(value).map(({item})=>item))
-        }, 500);
-        }
-      ,[occupiedBeds.data, value])
+
+    let beds = (data || []).flatMap(e => e.beds.map(k => {return {...k, icuId:e.id, icuName:e.name}}));
+
     const {data: bedInfos, isLoading:loading, error: bedError, refetch: bedRefetch} = useQuery({queryKey:["icu", selectedICU], queryFn: async ({queryKey}: QueryFunctionContext): Promise<infos[]> => {
         const [_, icuId] = queryKey;
         if(undefined || typeof(icuId) != 'number') throw Error("No Valid Icu Provided");
@@ -113,35 +72,46 @@ const PatientMapping = () => {
         const res:infos[] = response.data;
         return res;  
       }})
-      const [ICU, ICUSet]  = useState<ICUInfo|undefined>((data && data.length)? data[0]: undefined);
+
+    const [ICU, ICUSet]  = useState<ICUInfo|undefined>((data && data.length)? data[0]: undefined);
       const setICU = (val:string) =>{
         const icu = (data || []).find(e => (parseInt(val) ?? 0) == e.id);
         if(icu) ICUSet(icu);
     }
       const [Bed, BedSet]  = useState<bedInfo|undefined>();
 
-    const transferPatientfn = async (sessionId:string|undefined|null, oldId:number)=>{
+    const transferPatientfn = async ()=>{
+        // console.log(transferRef.current)
+        toast({
+            description:"Transfering Patient"
+        });
           if (transferRef.current && (
-            transferRef.current.bedId !== undefined &&
-            transferRef.current.bedName !== undefined &&
-            transferRef.current.icuName !== undefined &&
-            oldId !== undefined &&
-            transferRef.current.icuId !== undefined &&
-            sessionId
+                transferRef.current.bedId !== undefined &&
+                transferRef.current.bedName !== undefined &&
+                transferRef.current.icuName !== undefined &&
+                transferRef.current.icuId !== undefined &&
+                transferRef.current.sessionId
           )) {
             try {
               await transferMutation.mutateAsync({
                 bedId:transferRef.current.bedId,
                 bedName:transferRef.current.bedName,
-                oldId,
+                oldId:transferRef.current.oldId,
                 icuId:transferRef.current.icuId,
-                sessionId,
+                sessionId:transferRef.current.sessionId,
                 icuName:transferRef.current.icuName
+            });
+            toast({
+                description:"Transfering Successfull"
             });
             bedRefetch();
 
             } catch (error) {
-              console.error(error);
+                toast({
+                    description:"Failed to Transfer Patient",
+                    variant:"destructive"
+                });
+                console.error(error);
             }
           }
           
@@ -233,7 +203,12 @@ const PatientMapping = () => {
                                         </Select>
                                         </div>
                                         <div className="w-full flex justify-center items-center">
-                                        <Button onClick={()=>{transferPatientfn(e.sessionId, e.id)}} className="bg-darkblue p-2 px-3 rounded m-auto">
+                                        <Button onClick={()=>{
+                                            transferRef.current.sessionId = e.sessionId;
+                                            transferRef.current.oldId = e.id;
+                                            transferPatientfn()
+
+                                        }} className="bg-darkblue p-2 px-3 rounded m-auto">
                                             Transfer
                                         </Button>
                                         </div>
@@ -269,23 +244,27 @@ const PatientMapping = () => {
                             <DialogContent className="bg-white">
                             <DialogHeader>
                                 <DialogTitle>Assign Patient</DialogTitle>
-                                <Select onValueChange={(e)=>{setSelectedICU(+e);}}>
+                                <Select onValueChange={(val)=>{
+                                    let session = JSON.parse(val);
+                                    transferRef.current.oldId = session.bedId.length? session.bedId[session.bedId.length-1]: undefined;
+                                    transferRef.current.sessionId = session.id;
+                                    transferRef.current.bedId = e.id;
+                                    transferRef.current.bedName = e.name;
+                                    let inst = beds.find(k => e.id == k.id)
+                                    transferRef.current.icuId = inst?.icuId;
+                                    transferRef.current.icuName = inst?.icuName;
+
+                                }}>
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Name" />
+                                        <SelectValue placeholder="Select Patient" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {(data || []).map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>)}
+                                        {(activeSessions.data || []).map((session)=>{
+                                            return <SelectItem key={session.id} value={JSON.stringify(session)}>{`${session.patient.uhid} ${session.patient.name}`}</SelectItem>
+                                        })}
                                     </SelectContent>
                                 </Select>
-                                <Select onValueChange={(e)=>{setSelectedICU(+e);}}>
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="UHID" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {(data || []).map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                                <Button className="bg-darkblue p-2 px-3 rounded m-auto">
+                                <Button onClick={transferPatientfn} className="bg-darkblue p-2 px-3 rounded m-auto">
                                     Confirm
                                 </Button>
                             </DialogHeader>
@@ -302,4 +281,12 @@ const PatientMapping = () => {
     )
 }
 
-export default PatientMapping;
+const _PatientMapping = ()=>{
+    return(
+        <Suspense>
+            <PatientMapping></PatientMapping>
+        </Suspense>
+    )
+}
+
+export default _PatientMapping;

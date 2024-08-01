@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import {
   Form,
   FormControl,
@@ -58,6 +60,7 @@ export default function PatientForm() {
     const router = useRouter()
     const {toast} = useToast();
     const [found, setFound] = useState<string|undefined>();
+    const [assign, setAssign] = useState(false);
     const [_, refresh] = useState(new Date().getMilliseconds())
     const icuInfos = useQuery({ queryKey: ['icu_unoccupied'], queryFn: fetchICU_Unoccupied });
     const users = useQuery({ queryKey: ['users'], queryFn: getUsers });
@@ -85,10 +88,10 @@ export default function PatientForm() {
           }),
         session: z.object(
             {
-                icu: z.number().min(0),
-                icuName: z.string(),
-                bed: z.number().min(0),
-                bedName: z.string(),
+                icu: z.number().optional(),
+                icuName: z.string().optional(),
+                bed: z.number().optional(),
+                bedName: z.string().optional(),
                 diagnosis: z.string(),
                 comorbidities: z.string(),
                 doctor: z.array(z.string()).min(1,{ message: "At least one doctor is required" }),
@@ -105,13 +108,19 @@ export default function PatientForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+    try {
     toast({description:"Admitting current patient"})
     let payload = {...values, found}
     const session = await makeSession(payload);
     console.log(session)
     if(session.status == 200){
         const data = session.data;
-        return router.replace(`/tracking?icu=${values.session.icu}&bed=${values.session.bed}&patient=${(data[0].patientId || found) ?? ""}&type=Live`)
+        toast({description:"Successfully Admitted"})
+        if(values.session?.icu && values.session?.bed) return router.replace(`/tracking?icu=${values.session?.icu}&bed=${values.session?.bed}&patient=${(data[0].patientId || found) ?? ""}&type=Live`);
+        return router.replace(`/tracking?patient=${(data[0].patientId || found) ?? ""}&type=Live`)
+    }
+    } catch (error) {
+        console.error(error)
     }
     toast({description:"Failed admit patient", variant:"destructive"})
     
@@ -228,8 +237,11 @@ export default function PatientForm() {
                     )}
                     />
                     </div>
-                    
-                    <FormField
+                    <div className="flex items-center space-x-2">
+                        <Switch onCheckedChange={(val)=>setAssign(val)} id="assignBed" />
+                        <Label htmlFor="assignBed">Assign Bed</Label>
+                    </div>
+                    { assign && <FormField
                     control={form.control}
                     name="session.icu"
                     render={({ field }) => (
@@ -256,8 +268,8 @@ export default function PatientForm() {
                         <FormMessage />
                         </FormItem>
                     )}
-                    />
-                    <FormField
+                    />}
+                    {assign && <FormField
                     control={form.control}
                     name="session.bed"
                     render={({ field }) => (
@@ -286,7 +298,7 @@ export default function PatientForm() {
                         <FormMessage />
                         </FormItem>
                     )}
-                    />
+                    />}
                     <FormField
                     control={form.control}
                     name="session.diagnosis"

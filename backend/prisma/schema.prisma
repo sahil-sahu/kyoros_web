@@ -162,12 +162,12 @@ model Session {
   nurseIds      String[]
   patientId     String
   bedId         Int[]
-  bedName       String
-  icuName       String
+  bedName       String?
+  icuName       String?
   icuId         Int[]
   hospitalId    String
   apache        Int
-  updatedAt     DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime  @default(now()) @db.Timestamp(6) @updatedAt
   admittedAt    DateTime  @default(now()) @db.Timestamp(6)
   dischargedAt  DateTime?
   reason        String? //discharging reason
