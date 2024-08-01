@@ -5,7 +5,8 @@ import PatientModel from '../models/patients';
 import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { prisma } from '../prisma';
 import { redisClient } from '../redis';
-import user_from_redis from '../helpers/userfromRedis';
+import user_from_redis, { fireuser_from_redis } from '../helpers/userfromRedis';
+import sendTaggedNotification from '../helpers/sendTaggedNotification';
 
 export const createPatient = async (req: Request, res: Response) => {
     try {
@@ -202,18 +203,39 @@ export const setCritcality = async (req:AuthRequest, res:Response) =>{
 
 export const makeNote = async (req:AuthRequest, res:Response) =>{
   try {
-    const {note, patientId } = req.body;
-    const user = await prisma.user.findUniqueOrThrow({
-      where:{
-        firebaseUid: req.user
-      }
-    })
+    const {note, patientId, tagged } = req.body;
+    const user = await fireuser_from_redis(req.user)
+    sendTaggedNotification(tagged, patientId)
     const noteObj = await prisma.notes.create({
       data:{
         userid: user.id,
         note,
         patientId,
         hospitalId:req.hospital
+      }
+    })
+    res.status(200).json(noteObj);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "failed make to note" });
+  }
+}
+export const editNote = async (req:AuthRequest, res:Response) =>{
+  try {
+    const {note, noteId } = req.body;
+    const noteFromDb = await prisma.notes.findUniqueOrThrow({
+      where:{
+        id: noteId
+      }
+    })
+    const user = await fireuser_from_redis(req.user)
+    if(user.id != noteFromDb.userid) throw Error("user is not authorized to edit");
+    const noteObj = await prisma.notes.update({
+      where:{
+        id: noteId
+      },
+      data:{
+        note,
       }
     })
     res.status(200).json(noteObj);
@@ -242,6 +264,9 @@ export const getNotes = async (req:AuthRequest, res:Response) =>{
         createdAt:{
           gte: timeStamp
         }
+      },
+      orderBy:{
+        createdAt: "asc"
       }
     });
     const notes_user = await Promise.all(notes.map(async e => {
@@ -260,7 +285,7 @@ export const getNotes = async (req:AuthRequest, res:Response) =>{
 
 export const getBedInfobyPatient = async (req:AuthRequest, res:Response) =>{
     try {
-      const patientId = req.query.patientId;
+      const patientId = req.params.patient;
       if(!patientId || typeof(patientId) != "string") throw Error("Invalid patientId");
       const info = await prisma.bed.findUnique({
         where:{
@@ -273,5 +298,32 @@ export const getBedInfobyPatient = async (req:AuthRequest, res:Response) =>{
       return res.status(500).json({
         message: "Error from db"
       });
+    }
+}
+export const getAllotedUserforPatient = async (req:AuthRequest, res:Response) =>{
+    try {
+      const patientId = req.params.patient;
+      if(!patientId || typeof(patientId) != "string") throw Error("Invalid patientId");
+      const sessions = await prisma.session.findMany({
+        where:{
+          patientId,
+          reason: null
+        }
+      })
+      if(!sessions.length) throw Error("patient not admitted any where")
+      const userids = [...sessions.flatMap(e => e.doctorIds), ...sessions.flatMap(e => e.nurseIds)]
+    
+      const users = await Promise.all(userids.map(async e => {
+        return await user_from_redis(e)
+      }))
+      return res.status(200).json(users);
+
+    } catch (error) {
+
+      console.error(error);
+      return res.status(500).json({
+        message: "Error from db"
+      });
+
     }
 }

@@ -31,7 +31,7 @@ export async function fireuser_from_redis(userId:string):Promise<User> {
         const user = await prisma.user.findUniqueOrThrow({
             where:{
                 firebaseUid:userId,
-                verified:true,
+                // verified:true,
             },
             // select:{
             //     name:true,

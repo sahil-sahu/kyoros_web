@@ -12,7 +12,7 @@ export default function ForegroundMessage(){
     const {toast} = useToast();
     useEffect(()=>{
         onMessage(getMessaging(app),(payload)=>{
-            if(payload.notification?.title && payload.notification?.body && payload.data?.severity){
+            if(payload.notification?.title && payload.notification?.body && payload.data?.severity && payload.data?.severity != "general"){
                 addNote({
                     title: payload.notification?.title,
                     description: payload.notification?.body,
@@ -24,7 +24,7 @@ export default function ForegroundMessage(){
             toast({
                 title: payload.notification?.title,
                 description: payload.notification?.body,
-                variant: "destructive",
+                variant: payload.data?.severity != "general"?"destructive":"default",
                 action: <ToastAction  onClick={()=>{
                                 router.push(payload.fcmOptions?.link ?? "#");
                             }}
