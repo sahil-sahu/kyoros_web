@@ -104,7 +104,7 @@ export default function Home() {
               </div>
             </div>
           </Link>
-          <Link className="aspect-square" href={'/occupancy'}>
+          <Link className="2xl:aspect-square" href={'/occupancy'}>
           <div className="shadow border border-gray-400 h-full rounded-xl p-4 col-span-1">
             <div className="heading lg:flex flex lg:flex-row flex-col justify-between items-center">
               <h3 className="text-lg font-semibold inline">
@@ -132,7 +132,7 @@ export default function Home() {
           </Link>
           <OccupancyTrend></OccupancyTrend>
           <MortalRate />
-          <div className="shadow border aspect-square border-gray-400 col-span-1 rounded-xl p-5 relative flex flex-col gap-8">
+          <div className="shadow border 2xl:aspect-square border-gray-400 col-span-1 rounded-xl p-5 relative flex flex-col gap-8">
           <div className="heading flex justify-between items-center">
               <h3 className="text-lg font-semibold">
                 Avg. Patient Stay

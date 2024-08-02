@@ -133,14 +133,14 @@ const AtGlance = () => {
             </NavigationMenu>
             <div className="w-full border-t border-b border-solid border-gray-300">
             <div className="w-full m-auto max-w-7xl p-2 flex items-center gap-5 justify-evenly ">
-                <div className="font-bold w-[5rem] text-right">
+                <div className="font-bold w-[5rem] text-lg text-right">
                     SORT BY:
                 </div>
-                <ToggleGroup className="justify-evenly w-full flex-5" defaultValue="d" type="single">
-                    <ToggleGroupItem onClick={()=>{refresh(new Date().getMilliseconds())}} value="d">Default</ToggleGroupItem>
-                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(criticalitySort)}))} value="a">Apache III(Highest First)</ToggleGroupItem>
-                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort)}))} value="b">Date of Admission(Oldest First)</ToggleGroupItem>
-                    <ToggleGroupItem onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort_desc)}))} value="c">Date of Admission(Newest First)</ToggleGroupItem>
+                <ToggleGroup className="justify-evenly w-full grid sm:grid-cols-4 grid-cols-2 gap-4 flex-5" defaultValue="d" type="single">
+                    <ToggleGroupItem className="text-xs sm:text-sm" onClick={()=>{refresh(new Date().getMilliseconds())}} value="d">Default</ToggleGroupItem>
+                    <ToggleGroupItem className="text-xs sm:text-sm"  onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(criticalitySort)}))} value="a">Apache III(Highest First)</ToggleGroupItem>
+                    <ToggleGroupItem className="text-xs sm:text-sm"  onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort)}))} value="b">Date of Admission(Oldest First)</ToggleGroupItem>
+                    <ToggleGroupItem className="text-xs sm:text-sm"  onClick={()=>setGlances((glances => {const arr = [...glances]; return arr.sort(daysSort_desc)}))} value="c">Date of Admission(Newest First)</ToggleGroupItem>
                 </ToggleGroup>
             </div>
             </div>

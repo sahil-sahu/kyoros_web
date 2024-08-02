@@ -58,7 +58,7 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </h3>
                     </Link>
                 </div>
-                <div className="flex flex-col gap-0 items-center justify-between">
+                <div className="sm:flex hidden flex-col gap-0 items-center justify-between">
                     <InfoBox patient={data.patient} />
                     <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
                 </div>
@@ -152,59 +152,59 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     </h3>
                     </Link>
                 </div>
-                <div className="flex flex-col gap-0 items-center justify-between">
+                <div className="sm:flex flex-col gap-0 items-center hidden justify-between">
                     <InfoBox patient={data.patient} />
                     <Criticality g_criticality={criticality} setCriticality={setCriticality} data={data} />
                 </div>
             </div>
             <div className="grid-cols-3 grid justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-c_lg_blue text-lg">
+                    <p className="text-c_lg_blue text-sm sm:text-lg">
                     {data.bedStamp ? getDateDifferenceFromNow(data.bedStamp): "--"}
                     </p>
-                    <h3 className="text-sm leading-none">
+                    <h3 className="sm:text-sm text-xs leading-none">
                         Days
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <h3 className="text-sm">
+                    <h3 className="sm:text-sm text-xs">
                         BP
                     </h3>
-                    <p className="text-c_lg_blue text-lg">
+                    <p className="text-c_lg_blue text-sm sm:text-lg">
                         {`${log.bp[0]} / ${log.bp[1]}`}
                     </p>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-c_lg_blue text-lg">
+                    <p className="text-c_lg_blue text-sm sm:text-lg">
                         {log.heart_rate}
                     </p>
-                    <h3 className="text-sm leading-none">
+                    <h3 className="sm:text-sm text-xs leading-none">
                         Heart Rate
                     </h3>
                 </div>
             </div>
             <div className="grid-cols-3 grid justify-evenly items-center">
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-c_lg_blue text-lg">
+                    <p className="text-c_lg_blue text-sm sm:text-lg">
                         {log.spo2}
                     </p>
-                    <h3 className="text-sm leading-none">
+                    <h3 className="sm:text-sm text-xs leading-none">
                         SPO2
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-c_lg_blue text-lg">
+                    <p className="text-c_lg_blue text-sm sm:text-lg">
                         {log.resp_rate}
                     </p>
-                    <h3 className="text-sm leading-none">
+                    <h3 className="sm:text-sm text-xs leading-none">
                         Resp Rate
                     </h3>
                 </div>
                 <div className="flex flex-col gap-0 items-center justify-between">
-                    <p className="text-c_lg_blue text-lg">
+                    <p className="text-c_lg_blue text-sm sm:text-lg">
                         {log.temp}
                     </p>
-                    <h3 className="text-sm leading-none">
+                    <h3 className="sm:text-sm text-xs leading-none">
                         Temp
                     </h3>
                 </div>

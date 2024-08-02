@@ -103,7 +103,7 @@ export default function UploadBox({patientId, children}:{patientId:string|undefi
               <DialogTrigger asChild>
                 {children}
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px] bg-white">
+              <DialogContent className="sm:max-w-[425px] aspect-square bg-white">
                 <DialogHeader onClick={()=>{form.reset()}} className="text-lg font-bold text-center w-full">
                     Upload Document
                 </DialogHeader>
