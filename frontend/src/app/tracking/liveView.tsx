@@ -157,23 +157,23 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
     }
 
     return(
-        <section className='grid md:grid-cols-4 lg:grid-cols-7 grid-rows-2 grid-flow-row auto-rows-min items-start gap-2'>
+        <section className='grid md:grid-cols-4 lg:grid-cols-7 lg:grid-rows-2 auto-rows-min items-start gap-2'>
         <div style={{
                 background:"linear-gradient(to bottom right, #303778, #4C8484)"
-            }} className='text-white flex items-stretch justify-evenly rounded-xl p-4 col-span-3 lg:h-auto h-[90%]'>
-                <div className="flex flex-col justify-evenly items-center p-2 w-[50%]">
+            }} className='text-white order-1 flex md:flex-row flex-col items-stretch justify-evenly rounded-xl p-4 max-w-[98dvw] col-span-3 lg:h-auto h-full'>
+                <div className="flex flex-col justify-evenly text-center items-center p-2 md:w-[50%]">
                     <div className='flex flex-wrap w-full gap-4 mb-2 items-center'>
                         <Criticality setCriticality={setCriticality} g_criticality={criticality} data={{patientId, id:logs?.bedId || -1 , apache:logs?.apache} as GlanceInfo} />
-                        <h3 className="text-lg w-max">
+                        <h3 className="text-lg">
                             {logs?.uhid ?? "UHID: --"}
                         </h3>
                     </div>
                     <div className='grid grid-cols-5 items-stretch gap-3 w-full'>
-                        <Avatar className='aspect-square col-span-2 h-full w-full' >
-                            <AvatarImage className='h-full aspect-square object-cover w-full' src="https://github.com/shadcn.png" />
+                        <Avatar className='aspect-square md:col-span-2 col-span-5 m-auto h-full max-w-[100px] w-full' >
+                            <AvatarImage className='h-full aspect-square object-cover  w-full' src="https://github.com/shadcn.png" />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
-                        <div className='flex flex-col col-span-3 justify-evenly items-center'>
+                        <div className='flex flex-col m-auto text-center md:col-span-3 col-span-5 justify-evenly items-center'>
                             <h3 className='text-lg capitalize font-bold'>
                                 {logs?.name}
                             </h3>
@@ -210,8 +210,8 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
                         <div></div>
                     </div>
                 </div>
-                <div className='divider border-white border w-0 bg-white h-[20rem]'></div>
-                <div className='p-3 py-5 w-[40%] text-center'>
+                <div className='divider border-white border hidden md:block w-0 bg-white md:h-[20rem]'></div>
+                <div className='p-3 py-5 md:w-[40%] text-center'>
                     <h3 className='my-3 text-lg font-semibold'>
                         Diagnosis
                     </h3>
@@ -221,100 +221,110 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                     </p>
                 </div>
             </div>
-        <div className='grid grid-rows-2 h-full items-stretch col-span-1 gap-3'>
-            <Link className="" href={`/request-notify?icu=${icu}&bed=${bed}`}>
-                <AlertBox patientId={patientId}></AlertBox>
-            </Link>
-            <Link className="border-2 border-darkblue p-5 rounded-xl" href={"/docs/"+patientId}>
+        <div className='grid order-2 grid-cols-2 md:grid-cols-1 md:grid-rows-2 h-fit justify-center w-full max-w-[95vw] mx-auto md:col-span-1 col-span-2 items-center gap-3'>
+            <div className='border-2 border-darkblue rounded-xl h-full shadow'>
+                <Link className="h-full" href={`/request-notify?icu=${icu}&bed=${bed}`}>
+                    <AlertBox patientId={patientId}></AlertBox>
+                </Link>
+            </div>
+            <div className='w-full h-full border-2 border-darkblue rounded-xl'>
+            <Link className="border-2 bg-white flex justify-center items-center h-full rounded-xl m-auto"  href={"/docs/"+patientId}>
+                <div className='aspect-square h-fit m-auto'>
                 <h3 className="text-lg mb-5 text-left font-semibold">Docs</h3>
-                <Image className="m-auto w-24 object-contain" src={folder_i} alt={"📂"} />
+                <Image className="m-auto w-5/6 object-contain" src={folder_i} alt={"📂"} />
+                </div>
             </Link>
+            </div>
         </div>
-        <Tabs defaultValue="notes" className="col-span-full lg:col-span-3 p-2 rounded border row-span-2 h-full">
-            <TabsList className='bg-white patient rounded-none border-b gap-1 flex justify-evenly w-full text-black'>
-                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="notes">Notes</TabsTrigger>
-                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="medication">Medication</TabsTrigger>
-                <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="i_o">I/O</TabsTrigger>
-            </TabsList>
-            <TabsContent className='h-full' value="notes"><Notes patientId={patientId}/></TabsContent>
-            <TabsContent value="medication">Medication section</TabsContent>
-            <TabsContent value="i_o">I/O</TabsContent>
-        </Tabs>
-        <div className='p-5 border-2 col-span-full lg:col-span-4 h-full w-full max-w-6xl m-auto rounded-xl'>
-            <div className='flex justify-between'>
-                <h3 className='text-center text-2xl font-bold'>
-                    Patient Parameter
-                </h3>
-                <div className='grid grid-cols-2 gap-2 '>
-                <Select defaultValue={LiveTrend.Live} onValueChange={(e:LiveTrend)=>{
-                    currentParams.set('type', LiveTrend.Trend);
-                    if(e == LiveTrend.Trend) router.push('/tracking?'+currentParams.toString())
-                }}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Display Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value={LiveTrend.Live}>Live</SelectItem>
-                        <SelectItem value={LiveTrend.Trend}>Trend</SelectItem>
-                    </SelectContent>
-                </Select>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className='capitalize relative w-[10rem] text-left text-ellipsis'> <span className='absolute top-0 text-xs -translate-y-2.5 left-2 bg-white'>Devices</span> <span className='w-[8rem] text-left text-ellipsis overflow-hidden'>{params.join(", ")}</span> <CaretDownIcon className='ml-2 float-end absolute right-2' /> </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                        <DropdownMenuLabel>Devices</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuCheckboxItem
-                        checked={params.includes("all")}
-                        onCheckedChange={()=>setparams(["all"])}
-                        >
-                        All
-                        </DropdownMenuCheckboxItem>
+        <div className='col-span-full lg:col-span-3 p-2 order-3 rounded border row-span-2 h-full'>
+            <Tabs defaultValue="notes" className="h-full">
+                <TabsList className='bg-white patient rounded-none border-b gap-1 flex justify-evenly w-full text-black'>
+                    <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="notes">Notes</TabsTrigger>
+                    <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="medication">Medication</TabsTrigger>
+                    <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="i_o">I/O</TabsTrigger>
+                </TabsList>
+                <TabsContent className='h-full' value="notes"><Notes patientId={patientId}/></TabsContent>
+                <TabsContent value="medication">Medication section</TabsContent>
+                <TabsContent value="i_o">I/O</TabsContent>
+            </Tabs>
+        </div>
+        <div className='p-5 border-2 order-3 col-span-full row-start-3 lg:row-start-auto row-span-1 h-full lg:col-span-4 w-screen lg:w-auto max-w-6xl rounded-xl'>
+            <div className='w-full flex flex-col items-stretch justify-center h-full'>
+                <div className='flex justify-between items-center'>
+                    <h3 className='text-center text-2xl font-bold'>
+                        Patient Parameter
+                    </h3>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-2 '>
+                    <Select defaultValue={LiveTrend.Live} onValueChange={(e:LiveTrend)=>{
+                        currentParams.set('type', LiveTrend.Trend);
+                        if(e == LiveTrend.Trend) router.push('/tracking?'+currentParams.toString())
+                    }}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Display Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={LiveTrend.Live}>Live</SelectItem>
+                            <SelectItem value={LiveTrend.Trend}>Trend</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className='capitalize relative w-[10rem] text-left text-ellipsis'> <span className='absolute top-0 text-xs -translate-y-2.5 left-2 bg-white'>Devices</span> <span className='w-[8rem] text-left text-ellipsis overflow-hidden'>{params.join(", ")}</span> <CaretDownIcon className='ml-2 float-end absolute right-2' /> </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>Devices</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuCheckboxItem
+                            checked={params.includes("all")}
+                            onCheckedChange={()=>setparams(["all"])}
+                            >
+                            All
+                            </DropdownMenuCheckboxItem>
 
-                        <DropdownMenuCheckboxItem
-                        checked={params.includes("moniter")}
-                        onCheckedChange={()=>setparams((params)=>{
-                            let arr = [...params];
-                            arr = arr.filter((e) => e != "all");
-                            arr.push("moniter");
-                            return arr;
-                        })}
-                        >
-                            Vitals Moniter
-                        </DropdownMenuCheckboxItem>
-
-                        <DropdownMenuCheckboxItem
-                            checked={params.includes("ventilator")}
-                            onCheckedChange={() => setparams((params) => {
+                            <DropdownMenuCheckboxItem
+                            checked={params.includes("moniter")}
+                            onCheckedChange={()=>setparams((params)=>{
                                 let arr = [...params];
                                 arr = arr.filter((e) => e != "all");
-                                arr.push("ventilator");
+                                arr.push("moniter");
                                 return arr;
                             })}
-                        >
-                            Ventilator
-                        </DropdownMenuCheckboxItem>
+                            >
+                                Vitals Moniter
+                            </DropdownMenuCheckboxItem>
 
-                        <DropdownMenuCheckboxItem
-                            checked={params.includes("infusion")}
-                            onCheckedChange={() => setparams((params) => {
-                                let arr = [...params];
-                                arr = arr.filter((e) => e != "all");
-                                arr.push("infusion");
-                                return arr;
-                            })}
-                        >
-                            Infusion
-                        </DropdownMenuCheckboxItem>
-                    </DropdownMenuContent>
-                    </DropdownMenu>
+                            <DropdownMenuCheckboxItem
+                                checked={params.includes("ventilator")}
+                                onCheckedChange={() => setparams((params) => {
+                                    let arr = [...params];
+                                    arr = arr.filter((e) => e != "all");
+                                    arr.push("ventilator");
+                                    return arr;
+                                })}
+                            >
+                                Ventilator
+                            </DropdownMenuCheckboxItem>
+
+                            <DropdownMenuCheckboxItem
+                                checked={params.includes("infusion")}
+                                onCheckedChange={() => setparams((params) => {
+                                    let arr = [...params];
+                                    arr = arr.filter((e) => e != "all");
+                                    arr.push("infusion");
+                                    return arr;
+                                })}
+                            >
+                                Infusion
+                            </DropdownMenuCheckboxItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+                <div className='rounded-t-lg overflow-auto mt-3 h-full w-full'>
+                    {(latestInfo && logs) ? <GetTable logs={logs.logs} latestInfo={latestInfo} />: "No Logs for current Patient"}
                 </div>
             </div>
-            <div className='rounded-t-lg overflow-auto mt-3 h-[85%] w-full'>
-                {(latestInfo && logs) ? <GetTable logs={logs.logs} latestInfo={latestInfo} />: "No Logs for current Patient"}
-            </div>
-            </div>
+        </div>
         </section>
     )
 }

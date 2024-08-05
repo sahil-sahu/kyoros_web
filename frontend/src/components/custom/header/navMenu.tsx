@@ -15,7 +15,7 @@ import { AuthBox } from '../authCheck';
 import styles from './header.module.css';
 import { SheetClose } from '@/components/ui/sheet';
 import SearchBox from './searchBox';
-const navigationMenu = <ul className={`divide-y divide-solid ${styles.navlist}`}>
+const navigationMenu = <ul className={`divide-y divide-solid pt-5 ${styles.navlist}`}>
 <li>
 <div className="md:hidden block">
 <SearchBox />
@@ -57,7 +57,7 @@ const navigationMenu = <ul className={`divide-y divide-solid ${styles.navlist}`}
   <Link href='/registrations'>
   <SheetClose>
       <Image height={20} width={20} src={regis_ico} alt=''/>
-      Registration
+      Admin Panel
   </SheetClose>
   </Link>
 </li>

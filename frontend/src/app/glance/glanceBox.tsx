@@ -25,32 +25,39 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
     const [criticality, setCriticality] = useState(data.apache);
     if(!log || (log && log.patientId != data.patientId)){
         return(
-            <div onClick={()=>{router.push(`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`)}} className={`${level[1]} cursor-pointer flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
-            <div className="flex justify-evenly items-center">
-                <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
-                    <svg
+            <div onClick={(e)=>{
+                let ele:any = e.target;
+                if(ele?.id == "noeffect") return;
+                router.push(`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`)}
+                } className={`${level[1]} cursor-pointer flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+                <div className="flex justify-evenly items-center">
+                    <Toggle id="noeffect" pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="#e8eaed"
+                            viewBox="0 -960 960 960"
+                            id="noeffect"
+                            >
+                            <path id="noeffect" d="M680-840v80h-40v327l-80-80v-247H400v87l-87-87-33-33v-47h400zM480-40l-40-40v-240H240v-80l80-80v-46L56-792l56-56 736 736-58 56-264-264h-6v240l-40 40zM354-400h92l-44-44-2-2-46 46zm126-193zm-78 149z"></path>
+                            </svg>
+                        ):(
+                        <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="#e8eaed"
-                        viewBox="0 -960 960 960"
-                        >
-                        <path d="M680-840v80h-40v327l-80-80v-247H400v87l-87-87-33-33v-47h400zM480-40l-40-40v-240H240v-80l80-80v-46L56-792l56-56 736 736-58 56-264-264h-6v240l-40 40zM354-400h92l-44-44-2-2-46 46zm126-193zm-78 149z"></path>
-                        </svg>
-                    ):(
-                    <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="20"
-                    fill="none"
-                    viewBox="0 0 12 20"
-                  >
-                    <path
-                      fill="#2F377A"
-                      d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
-                    ></path>
-                  </svg>
-                )}</Toggle>
+                        width="12"
+                        height="20"
+                        fill="none"
+                        viewBox="0 0 12 20"
+                        id="noeffect"
+                      >
+                        <path
+                          fill="#2F377A"
+                          id="noeffect"
+                          d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
+                        ></path>
+                      </svg>
+                    )}</Toggle>
                 <div className="py-6 px-3 text-center flex items-center rounded bg-bluecustom h-1">
                     <Link href={`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`} >
                     <h3 className="text-white">
@@ -119,17 +126,22 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
         )
     }
     return (
-        <div onClick={()=>{router.push(`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`)}} className={`${level[1]} cursor-pointer flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
+        <div onClick={(e)=>{
+            let ele:any = e.target;
+            if(ele?.id == "noeffect") return;
+            router.push(`/tracking?patient=${data.patientId}&icu=${data.icuId}&bed=${data.id}`)}
+            } className={`${level[1]} cursor-pointer flex flex-col gap-2 p-2 border-2 w-[100%] h-[100%]`}>
             <div className="flex justify-evenly items-center">
-                <Toggle pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
+                <Toggle id="noeffect" pressed={pinned} className={pinned? "!bg-bluecustom": "bg-transparent"} onPressedChange={(e)=>{e?pintheGlance(data.patientId):unpinGlance(data.patientId);refresh(new Date().getMilliseconds());}} variant="outline">{pinned?(
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
                         fill="#e8eaed"
                         viewBox="0 -960 960 960"
+                        id="noeffect"
                         >
-                        <path d="M680-840v80h-40v327l-80-80v-247H400v87l-87-87-33-33v-47h400zM480-40l-40-40v-240H240v-80l80-80v-46L56-792l56-56 736 736-58 56-264-264h-6v240l-40 40zM354-400h92l-44-44-2-2-46 46zm126-193zm-78 149z"></path>
+                        <path id="noeffect" d="M680-840v80h-40v327l-80-80v-247H400v87l-87-87-33-33v-47h400zM480-40l-40-40v-240H240v-80l80-80v-46L56-792l56-56 736 736-58 56-264-264h-6v240l-40 40zM354-400h92l-44-44-2-2-46 46zm126-193zm-78 149z"></path>
                         </svg>
                     ):(
                     <svg
@@ -138,9 +150,11 @@ const GlanceBox = ({data, pinned, refresh}:{data:GlanceInfo; pinned:boolean; ref
                     height="20"
                     fill="none"
                     viewBox="0 0 12 20"
+                    id="noeffect"
                   >
                     <path
                       fill="#2F377A"
+                      id="noeffect"
                       d="M10 9l2 2v2H7v6l-1 1-1-1v-6H0v-2l2-2V2H1V0h10v2h-1v7zm-7.15 2h6.3L8 9.85V2H4v7.85L2.85 11z"
                     ></path>
                   </svg>

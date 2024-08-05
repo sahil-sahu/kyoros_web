@@ -10,12 +10,14 @@ import { ICUInfo, bedInfo } from "@/types/ICU";
 import { HealthParameter, PatientInfoType } from "@/types/pateintinfo";
 import { LiveTrend } from "@/types/types";
 import { ToastAction } from "@radix-ui/react-toast";
+import { useRouter as _useRouter } from "next/router";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import { Dispatch, SetStateAction, useEffect, useState } from "react"
 export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
     const {toast} = useToast();
     const router = useRouter()
+    const router_2 = _useRouter
     const searchParams = useSearchParams();
     const icu = searchParams.get('icu') ?? "0";
     const bed = parseInt((searchParams.get('bed') ?? "0"));
@@ -29,16 +31,18 @@ export default function TrackingHeader({icusInfo}:{icusInfo:ICUInfo[]}){
         const icu = icusInfo.find(e => (parseInt(val) ?? 0) == e.id);
         if(icu) ICUSet(icu);
     }
-
     const setBed = (val:string) => {
         const bed = ICU?.beds.find(e => (parseInt(val) ?? 0) == e.id);
         router.push(`/tracking?icu=${ICU?.id}&bed=${bed?.id}&patient=${bed?.patientId}&type=${trendtype}&vital=${param}`);
     }
     useEffect(()=>{
+        typeSet(type)
+    },[type])
+    useEffect(()=>{
         BedSet(ICU.beds.find(e => e.id == bed))
     },[ICU, bed])
     return(
-        <header className={`p-2 m-auto max-w-5xl gap-2 grid grid-cols-2 justify-stretch w-full items-center ${trendtype == LiveTrend.Trend? "md:grid-cols-4": "md:grid-cols-3"}`}>
+        <header className={`p-2 m-auto max-w-5xl gap-2 grid grid-cols-2 justify-stretch w-full items-center ${trendtype == LiveTrend.Trend? "md:grid-cols-4": "md:grid-cols-2  !max-w-xl"}`}>
                     <Select onValueChange={setICU} defaultValue={ICU?.id.toString()}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select ICU" />

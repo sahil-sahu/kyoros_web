@@ -80,7 +80,7 @@ const TrackingContent = () => {
 };
 const Tracking = () => {
     return (
-        <main>
+        <main className="">
             <NavBox title={"Patient"} />
             <Suspense fallback={<Skeleton className="h-full w-full" />}>
                 <TrackingContent />

@@ -10,7 +10,7 @@ const AlertBox = ({patientId}:{patientId:string}) =>{
     }})
     if(isLoading || isError){
         return (
-          <div className="h-full text-black rounded-xl text-left shadow col-span-1 border-2 border-darkblue p-5 flex mb-6 flex-col gap-[10%]">
+          <div className="h-full text-black rounded-xl text-left col-span-1 p-5 flex mb-6 flex-col gap-[10%]">
           <h3 className="text-lg  font-semibold">
             Alerts
           </h3>
@@ -24,7 +24,7 @@ const AlertBox = ({patientId}:{patientId:string}) =>{
           )
     }
     return (
-      <div className="h-full text-black rounded-xl text-left shadow col-span-1 border-2 border-darkblue p-5 flex flex-col gap-[10%]">
+      <div className="h-full text-black rounded-xl text-left col-span-1  p-5 flex flex-col gap-[10%]">
         <h3 className="text-lg  font-semibold">
           Alerts
         </h3>

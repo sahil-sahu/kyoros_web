@@ -31,7 +31,7 @@ const formatData = (logs:Patientlog[]) =>{
 const GetTable = ({logs, latestInfo}:{logs:Patientlog[]; latestInfo: Patientlog}) =>{
     const formattedData = formatData(logs);
     return (
-        <table className="w-full h-full">
+        <table className="w-full min-w-[45rem] h-full">
                     <thead className='bg-darkblue text-white text-left p-2'>
                         <tr className='-2'>
                             <th className='px-5 p-1'>Parameters</th>
@@ -43,12 +43,12 @@ const GetTable = ({logs, latestInfo}:{logs:Patientlog[]; latestInfo: Patientlog}
                         <tr>
                             <td className='m-5 translate-x-5'>Heart Rate</td>
                             {formattedData.heartrates.map((e,i) => <td key={i}>{e}</td>)}
-                            <td>{latestInfo?.heart_rate}</td>
+                            <td className="">{latestInfo?.heart_rate}</td>
                         </tr>
                         <tr>
-                            <td className='m-5 translate-x-5'>Blood Pressure</td>
+                            <td className='m-5 ml-4 translate-x-4 text-ellipsis'>Blood Pressure</td>
                             {formattedData.bp_s.map((e,i) => <td key={i}>{e.join("/")}</td>)}
-                            <td>{latestInfo && latestInfo.bp.join("/") }</td>
+                            <td className="">{latestInfo && latestInfo.bp.join("/") }</td>
                         </tr>
                         <tr>
                             <td className='m-5 translate-x-5'>Resp Rate</td>

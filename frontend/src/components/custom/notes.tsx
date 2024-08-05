@@ -135,32 +135,48 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
   const arr = note.split(" ")
   const animate = (noteId:string)=>{
     const box = document.getElementById(noteId.slice(1))
-    box?.classList.add("animate-bounce")
+    box?.classList.add("bg-gray-900")
     setTimeout(()=>{
-      box?.classList.remove("animate-bounce")
+      box?.classList.remove("bg-gray-900")
     }, 500)
   }
+  let noteJsx: JSX.Element|null = null;
   let chatFormatted = arr.map((e,i) =>{
     if(e.charAt(0) == "#"){
       let note = MessageContext?.notesMap.get(e)
-      if(note) return <span key={e} onClick={()=>{animate(e)}} title={note} className="underline cursor-pointer">{e+" "}</span>
+      if(note){
+        noteJsx = <div onClick={()=>{animate(e)}} className="px-2  py-2 bg-[rgba(255,255,255,.075)] text-xs rounded-lg m-1.5 cursor-pointer" key={e}>
+        <span className="block">
+          Replied to:
+        </span>
+        <span >{note}</span>
+      </div>
+        return null;
+      }
     }
     if(e.charAt(0) == "@"){
       let user = users.find(k => k.email == e.slice(1))
-      if(user) return <span key={e} title={user.name} className="underline">{e+" "}</span>
+      if(user) return <span key={e} title={user.name+" "+user.email} className="underline">{"@"+user.name+" "}</span>
     }
     return <span key={e} className="">{e+" "}</span>
   })
 
+  let chats = (
+    <div className="text-sm">
+    {noteJsx}
+    <p className="px-4 ">{chatFormatted}</p>
+    </div>
+  )
+
 
   return (
     <ContextMenu>
-      <ContextMenuTrigger id={id} className="chatbox flex gap-3 items-center w-fit">
+      <ContextMenuTrigger className="chatbox flex gap-3 transition-all items-center w-fit">
       <>
-      <div id={id} className="chatbox flex gap-3 items-center">
+      <div className="chatbox flex gap-3 items-center">
         <Checkbox />
-        <div className={`p-4 py-2 text-white rounded-lg ${type.includes("doctor")? "bg-darkblue":"bg-[#4C8484]"}`}>
-          <div className="font-bold flex justify-between">
+        <div id={id} className={` py-2 text-white rounded-lg ${type.includes("doctor")? "bg-darkblue":"bg-[#4C8484]"}`}>
+          <div className="px-4 font-bold flex justify-between">
             <p>{name}</p>
             <HoverCard>
               <HoverCardTrigger><DotsVerticalIcon/></HoverCardTrigger>
@@ -172,8 +188,8 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
               </HoverCardContent>
             </HoverCard>
           </div>
-          <p className="text-sm">{chatFormatted}</p>
-          <p className="text-right text-xs">{getTimeFromISOString(createdAt)}</p>
+          {chats}
+          <p className="text-right text-xs px-4">{getTimeFromISOString(createdAt)}</p>
         </div>
       </div>
       {openEdit && <Edit_Box open={openEdit} setEdit={setEdit} refetch={MessageContext?.refetch ?? null} note={note} noteId={id} />}
