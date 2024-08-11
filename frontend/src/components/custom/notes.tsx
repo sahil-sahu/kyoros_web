@@ -138,19 +138,21 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
     box?.classList.add("bg-gray-900")
     setTimeout(()=>{
       box?.classList.remove("bg-gray-900")
-    }, 500)
+    }, 1000)
   }
   let noteJsx: JSX.Element|null = null;
   let chatFormatted = arr.map((e,i) =>{
     if(e.charAt(0) == "#"){
       let note = MessageContext?.notesMap.get(e)
       if(note){
-        noteJsx = <div onClick={()=>{animate(e)}} className="px-2  py-2 bg-[rgba(255,255,255,.075)] text-xs rounded-lg m-1.5 cursor-pointer" key={e}>
+        noteJsx = <Link href={e} onClick={()=>{animate(e)}} key={e}>
+        <div className="px-2  py-2 bg-[rgba(255,255,255,.075)] text-xs rounded-lg m-1.5 cursor-pointer" key={e}>
         <span className="block">
           Replied to:
         </span>
         <span >{note}</span>
       </div>
+      </Link>
         return null;
       }
     }
@@ -317,7 +319,7 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
             </li>
         </ul>
       </header>
-      <div ref={scrollRef} className="flex flex-col justify-start gap-4 my-2 max-h-[61dvh] mb-16 overflow-y-auto">
+      <div ref={scrollRef} className="flex flex-col justify-start gap-4 my-2 max-h-[68dvh] mb-16 overflow-y-auto">
         {
           (chat.length == 0) && "No new messages"
         }

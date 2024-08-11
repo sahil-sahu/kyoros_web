@@ -7,9 +7,11 @@ import type { NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
     const user = cookies().get('token')?.value
     const userType = cookies().get("userType")?.value
-    // console.log(userType, request.nextUrl.pathname)
     if(user == undefined)
-        return NextResponse.redirect(new URL('/auth/login', request.url))
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    // if(request.nextUrl.pathname.includes("/docs/download")){
+    //   return NextResponse.redirect(new URL(request.nextUrl.pathname.replace("/docs/download", "https://app.kyoros.com:420"), request.url))
+    // }
     // console.log(request.nextUrl.pathname, request.nextUrl.pathname == "/" || request.nextUrl.pathname == "")
     if(request.nextUrl.pathname == "/" || request.nextUrl.pathname == ""){
       if(userType === "doctor") return NextResponse.redirect(new URL('/doctor', request.url))
@@ -25,6 +27,7 @@ export const config = {
     '/app/:path*',
     '/',
     '/tracking',
-    '/glance'
+    '/glance',
+    // '/docs/download/:path*'
   ],
 }
