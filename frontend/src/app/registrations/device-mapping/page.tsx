@@ -24,6 +24,7 @@ import SensorBox from "./sensorBox";
 import { getSensors } from "./query/getSensors";
 import { setSensor } from "./query/setSensor";
 import { useToast } from "@/components/ui/use-toast";
+import { SensorContext } from "./sensorContext";
 const Box:CSSProperties = {
     backgroundColor: "#fff",
     backgroundImage:"linear-gradient(to top right, #A2CCFD 5%, white 60%)"
@@ -34,15 +35,19 @@ const DeviceSetup = () => {
     const [selectedICU, setSelectedICU] = useState<number|undefined>();
     const icuInfos = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const Sensors = useQuery({ queryKey: ['sensors'], queryFn: getSensors });
+    const [sensorMap, setSensorMap] = useState<Map<string, sensor>>(new Map())
     const { isPending:isLoading, error, data, mutateAsync } = useMutation({mutationFn: setSensor});
     const mapRef = useRef(new Map<number, bedwSensor>());
     const [_, refresh] = useState(new Date().getMilliseconds())
     const mapAll = useCallback(async ()=>{
         const map = mapRef.current;
+        const sMap:Map<string, sensor> = new Map();
         (Sensors.data || []).forEach(e =>{
+            sMap.set(e.id, e)
             if(!e.bedID || (e.bedID && map.get(e.bedID)?.sensorId.includes(e.id))) return;
             map.get(e.bedID)?.sensorId.push(e.id)
         })
+        setSensorMap(sMap)
     },[Sensors.data])
     useEffect(()=>{
         if(icuInfos.data && Sensors.data){
@@ -68,7 +73,8 @@ const DeviceSetup = () => {
                 if(!sensorarr) return;
                 const op = await mutateAsync({id: sensor, bedID: undefined})
                 sensorarr = sensorarr.filter(e => e != sensor);
-                op && toast({title: `Sensor ${sensor} is now Unmapped successfully`, duration: 2000})
+                const sName = sensorMap.get(sensor)?.username ?? sensor;
+                op && toast({title: `Sensor "${sName}" is now Unmapped successfully`, duration: 2000})
                 console.log("removed")
             } else{
                 let bed = map.get(parseInt(over.id.toString()));
@@ -76,7 +82,8 @@ const DeviceSetup = () => {
                 if(!sensorarr || sensorarr.includes(sensor)) return;
                 const op = await mutateAsync({id: sensor, bedID: bed?.id})
                 sensorarr.push(sensor);
-                op && toast({title: "Successfull", description: `Sensor ${sensor} is now mapped successfully to ${bed?.name}`, variant:"default",duration: 2000})
+                const sName = sensorMap.get(sensor)?.username ?? sensor;
+                op && toast({title: "Successfull", description: `Sensor "${sName}" is now mapped successfully to ${bed?.name}`, variant:"default",duration: 2000})
                 console.log("added")
             }
             Sensors.refetch();
@@ -105,6 +112,7 @@ const DeviceSetup = () => {
                         {(icuInfos.data || []).map(e => <SelectItem key={e.id} value={e.id.toString()}>{e.name}</SelectItem>)}
                     </SelectContent>
                 </Select>
+            <SensorContext.Provider value={sensorMap}>
             <DndContext onDragEnd={handleDragEnd}>
              <section className="grid grid-cols-4 gap-4 w-full p-2">
              <div className="grid gap-5 grid-cols-3 items-center m-auto my-5 col-span-3">
@@ -127,7 +135,7 @@ const DeviceSetup = () => {
                     (Sensors.data || []).filter(e => e.bedID == undefined).map(e => {
                         return (
                             <Draggable id={e.id} key={e.id}>
-                                <SensorBox>{e.id}</SensorBox>
+                                <SensorBox>{e.username ?? e.id}</SensorBox>
                             </Draggable>
                         )
                     })
@@ -137,6 +145,7 @@ const DeviceSetup = () => {
             </Droppable>
              </section>
             </DndContext>
+            </SensorContext.Provider>
 
         </main>
     )

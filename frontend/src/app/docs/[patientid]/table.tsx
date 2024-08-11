@@ -44,6 +44,7 @@ import {
 import Link from "next/link"
 import { PatientDoc } from "@/types/patientDoc"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import extractFileType from "@/lib/extensionFinder"
 
 
 
@@ -163,7 +164,7 @@ export const columns: ColumnDef<PatientDoc>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => (
-      <Link target="_blank" href={row.original.s3Link} className="capitalize hover:underline-offset-4"><span className="hover:!underline-offset-4">{row.getValue("name")}</span><OpenInNewWindowIcon className="inline mx-1"/></Link>
+      <a download={row.getValue("name")+"."+extractFileType(row.original.s3Link)} href={`/docs/patient/download/?url=${row.original.s3Link}`} className="capitalize hover:underline-offset-4"><span className="hover:!underline-offset-4">{row.getValue("name")}</span><OpenInNewWindowIcon className="inline mx-1"/></a>
     ),
   },
   {
@@ -282,7 +283,7 @@ export function DataTableDemo({data, refetch}:{data:PatientDoc[]; refetch: () =>
                 Sort by:
             </li>
             <li className="flex justify-between items-center gap-2">
-            <Select defaultValue="desc" onValueChange={(e)=>{
+            <Select defaultValue="asc" onValueChange={(e)=>{
               let button = document.getElementById("file_created")
               button?.click()
             }}>

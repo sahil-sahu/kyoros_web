@@ -22,7 +22,7 @@ import Image from "next/image"
 import upload_i from "./image 112.png"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { fetchICU } from "../tracking/querys/icuQuery"
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode, useContext, useEffect, useState } from "react"
 import { bedInfo, ICUInfo } from "@/types/ICU"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -45,8 +45,10 @@ import { Divide } from "lucide-react"
 import { UploadIcon } from "@radix-ui/react-icons"
 import { ToastAction } from "@/components/ui/toast"
 import Link from "next/link"
+import { DocRefreshContext } from "../docs/[patientid]/refetchContext"
 export default function UploadBox({patientId, children}:{patientId:string|undefined; children:ReactNode}) {
     const {toast} = useToast()
+    const docsRefreshContext = useContext(DocRefreshContext)
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [ICU, ICUSet]  = useState<ICUInfo|undefined>((filterApi.data || [])[0]);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
@@ -85,6 +87,7 @@ export default function UploadBox({patientId, children}:{patientId:string|undefi
                 duration: 3000,
                 action: <ToastAction altText="Go Patient"><Link href={'/docs/'+form.getValues().patientId}>Go to docs</Link></ToastAction>
             })
+            docsRefreshContext && docsRefreshContext()
             form.reset();
         }
          catch(err){
