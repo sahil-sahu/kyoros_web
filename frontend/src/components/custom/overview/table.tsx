@@ -62,7 +62,8 @@ interface OverViewModel {
   icuId: number[];
   diagnosis: string;
   comorbities: string[];
-  summary: string;  
+  summary: string;
+  doctors: string;
 }
 
 
@@ -78,6 +79,16 @@ export const columns: ColumnDef<OverViewModel>[] = [
     cell: ({ row }) => (
       <div className="hover:!underline-offset-4 min-w-24 m-auto">{row.getValue("icuName") || "--"+ " ,"+ (row.original?.bedName ?? "--")}</div>
     ),
+  },
+  {
+    accessorKey: "patient.name",
+    header: "Patient Name",
+    cell: ({ row }) => <div className="m-auto capitalize">{row.getValue("patient_name")}</div>,
+  },
+  {
+    accessorKey: "doctors",
+    header: "Assigned Doctors",
+    cell: ({ row }) => <div className="m-auto capitalize">{row.getValue("doctors")}</div>,
   },
   {
     accessorKey: "patient.dob",
@@ -152,7 +163,9 @@ export function OverViewTable() {
     []
   )
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+    React.useState<VisibilityState>({
+      patient_name:false
+    })
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
@@ -254,7 +267,7 @@ export function OverViewTable() {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {overView.isLoading? "Loading...":"No results."}
                 </TableCell>
               </TableRow>
             )}

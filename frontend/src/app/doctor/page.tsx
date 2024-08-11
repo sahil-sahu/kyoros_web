@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 // import glance from "@/assets/glancce.png"
 import glance from "@/assets/glance.svg"
+import settings from "@/assets/settings.svg"
 import PieChart from "@/components/custom/pieChart";
 import {
   Select,
@@ -40,7 +41,7 @@ export default function Home() {
   return (
     <main className="p-5 pt-0">
         <NavBox title={"Overview"}></NavBox>
-        <section className="m-auto p-2 grid grid-cols-2 lg:w-full w-fit lg:max-w-5xl lg:grid-cols-3 gap-4">
+        <section className="m-auto p-2 grid grid-cols-2 lg:w-full w-fit lg:max-w-7xl items-stretch lg:grid-cols-4 gap-4">
           <div>
           <Link className="h-auto" href={'/request-notify'}>
             <AlertBox />
@@ -87,6 +88,12 @@ export default function Home() {
                 At a Glance
               </h3>
               <Image className="justify-self-center top-[10%] self-center origin-center max-h-[10rem] p-2 m-auto h-full w-3/4" src={glance} alt="glance"/>
+          </Link>
+          <Link className="shadow border border-gray-400 col-span-1 min-h-[12rem] rounded-xl p-5 flex flex-col gap-5 relative" href={`/registrations`}>
+              <h3 className="lg:text-xl text-lg font-semibold">
+                Admin Panel
+              </h3>
+              <Image className="justify-self-center top-[10%] self-center origin-center max-h-[10rem] p-2 m-auto h-full w-3/4" src={settings} alt="Settings"/>
           </Link>
         </section>
         <OverViewTable />
