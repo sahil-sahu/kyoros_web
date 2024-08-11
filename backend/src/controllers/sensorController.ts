@@ -6,7 +6,11 @@ import { Request, Response } from 'express';
 export const getSensors = async (req: AuthRequest, res: Response) => {
     try {
       let hospitalId = req.hospital;
-      const sensors = await prisma.sensor.findMany();
+      const sensors = await prisma.sensor.findMany({
+        where:{
+          hospitalId,
+        }
+      });
       res.json(sensors);
     } catch (err) {
       res.status(500).json({ message: err.message });

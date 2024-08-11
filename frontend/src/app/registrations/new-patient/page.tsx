@@ -26,6 +26,18 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 
+  import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
+
+  import { cn } from "@/lib/utils"
+  import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+  } from "@/components/ui/command"
+
 import { Calendar } from "@/components/ui/calendar"
 import { CalendarIcon, CaretDownIcon, PersonIcon } from "@radix-ui/react-icons"
 import { format } from "date-fns"
@@ -56,11 +68,13 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import allYears from "@/lib/allyears"
 export default function PatientForm() {
     const router = useRouter()
     const {toast} = useToast();
     const [found, setFound] = useState<string|undefined>();
     const [assign, setAssign] = useState(false);
+    const [open, setOpen] = useState(false)
     const [_, refresh] = useState(new Date().getMilliseconds())
     const icuInfos = useQuery({ queryKey: ['icu_unoccupied'], queryFn: fetchICU_Unoccupied });
     const users = useQuery({ queryKey: ['users'], queryFn: getUsers });
@@ -165,11 +179,50 @@ export default function PatientForm() {
                     name="patientInfo.dob"
                     render={({ field }) => (
                         <FormItem className="flex flex-col gap-2.5">
-                        <FormLabel>Date of birth</FormLabel>
-                        <Popover>
-                            <PopoverTrigger asChild>
+                        <FormLabel>Birth Year</FormLabel>
                             <FormControl>
-                                <DatePicker selected={field.value} onChange={field.onChange} />
+                                {/* <DatePicker selected={field.value} onChange={field.onChange} /> */}
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={open}
+                                        className="w-[200px] justify-between"
+                                        >
+                                        {field.value?.getFullYear() || "Select year"}
+                                        <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[200px] p-0">
+                                        <Command>
+                                        <CommandInput typeof="number" className="h-9" />
+                                        <CommandList>
+                                            <CommandEmpty>No year found.</CommandEmpty>
+                                            <CommandGroup>
+                                            {allYears().map((year) => (
+                                                <CommandItem
+                                                key={year.getFullYear()}
+                                                value={year.toISOString()}
+                                                onSelect={(currentValue) => {
+                                                    field.onChange(year)
+                                                    setOpen(false)
+                                                }}
+                                                >
+                                                {year.getFullYear()}
+                                                <CheckIcon
+                                                    className={cn(
+                                                    "ml-auto h-4 w-4",
+                                                    field.value?.getFullYear() === year.getFullYear() ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                </CommandItem>
+                                            ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                    </Popover>
                                 {/* <Button
                                 variant={"outline"}
                                 className={"w-[240px] pl-3 text-left font-normal"}
@@ -182,19 +235,7 @@ export default function PatientForm() {
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                 </Button> */}
                             </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                disabled={(date) =>
-                                date > new Date() || date < new Date("1900-01-01")
-                                }
-                                initialFocus
-                            />
-                            </PopoverContent>
-                        </Popover>
+                            
                         <FormMessage />
                         </FormItem>
                     )}

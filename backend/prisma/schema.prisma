@@ -148,6 +148,7 @@ model PatientDoc {
 model Sensor {
   id         String   @id @default(cuid())
   bedID      Int?     @unique
+  username   String?
   hospitalId String
   logs       Logs[]
   bed        Bed?     @relation(fields: [bedID], references: [id], onDelete: NoAction)
