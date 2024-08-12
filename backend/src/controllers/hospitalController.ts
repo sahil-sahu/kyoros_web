@@ -6,6 +6,9 @@ import patient_from_redis from '../helpers/fetchPatientfromRedis';
 import { redisClient } from '../redis';
 import user_from_redis, { fireuser_from_redis } from '../helpers/userfromRedis';
 import { generate_summary } from '../helpers/gemini';
+import { usersNames } from '../helpers/usersNames';
+import { avgApache, avgPatientStay, avgStaycurrentMonth, bedOccupancy, getOccupancyById, insightFetcher } from '../helpers/overviewMetrics';
+import { apacheTrend, mortalityTrend, occuPancyTrend, serializer, stayTrend } from '../helpers/metricFetcherAndFormatter';
 
 export const getHospitals = async(req:Request,res:Response) =>{
     try {
@@ -260,7 +263,8 @@ export const getOverviewforUser = async (req:AuthRequest,res:Response) =>{
             sessions.map(async s => {
                 const patient = await patient_from_redis(s.patientId);
                 const summary = await generate_summary(s.patientId)
-                return {...s, patient, summary}
+                const doctors = await usersNames(s.doctorIds)
+                return {...s, patient, doctors, summary}
             })
         )
 
@@ -294,6 +298,58 @@ export const getOccupancy = async (req:AuthRequest,res:Response) =>{
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch glance of icus from db' });
+    }
+}
+export const adminInsights = async (req:AuthRequest|Request,res:Response) =>{
+    try {
+        // const hospitalId = req.hospital;
+        const {icuId} = req.query;
+        let icu = +icuId;
+        if(typeof(icu) != 'number' || (typeof(icu) == 'number' && isNaN(icu))) throw Error("Invalid ICU Id");
+        if(icu == -1) throw("Error allicu not supported yet")
+
+        const [insight, occupancy, avgStay] = await Promise.all([insightFetcher(icu), getOccupancyById(icu), avgStaycurrentMonth(icu)])
+        return res.status(200).json({insight, occupancy, avgStay})
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch admin metrics' });
+    }
+}
+const freqArr = ["6h", "1D", "7D", "1M"]
+export const adminTrends = async (req:Request,res:Response) =>{
+    try {
+        // ?old=2024-08-11T18:30:00.000Z&freq=6h&icuId=-1&metric=occupancy
+        const { old, freq, icuId, metric } = req.query;
+        let icu = +icuId;
+        if(!icu || typeof(icu) != 'number') throw Error("Invalid ICU Id");
+        if(!old || typeof(old) != 'string') throw Error("Invalid Date string");
+        if(!metric || (typeof(metric) != 'string')) throw Error("Invalid Metric");
+        if(!freq || (typeof(freq) != 'string')  || (typeof(freq) == 'string')  && !freqArr.includes(freq)) throw Error("Invalid freq");
+
+        const start = new Date(old);
+        switch(metric){
+            case "mortality":
+                const mortality = await mortalityTrend(icu,start,freq)
+                const serialized_M = serializer(mortality)
+                return res.status(200).json(serialized_M);
+            case "occupancy":
+                const occupancy = await occuPancyTrend(icu,start,freq)
+                const serialized_O = serializer(occupancy)
+                return res.status(200).json(serialized_O);
+            case "avgStay":
+                const avgStay = await stayTrend(icu,start,freq)
+                const serialized_Stay = serializer(avgStay)
+                return res.status(200).json(serialized_Stay);
+            case "avgApache":
+                const avgApache = await apacheTrend(icu,start,freq)
+                const serialized_Apache = serializer(avgApache)
+                return res.status(200).json(serialized_Apache);
+            default: throw Error("Invalid Metric")
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch admin Trends' });
     }
 }
 

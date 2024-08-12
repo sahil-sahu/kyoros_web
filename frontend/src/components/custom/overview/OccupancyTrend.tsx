@@ -34,41 +34,42 @@ import {
   import AlertBox from "@/components/custom/overview/alertBox";
   import { options } from "@/lib/linechartformatter";
 import { Percent } from "lucide-react";
-
+import { fetchMetric } from "@/app/admin/queries/getVals";
+import { useContext, useState } from "react";
+import { HeaderContext } from "@/app/admin/context";
+import { useQuery } from "@tanstack/react-query";
+import { linechartFormatter } from "@/app/admin/lineChartFormatter";
+import Link from "next/link";
+const dt = new Date();
+    dt.setHours(0,0,0,0)
+    dt.setMonth(dt.getMonth()-1)
+    const lt = new Date();
+    lt.setHours(0,0,0,0)
+    lt.setMonth(dt.getMonth()-6)
 const OccupancyTrend = () =>{
-    return (<div className="shadow border border-gray-400 rounded-xl p-4 py-5 lg:pt-3 col-span-2">
+    const context = useContext(HeaderContext);
+    const [old, setold] = useState(dt.toISOString())
+    const { data, isLoading, refetch, error } = useQuery({queryKey:["admin",context?.icuState[0],"occupancy", old, "7D"], queryFn:fetchMetric});
+    return (
+    <Link href={"/admin/?metric=occupancy"} className="shadow border border-gray-400 rounded-xl p-4 py-5 lg:pt-3 col-span-2">
         <div className="heading flex justify-between items-center">
           <h3 className="text-lg font-semibold">
             Occupancy Trend
           </h3>
-          <Select defaultValue="today">
+          <Select value={old} onValueChange={setold}>
             <SelectTrigger className="border-none w-1/3">
               <SelectValue placeholder="Select day" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="today">This week</SelectItem>
-                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value={dt.toISOString()}>This Month</SelectItem>
+                <SelectItem value={lt.toISOString()}>Last 6 Months</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="lg:h-[13rem] ">
-            <Line className="lg:h-[13rem] lg:w-auto md:w-2/3 m-auto" options={{...options, responsive:true}} data={{
-                                        labels:["Mon","Tue","Wed", "Thu", "Fri", "Sat", "Sun"],
-                                        datasets: [
-                                        {
-                                            label:"Percent",
-                                            data:[35,85,65,48,84,75,55],
-                                            fill: false,
-                                            pointRadius: 3,
-                                            pointHitRadius: 10,
-                                            borderColor: '#2F377A',
-                                            backgroundColor: '#2F377A',
-                                            tension:.3
-                                        },
-                                        ],
-                                    }}></Line>
+            <Line className="lg:h-[13rem] lg:w-auto md:w-2/3 m-auto" options={{...options, responsive:true}} data={linechartFormatter(data || {y:[], x:[]}, "Occupancy")}></Line>
         </div>
-      </div>)
+      </Link>)
 }
 
 export default OccupancyTrend;
