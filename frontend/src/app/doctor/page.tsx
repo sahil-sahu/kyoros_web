@@ -47,17 +47,17 @@ export default function Home() {
             <AlertBox />
           </Link>
           </div>
-          <Link href={'/occupancy'}>
-          <div className="shadow border aspect-square border-gray-400 rounded-xl p-4 col-span-1">
+          <Link className="h-full" href={'/occupancy'}>
+          <div className="shadow border h-full sm:aspect-square border-gray-400 rounded-xl p-4 col-span-1">
             <div className="heading lg:flex flex lg:flex-row flex-col justify-between items-center">
-              <h3 className="text-lg font-semibold inline">
+              <h3 className="sm:text-lg font-semibold inline">
                 Bed Occupancy
               </h3>
             </div>
             <div style={{
               background:"linear-gradient(to bottom right, #7CA7EB .5%, #303778 50%)"
-            }} className="flex m-auto lg:mt-4 justify-center items-center rounded-full w-[6rem] h-[6rem] lg:w-[10rem] lg:h-[10rem]">
-              <h4 className="bg-white flex justify-center items-center lg:text-3xl text-2xl rounded-full text-center w-[4.5rem] h-[4.5rem] lg:w-[7rem] lg:h-[7rem]">
+            }} className="flex m-auto lg:mt-4 justify-center items-center rounded-full w-[5.3rem] h-[5.3rem] sm:w-[6rem] sm:h-[6rem] lg:w-[10rem] lg:h-[10rem]">
+              <h4 className="bg-white flex justify-center items-center lg:text-3xl text-2xl rounded-full text-center w-[3.7rem] h-[3.7rem] sm:w-[4.5rem] sm:h-[4.5rem] lg:w-[7rem] lg:h-[7rem]">
                 66%
               </h4>
             </div>

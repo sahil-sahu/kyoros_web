@@ -221,7 +221,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                     </p>
                 </div>
             </div>
-        <div className='grid order-2 grid-cols-2 md:grid-cols-1 md:grid-rows-2 h-fit justify-center w-full max-w-[95vw] mx-auto md:col-span-1 col-span-2 items-center gap-3'>
+        <div className='grid order-2 grid-cols-2 md:grid-cols-1 md:grid-rows-2 justify-center h-full w-full max-w-[95vw] mx-auto md:col-span-1 col-span-2 items-center gap-3'>
             <div className='border-2 border-darkblue rounded-xl h-full shadow'>
                 <Link className="h-full" href={`/request-notify?icu=${icu}&bed=${bed}`}>
                     <AlertBox patientId={patientId}></AlertBox>
