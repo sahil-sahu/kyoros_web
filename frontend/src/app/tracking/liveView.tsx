@@ -34,6 +34,7 @@ import { getDateDifferenceFromNow } from '@/lib/daysCalc';
 import { LiveTrend } from '@/types/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRouter, useSearchParams } from 'next/navigation';
+import PrintDialog from './print/printDialog';
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -254,7 +255,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                     <h3 className='text-center text-2xl font-bold'>
                         Patient Parameter
                     </h3>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-2 '>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-y-4 gap-2 '>
                     <Select defaultValue={LiveTrend.Live} onValueChange={(e:LiveTrend)=>{
                         currentParams.set('type', LiveTrend.Trend);
                         if(e == LiveTrend.Trend) router.push('/tracking?'+currentParams.toString())
@@ -318,6 +319,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
                             </DropdownMenuCheckboxItem>
                         </DropdownMenuContent>
                         </DropdownMenu>
+                        <PrintDialog patientId={patientId} />
                     </div>
                 </div>
                 <div className='rounded-t-lg overflow-auto mt-3 h-full w-full'>

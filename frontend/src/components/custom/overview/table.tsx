@@ -77,7 +77,7 @@ export const columns: ColumnDef<OverViewModel>[] = [
     accessorKey: "icuName",
     header: "ICU Bed",
     cell: ({ row }) => (
-      <div className="hover:!underline-offset-4 min-w-24 m-auto">{row.getValue("icuName") || "--"+ " ,"+ (row.original?.bedName ?? "--")}</div>
+      <div className="hover:!underline-offset-4 min-w-24 m-auto">{(row.getValue("icuName") ?? "--")+ " ,"+ (row.original?.bedName ?? "--")}</div>
     ),
   },
   {

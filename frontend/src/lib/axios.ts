@@ -1,3 +1,5 @@
+'use client'
+import Cookies from 'js-cookie';
 import axios, { AxiosInstance } from 'axios';
 import { auth } from './firebase';
 // Create an instance of Axios with a base URL
@@ -23,8 +25,21 @@ export async function fetchAuth(){
   }
   return "";
 }
+
+const setAuthCookie = (token:string) =>{
+  const expirationTime = new Date(new Date().getTime() + 4.5 * 60 * 1000);
+  Cookies.set('authToken', token, {
+    expires: expirationTime,
+    path: '/', // Cookie path, adjust as necessary
+  });
+}
+
 export const setheader = async ()=>{
-  const token = await fetchAuth();
+  let token = Cookies.get('authToken');
+  if(!token){
+    token = await fetchAuth();
+    setAuthCookie(token);
+  }
   // const token = sessionStorage.getItem('token') ?? await fetchAuth();
   // console.log(token)
   return {

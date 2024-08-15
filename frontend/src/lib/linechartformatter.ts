@@ -3,7 +3,7 @@ import {
   Chart,
   ChartOptions,
 } from 'chart.js';
-export function getTimeFromISOString(isoString: string): string {
+export function getTimeFromISOString(isoString: string|Date): string {
   const date = new Date(isoString);
 
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

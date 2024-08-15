@@ -56,7 +56,7 @@ function _Messaging() {
     const searchParams = useSearchParams();
     const icu = +(searchParams.get('icu') || "kyoros");
     const bed = +(searchParams.get('bed') || "kyoros");
-    const [ICU, ICUSet]  = useState<ICUInfo|undefined>(!Number.isNaN(icu)?(filterApi.data || []).find(e=>e.id == icu):(filterApi.data || [])[0]);
+    const [ICU, ICUSet]  = useState<ICUInfo|undefined>(!Number.isNaN(icu)?(filterApi.data || []).find(e=>e.id == icu):undefined);
     const [Bed, BedSet]  = useState<bedInfo|undefined>();
     useEffect(()=>{
       const fcm = localStorage.getItem("fcmSet")
