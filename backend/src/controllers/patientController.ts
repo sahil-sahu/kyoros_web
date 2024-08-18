@@ -203,7 +203,7 @@ export const setCritcality = async (req:AuthRequest, res:Response) =>{
 
 export const makeNote = async (req:AuthRequest, res:Response) =>{
   try {
-    const {note, patientId, tagged } = req.body;
+    const {note, patientId, tagged, replyTo } = req.body;
     const user = await fireuser_from_redis(req.user)
     sendTaggedNotification(tagged, patientId)
     const noteObj = await prisma.notes.create({
@@ -211,7 +211,8 @@ export const makeNote = async (req:AuthRequest, res:Response) =>{
         userid: user.id,
         note,
         patientId,
-        hospitalId:req.hospital
+        hospitalId:req.hospital,
+        replyTo: replyTo
       }
     })
     res.status(200).json(noteObj);
@@ -263,15 +264,32 @@ export const getNotes = async (req:AuthRequest, res:Response) =>{
         patientId: patient,
         createdAt:{
           gte: timeStamp
-        }
+        },
+        replyTo:null
       },
       orderBy:{
         createdAt: "asc"
+      },
+      include: {
+        replies: {
+          where:{
+            replyTo: {
+              not: null
+            }
+          },
+          orderBy:{
+            createdAt: "asc"
+          }
+        }
       }
     });
     const notes_user = await Promise.all(notes.map(async e => {
       const user = await user_from_redis(e.userid);
-      return {...e, name: user.name, type: user.userType}
+      const replies = await Promise.all(e.replies.map(async k => {
+        const user = await user_from_redis(k.userid);
+        return {...k, name: user.name, type: user.userType}
+      }))
+      return {...e, name: user.name, type: user.userType, replies: replies}
     }))
     res.json({
       notes: notes_user,

@@ -196,8 +196,10 @@ model Notes {
   patient       Patient   @relation(fields: [patientId], references: [id], onDelete: NoAction)
   hospitalId    String
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replyTo       String?
+  repliedTo    Notes? @relation("NoteReplies", fields: [replyTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies       Notes[] @relation("NoteReplies")
 }
-
 enum UserType {
   admin
   nurse

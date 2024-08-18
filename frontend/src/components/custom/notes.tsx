@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 import print_i from "./print.png";
 import Image from "next/image";
 import { Input } from "../ui/input";
-import { DotsHorizontalIcon, DotsVerticalIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
+import { Cross1Icon, DotsHorizontalIcon, DotsVerticalIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
 import { QueryFunctionContext, QueryObserverResult, RefetchOptions } from "@tanstack/query-core";
 import { axiosInstance, setheader } from "@/lib/axios";
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
@@ -31,6 +31,13 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import { CornerDownRight } from "lucide-react";
+
 
 
 
@@ -39,14 +46,17 @@ interface ChatBox_t {
   type: "admin"|"nurse"|"doctor";
   id: string;
   note: string;
+  userid:string;
   createdAt: string;
   users: User[];
+  replies: ChatBox_t[];
+  replyTo: string|null;
 }
 interface ChatRes {
   notes: ChatBox_t[];
   bedStamp: string; //date string
 }
-const MessageContext = createContext<{ message: string; setMessage: Dispatch<SetStateAction<string>>; refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ChatRes, Error>>; notesMap:Map<string, string>;}|undefined>(undefined);
+const MessageContext = createContext<{ message: string; setMessage: Dispatch<SetStateAction<string>>; refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<ChatRes, Error>>; notesMap:Map<string, string>; setReply: Dispatch<SetStateAction<string|null>>;}|undefined>(undefined);
 const useMessage = () => useContext(MessageContext);
 
 // const SuggestionBox = () =>{
@@ -127,9 +137,7 @@ const getTagged = (chat:string, users: User[]) =>{
 
   return tagged
 }
-
-const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
-
+const RepliedBox = ({name, createdAt, note, type, users, id, replyTo}:ChatBox_t) =>{
   const MessageContext = useMessage();
   const [openEdit, setEdit] = useState(false);
   const arr = note.split(" ")
@@ -142,20 +150,6 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
   }
   let noteJsx: JSX.Element|null = null;
   let chatFormatted = arr.map((e,i) =>{
-    if(e.charAt(0) == "#"){
-      let note = MessageContext?.notesMap.get(e)
-      if(note){
-        noteJsx = <Link href={e} onClick={()=>{animate(e)}} key={e}>
-        <div className="px-2  py-2 bg-[rgba(255,255,255,.075)] text-xs rounded-lg m-1.5 cursor-pointer" key={e}>
-        <span className="block">
-          Replied to:
-        </span>
-        <span >{note}</span>
-      </div>
-      </Link>
-        return null;
-      }
-    }
     if(e.charAt(0) == "@"){
       let user = users.find(k => k.email == e.slice(1))
       if(user) return <span key={e} title={user.name+" "+user.email} className="underline">{"@"+user.name+" "}</span>
@@ -175,8 +169,8 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
     <ContextMenu>
       <ContextMenuTrigger className="chatbox flex gap-3 transition-all items-center w-fit">
       <>
+      <CornerDownRight className="" />
       <div className="chatbox flex gap-3 items-center">
-        <Checkbox />
         <div id={id} className={` py-2 text-white rounded-lg ${type.includes("doctor")? "bg-darkblue":"bg-[#4C8484]"}`}>
           <div className="px-4 font-bold flex justify-between">
             <p>{name}</p>
@@ -185,7 +179,7 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
               <HoverCardContent className="text-sm font-normal p-0">
                 <div className="hover:bg-slate-50 flex p-2 justify-between" onClick={()=>setEdit(true)}>Edit</div>
                 <div onClick={()=>{
-                  MessageContext?.setMessage("#"+id)
+                  MessageContext?.setReply(replyTo)
                 }} className="hover:bg-slate-50 flex p-2 justify-between">Reply</div>
               </HoverCardContent>
             </HoverCard>
@@ -200,10 +194,90 @@ const ChatBox = ({name, createdAt, note, type, users, id}:ChatBox_t) =>{
       <ContextMenuContent>
         <ContextMenuItem onClick={()=>setEdit(true)}>Edit</ContextMenuItem>
         <ContextMenuItem onClick={()=>{
-                  MessageContext?.setMessage("#"+id)
+          MessageContext?.setReply(replyTo)
                 }}>Reply</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
+  )
+}
+const ChatBox = ({name, createdAt, note, type, users, id, userid, replies}:ChatBox_t) =>{
+
+  const MessageContext = useMessage();
+  const [openEdit, setEdit] = useState(false);
+  const arr = note.split(" ")
+  const animate = (noteId:string)=>{
+    const box = document.getElementById(noteId.slice(1))
+    box?.classList.add("bg-gray-900")
+    setTimeout(()=>{
+      box?.classList.remove("bg-gray-900")
+    }, 1000)
+  }
+  let noteJsx: JSX.Element|null = null;
+  let chatFormatted = arr.map((e,i) =>{
+    if(e.charAt(0) == "@"){
+      let user = users.find(k => k.email == e.slice(1))
+      if(user) return <span key={e} title={user.name+" "+user.email} className="underline">{"@"+user.name+" "}</span>
+    }
+    return <span key={e} className="">{e+" "}</span>
+  })
+
+  let chats = (
+    <div className="text-sm">
+    {noteJsx}
+    <p className="px-4 ">{chatFormatted}</p>
+    </div>
+  )
+
+
+  return (
+    <>
+    <ContextMenu>
+      <ContextMenuTrigger className="chatbox !mb-0 flex gap-3 transition-all items-center w-fit">
+      <>
+      <div className="chatbox flex gap-3 items-center">
+        <Checkbox />
+        <div id={id} className={` py-2 text-white rounded-lg ${type.includes("doctor")? "bg-darkblue":"bg-[#4C8484]"}`}>
+          <div className="px-4 font-bold flex justify-between">
+            <p>{name}</p>
+            <HoverCard>
+              <HoverCardTrigger><DotsVerticalIcon/></HoverCardTrigger>
+              <HoverCardContent className="text-sm font-normal p-0">
+                <div className="hover:bg-slate-50 flex p-2 justify-between" onClick={()=>setEdit(true)}>Edit</div>
+                <div onClick={()=>{
+                  MessageContext?.setReply(id)
+                }} className="hover:bg-slate-50 flex p-2 justify-between">Reply</div>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+          {chats}
+          <p className="text-right text-xs px-4">{getTimeFromISOString(createdAt)}</p>
+        </div>
+      </div>
+      {openEdit && <Edit_Box open={openEdit} setEdit={setEdit} refetch={MessageContext?.refetch ?? null} note={note} noteId={id} />}
+      </>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onClick={()=>setEdit(true)}>Edit</ContextMenuItem>
+        <ContextMenuItem onClick={()=>{
+          MessageContext?.setReply(id)
+                }}>Reply</ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+    {!!replies.length && <Collapsible>
+      <CollapsibleTrigger className="text-center py-0 pl-16 flex items-center"><CornerDownRight className="inline mb-2" />{replies.length} <span className="ml-1">replies</span></CollapsibleTrigger>
+      <CollapsibleContent className="flex relative ml-16">
+        <div style={{
+            translate: "2.9px 0 0",
+            width:1.75,
+            height: "calc(100% - 38px)"
+  
+        }} className="absolute bg-[#020817]"></div>
+        <div className="flex flex-col gap-1">
+            {replies.map(reply => <RepliedBox {...reply} key={reply.id} />)}
+          </div>
+      </CollapsibleContent>
+    </Collapsible>}
+    </>
   )
 }
 
@@ -260,7 +334,7 @@ export const fetchNotes = async ({queryKey}: QueryFunctionContext): Promise<Chat
   const notes: ChatRes = response.data;  
   return notes;
 };
-export const makeNote = async (body: {note:string; patientId:string; tagged:string[]}): Promise<ChatBox_t> => {
+export const makeNote = async (body: {note:string; patientId:string; tagged:string[], replyTo:string|null}): Promise<ChatBox_t> => {
   const response = await axiosInstance.post(`/patient/notes`, body,{
       headers: await setheader(),
     });
@@ -324,11 +398,28 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
           (chat.length == 0) && "No new messages"
         }
         {
-          chat.map(e => <ChatBox id={e.id} key={e.id} users={usersRef.data || []} type={e.type} name={e.name} createdAt={e.createdAt} note={e.note} />)
+          chat.map(e => <ChatBox replyTo={e.replyTo} userid={e.userid} id={e.id} key={e.id} replies={e.replies} users={usersRef.data || []} type={e.type} name={e.name} createdAt={e.createdAt} note={e.note} />)
         }
       </div>
     </section>
   );
+}
+
+const ReplyBox = ({noteId, notesMap, setReply}:{noteId:string; notesMap:Map<string, string>, setReply: Dispatch<SetStateAction<string|null>>;}) =>{
+  const note = notesMap.get("#"+noteId) || ""
+  return (
+    <div className="p-1 w-full flex-b flex-[100%] pt-2 border text-xs rounded-lg m-1.5">
+        <Button variant={"outline"} className="h-4 float-end bg-white aspect-square w-2 relative flex justify-center items-center">
+          <Cross1Icon className="absolute" stroke="2" height={10} onClick={()=>setReply(null)} />
+        </Button>
+        <div className="bg-slate-100 p-1 rounded">
+        <span className="block">
+          Replying to:
+        </span>
+        <span >{note}</span>
+        </div>
+    </div>
+  )
 }
 
 export default function Notes({patientId}:{patientId:string}) {
@@ -338,6 +429,7 @@ export default function Notes({patientId}:{patientId:string}) {
     const usersRef = useQuery({queryKey:["users", patientId], queryFn:getAllotedUserforPatient})
     const addNote = useMutation({mutationFn:makeNote})
     const [message, setMessage] = useState("");
+    const [replyTo, setReply] = useState<string|null>(null);
     const [focus, setFocus] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -377,8 +469,9 @@ export default function Notes({patientId}:{patientId:string}) {
       if(message === "") return;
       // console.log(message)
       try {
-        await addNote.mutateAsync({note:message, patientId, tagged: getTagged(message, usersRef.data || [])})
+        await addNote.mutateAsync({note:message, patientId, tagged: getTagged(message, usersRef.data || []), replyTo})
         setMessage("")
+        setReply(null)
         notes.refetch()
       } catch (error) {
         console.error(error)
@@ -411,17 +504,18 @@ export default function Notes({patientId}:{patientId:string}) {
             Print
           </Button>
         </div>
-        <MessageContext.Provider value={{message, setMessage, refetch: notes.refetch, notesMap}}>
+        <MessageContext.Provider value={{message, setMessage, refetch: notes.refetch, notesMap, setReply}}>
           <ChatArea notes={notes} patientId={patientId} timeStamp={new Date()} />
         </MessageContext.Provider>
         <form onSubmit={(e)=>{
           e.preventDefault()
           handleAddNote()
-        }} className="flex gap-2 float-end absolute bottom-12 w-full items-center">
+        }} className="flex flex-wrap gap-x-2 float-end absolute bottom-12 w-full items-center">
+          {replyTo && <ReplyBox noteId={replyTo} notesMap={notesMap} setReply={setReply} />}
           {/* <Input ref={inputRef} onChange={(e)=>setMessage(e.target.value)} className="rounded-full" /> */}
           <div onFocus={(e)=>{
             inputRef.current?.focus()
-          }} className="rounded-full text-sm p-2 min-h-8 w-full border relative">
+          }} className="rounded-full flex-[90%] text-sm p-2 min-h-8 w-full border relative">
           <div className="w-auto pl-1 relative">{formatChat(message, setMessage, usersRef.data || [])[0]}
             {/* {focus && <div className="h-full w-0 border-l border-l-black animate-caret-blink inline"></div>} */}
           </div>

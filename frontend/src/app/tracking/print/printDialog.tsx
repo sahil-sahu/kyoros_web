@@ -266,7 +266,8 @@ const PrintDialog = ({patientId}:{patientId:string}) =>{
                     </AccordionItem>
                 </Accordion>
               </div>
-              <Select defaultValue={freq+""} onValueChange={(val)=>{
+              <h3>Frequency</h3>
+              <Select onValueChange={(val)=>{
                     let freq = parseInt(val);
                     setFreq(freq)
                 }}>
