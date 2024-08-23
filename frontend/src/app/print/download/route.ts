@@ -14,9 +14,9 @@ export async function GET(request: Request) {
     // console.log((process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000")+"/print/?"+payloadLink.toString())
     const response = await fetch((process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000")+"/print/?"+payloadLink.toString(), {
         headers:{
-            'Content-Type': 'application/json',
             'Cookie': cookieStore.toString(), // Set custom cookies here
-          }
+          },
+        cache: "no-cache"  
     });
     const buffer = await response.text();
     const browser = await puppeteer.launch();
