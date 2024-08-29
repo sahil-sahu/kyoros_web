@@ -9,6 +9,9 @@ import { generate_summary } from '../helpers/gemini';
 import { usersNames } from '../helpers/usersNames';
 import { avgApache, avgPatientStay, avgStaycurrentMonth, bedOccupancy, getOccupancyById, insightFetcher } from '../helpers/overviewMetrics';
 import { apacheTrend, mortalityTrend, occuPancyTrend, serializer, stayTrend } from '../helpers/metricFetcherAndFormatter';
+import { deleteFireUser, newUser } from '../helpers/handleFireUser';
+import { watcherMatching } from '../helpers/watcherMatching';
+import { fireAuth } from '../firebase';
 
 export const getHospitals = async(req:Request,res:Response) =>{
     try {
@@ -350,6 +353,115 @@ export const adminTrends = async (req:Request,res:Response) =>{
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch admin Trends' });
+    }
+}
+
+export const getUserMapping  = async (req:AuthRequest, res: Response) =>{
+    try{
+        const users = await prisma.user.findMany({
+            where:{
+                hospitalId:req.hospital
+            },
+            select:{
+                id:true,
+                name:true,
+                email:true,
+                userType:true,
+                department:true,
+                watcher:{
+                    select:{
+                        id:true,
+                        icu:{
+                            select:{
+                                name:true,
+                                id:true
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy:{
+                name: "asc"
+            }
+        })
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to fetch User for Mapping' });
+    }
+}
+interface UserPayload{
+    name: string,
+    email: string,
+    userType: any,
+    department: string,
+    tagged: number[],
+}
+export const addUser  = async (req:AuthRequest, res: Response) =>{
+    try{   
+        const {name, email, userType, department, tagged} = req.body as UserPayload;
+        if(!name || !email || !userType) throw new Error("Invalid payload for user object");
+        const fireUserId = await newUser(email, name)
+        const user = await prisma.user.create({
+            data:{
+                name,
+                email,
+                userType: userType,
+                department,
+                hospitalId:req.hospital,
+                firebaseUid: fireUserId
+            }
+        })
+        await fireAuth.setCustomUserClaims(fireUserId, {userType,hospitalId: req.hospital});
+        await watcherMatching(user.id, tagged);
+        return res.status(200).json({message: `User ${user.id} added successfully`});
+
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: `Failed to Add user Error:${error}` });
+    }
+}
+interface EditUser extends UserPayload {
+    id: string;
+}
+export const editUser  = async (req:AuthRequest, res: Response) =>{
+    try{   
+        const {name, userType, department, tagged, id} = req.body as EditUser;
+        if(!id) throw new Error("Invalid payload for user object");
+        const user = await prisma.user.update({
+            where:{
+                id
+            },
+            data:{
+                name,
+                userType: userType,
+                department,
+            }
+        })
+        await fireAuth.setCustomUserClaims(user.firebaseUid, {userType,hospitalId: req.hospital});
+        await watcherMatching(user.id, tagged);
+        return res.status(200).json({message: `User ${user.id} updated successfully`});
+
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: `Failed to Add user Error:${error}` });
+    }
+}
+export const deleteUser  = async (req:AuthRequest, res: Response) =>{
+    try{   
+        const {id} = req.body as EditUser;
+        if(!id) throw new Error("Invalid payload for user object");
+        const user = await prisma.user.delete({
+            where:{
+                id
+            }
+        })
+        await deleteFireUser(user.firebaseUid)
+        return res.status(200).json({message: `User ${user.id} deleted successfully`});
+
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: `Failed to Add user Error:${error}` });
     }
 }
 

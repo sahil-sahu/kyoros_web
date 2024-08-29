@@ -69,6 +69,7 @@ model User {
   userType    UserType
   email       String    @unique
   fireTokens  String[]
+  department  String?
   firebaseUid String    @unique
   hospitalId  String
   verified    Boolean   @default(false)
@@ -189,7 +190,7 @@ model Session {
 model Notes {
   id            String    @id @default(cuid())
   userid        String
-  user          User   @relation(fields: [userid], references: [id], onDelete: Cascade)
+  user          User   @relation(fields: [userid], references: [id], onDelete: NoAction)
   note          String
   createdAt     DateTime @default(now()) @db.Timestamp(6)
   patientId     String
@@ -204,6 +205,7 @@ enum UserType {
   admin
   nurse
   doctor
+  lab
 }
 
 enum Tag {
