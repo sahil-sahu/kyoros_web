@@ -10,7 +10,7 @@ import { usersNames } from '../helpers/usersNames';
 import { avgApache, avgPatientStay, avgStaycurrentMonth, bedOccupancy, getOccupancyById, insightFetcher } from '../helpers/overviewMetrics';
 import { apacheTrend, mortalityTrend, occuPancyTrend, serializer, stayTrend } from '../helpers/metricFetcherAndFormatter';
 import { deleteFireUser, newUser } from '../helpers/handleFireUser';
-import { watcherMatching } from '../helpers/watcherMatching';
+import { watcherMatching, watcherMatchingviaICU } from '../helpers/watcherMatching';
 import { fireAuth } from '../firebase';
 
 export const getHospitals = async(req:Request,res:Response) =>{
@@ -462,6 +462,109 @@ export const deleteUser  = async (req:AuthRequest, res: Response) =>{
     }catch (error) {
         console.error(error);
         return res.status(500).json({ error: `Failed to Add user Error:${error}` });
+    }
+}
+
+interface ICUPayload{
+    name: string,
+    bedArray: string[],
+    tagged: string[],
+}
+export const addICU  = async (req:AuthRequest, res: Response) =>{
+    try{   
+        const {name, bedArray, tagged} = req.body as ICUPayload;
+        if(!name) throw new Error("Invalid payload for ICU object");
+        const icu = await prisma.iCU.create({
+            data:{
+                name,
+                hospitalId:req.hospital,
+            }
+        })
+        const beds = await prisma.bed.createMany({
+            data:bedArray.map((bedId:string) => ({icuId: icu.id, name:bedId, hospitalId:req.hospital, }))
+        })
+        await watcherMatchingviaICU(icu.id, tagged)
+        return res.status(200).json({message: `ICU ${icu.id} added successfully`});
+
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: `Failed to Add user Error:${error}` });
+    }
+}
+
+interface EditICU extends ICUPayload {
+    id: number;
+}
+
+export const editICU  = async (req:AuthRequest, res: Response) =>{
+    try{   
+        const {name, tagged, id} = req.body as EditICU;
+        if(!id) throw new Error("Invalid payload for user object");
+        const icu = await prisma.iCU.update({
+            where:{
+                id
+            },
+            data:{
+                name,
+            },
+        })
+        await watcherMatchingviaICU(icu.id, tagged)
+        return res.status(200).json({message: `ICU ${icu.id} updated successfully`});
+
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: `Failed to Add user Error:${error}` });
+    }
+}
+
+export const deleteICU  = async (req:AuthRequest, res: Response) =>{
+    try{   
+        const {id} = req.body as EditICU;
+        if(!id) throw new Error("Invalid payload for icu object");
+        const icu = await prisma.iCU.delete({
+            where:{
+                id
+            }
+        })
+        return res.status(200).json({message: `ICU ${icu.id} deleted successfully`});
+
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: `Failed to Add user Error:${error}` });
+    }
+}
+
+export const getICUsDetailed = async (req:AuthRequest,res:Response) =>{
+    try {
+        const hospitalId = req.hospital;
+
+        const data = await prisma.iCU.findMany({
+            where:{
+                hospitalId
+            },
+            include:{
+                watcher:{
+                    select:{
+                        id: true,
+                        userid:true
+                    }
+                }
+            }
+        })
+
+        let icus = await Promise.all(
+            data.map(async icu => {
+                const total = await prisma.bed.count({where:{icuId:icu.id}})
+                const filled = 0
+                return {name:icu.name, total, filled, id:icu.id, users:icu.watcher.map(e => e.userid)}
+            })
+        )
+
+        res.status(200).json(icus);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch glance of icus from db' });
     }
 }
 

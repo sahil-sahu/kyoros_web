@@ -38,3 +38,30 @@ export const watcherMatching = async (userId:string, icuIds:number[]) => {
         throw new Error("Failed match with watcher")
     }
 }
+export const watcherMatchingviaICU = async (icuId:number, users:string[]) => {
+    try {
+        const watcher = await prisma.watcher.findMany({
+            where: {
+                userid:{
+                    in: users
+                },
+                icuId
+            }
+        })
+        const ids = new Map<string, boolean>();
+        watcher.forEach(watcher => ids.set(watcher.userid, true))
+        const unmappedUsers = users.filter(e => !ids.has(e));
+        if(unmappedUsers.length < 1) return
+
+        const newwatchers = await prisma.watcher.createMany({
+            data: unmappedUsers.map(userid => ({
+                icuId,
+                userid
+            }))
+        })
+
+    } catch (error) {
+        console.error("Error occurred while matching watcher", error)
+        throw new Error("Failed match with watcher")
+    }
+}

@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { addUser, adminInsights, adminTrends, deleteUser, editUser, getGlance, getHospitals, getICUs, getICUs_w_unoccupied, getOccupancy, getOverviewforUser, getUserMapping, getUsers, getbeds, getbedsAll } from "../controllers/hospitalController";
+import { addICU, addUser, adminInsights, adminTrends, deleteICU, deleteUser, editICU, editUser, getGlance, getHospitals, getICUs, getICUsDetailed, getICUs_w_unoccupied, getOccupancy, getOverviewforUser, getUserMapping, getUsers, getbeds, getbedsAll } from "../controllers/hospitalController";
 import { verifyToken } from "../middleware/jwtCheck";
 
 const router = Router();
 
 router.get("/icu", verifyToken,getICUs)
+router.get("/icu/detailed", verifyToken,getICUsDetailed)
+router.post("/icu", verifyToken,addICU)
+router.put("/icu", verifyToken,editICU)
+router.delete("/icu", verifyToken,deleteICU)
+
 router.get("/getbeds", verifyToken, getbeds)
 router.get("/getbedsall", verifyToken, getbedsAll)
 router.get("/unoccupied", verifyToken, getICUs_w_unoccupied)
