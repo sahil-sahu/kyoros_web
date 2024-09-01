@@ -190,7 +190,7 @@ export const avgStaycurrentMonth = async (icuId:number) =>{
         FROM
             sessions_current
     `;
-    return stay_current[0].avg_days.toFixed(1);
+    return (stay_current[0].avg_days ?? 0).toFixed(1);
 }
 export const getMortality = async (icuId:number) =>{
     const dt = new Date();

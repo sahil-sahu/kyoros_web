@@ -158,10 +158,10 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
     }
 
     return(
-        <section className='grid md:grid-cols-4 lg:grid-cols-7 lg:grid-rows-2 auto-rows-min items-start gap-2'>
+        <section className='grid md:grid-cols-4 lg:grid-cols-7 liveBoxContainer lg:grid-rows-2 auto-rows-min h-full max-h-full items-start gap-2'>
         <div style={{
                 background:"linear-gradient(to bottom right, #303778, #4C8484)"
-            }} className='text-white order-1 flex md:flex-row flex-col items-stretch justify-evenly rounded-xl p-4 max-w-[98dvw] col-span-3 lg:h-auto h-full'>
+            }} className='text-white order-1 flex md:flex-row flex-col items-stretch justify-evenly rounded-xl p-4 max-w-[98dvw] col-span-3 h-full'>
                 <div className="flex flex-col justify-evenly text-center items-center p-2 md:w-[50%]">
                     <div className='flex flex-wrap w-full gap-4 mb-2 items-center'>
                         <Criticality setCriticality={setCriticality} g_criticality={criticality} data={{patientId, id:logs?.bedId || -1 , apache:logs?.apache} as GlanceInfo} />
@@ -221,7 +221,7 @@ const LiveView =({patientId}:{patientId:string|null}) =>{
 Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling.`}
                     </p>
                 </div>
-            </div>
+        </div>
         <div className='grid order-2 grid-cols-2 md:grid-cols-1 md:grid-rows-2 justify-center h-full w-full max-w-[95vw] mx-auto md:col-span-1 col-span-2 items-center gap-3'>
             <div className='border-2 border-darkblue rounded-xl h-full shadow'>
                 <Link className="h-full" href={`/request-notify?icu=${icu}&bed=${bed}`}>
@@ -237,7 +237,7 @@ Presents to ED with a 2 day H/O high fever, headache, & Rt sided Facial swelling
             </Link>
             </div>
         </div>
-        <div className='col-span-full lg:col-span-3 p-2 order-3 rounded border row-span-2 h-full'>
+        <div className='col-span-full lg:col-span-3 p-2 order-3 overflow-visible rounded h-full border row-span-2'>
             <Tabs defaultValue="notes" className="h-full">
                 <TabsList className='bg-white patient rounded-none border-b gap-1 flex justify-evenly w-full text-black'>
                     <TabsTrigger className='data-[state=active]:bg-darkblue data-[state=active]:text-white text-xl' value="notes">Notes</TabsTrigger>

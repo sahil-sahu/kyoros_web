@@ -199,6 +199,7 @@ export function AddUser() {
                                         (filterApi.data || []).map(e =>{
                                             return (
                                         <DropdownMenuCheckboxItem
+                                            key={e.id}
                                             checked={icu.includes(e.id)}
                                             onCheckedChange={(val)=>setIcu(icus =>{
                                                 if(val){
@@ -406,6 +407,7 @@ export function EditUser({user}:{user:User}) {
                                         (filterApi.data || []).map(e =>{
                                             return (
                                         <DropdownMenuCheckboxItem
+                                                key={e.id}
                                             checked={icu.includes(e.id)}
                                             onCheckedChange={(val)=>setIcu(icus =>{
                                                 if(val){

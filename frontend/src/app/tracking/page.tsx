@@ -45,7 +45,7 @@ const TrackingContent = () => {
 
     return (
         <>
-            <section className='p-2'>
+            <section className='p-2 pb-0 h-full liveBox'>
                 {
                     (!isLoading && data) ? <TrackingHeader icusInfo={data} /> : (
                         <div className="p-2 m-auto max-w-4xl gap-2 flex justify-stretch w-full items-center">
@@ -80,7 +80,7 @@ const TrackingContent = () => {
 };
 const Tracking = () => {
     return (
-        <main className="">
+        <main className="h-screen">
             <NavBox title={"Patient"} />
             <Suspense fallback={<Skeleton className="h-full w-full" />}>
                 <TrackingContent />

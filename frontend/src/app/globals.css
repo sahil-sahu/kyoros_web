@@ -3,6 +3,8 @@
 @tailwind utilities;
 :root {
   --background: #fff;
+  --boxEdge: 50%;
+  --boxEdge_s: 80%;
 }
 @layer base {
   :root {
@@ -98,4 +100,11 @@
 
 #authbox{
   padding: 15px 0 !important;
+}
+
+.liveBox {
+  max-height: calc(100vh - 6.25rem);
+}
+.liveBoxContainer {
+  grid-template-rows: 45vh !important;
 }

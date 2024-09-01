@@ -349,6 +349,7 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
   const searchParams = useSearchParams();
   const currentParams = new URLSearchParams(searchParams);
   const dt = currentParams.get("dt")
+  const bedStamp = notes.data?.bedStamp ?? ""
   const usersRef = useQuery({queryKey:["users", patientId], queryFn:getAllotedUserforPatient})
 
   useEffect(() => {
@@ -364,11 +365,18 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
         return setchat((notes.data?.notes || [])) ;
     }, [params, notes.data])
     useLayoutEffect(()=>{
-      if(dt && dt != "all") return setchat((notes.data?.notes || []).filter( k => {
+      if(dt && dt != "all" && dt != "older") return setchat((notes.data?.notes || []).filter( k => {
         const date = new Date(k.createdAt);
         date.setHours(0,0,0,0)
         return date.toISOString() == dt
       }))
+      if(dt && dt == "older"){
+        const olderDt = new Date((new Date().getTime()) - 1000 * 3600 * 24 * (8)).getTime();
+        return setchat((notes.data?.notes || []).filter( k => {
+          const date = new Date(k.createdAt);
+          return date.getTime() <= olderDt;
+        }))
+      }
       return setchat((notes.data?.notes || [])) ;
     }, [dt, notes.data])
     
@@ -392,8 +400,8 @@ const ChatArea = ({patientId, timeStamp, notes}:{patientId:string, timeStamp:Dat
                 <Label htmlFor="Nurse">Nurse</Label>
             </li>
         </ul>
-      </header>
-      <div ref={scrollRef} className="flex flex-col justify-start gap-4 my-2 max-h-[68dvh] mb-16 overflow-y-auto">
+      </header> 
+      <div ref={scrollRef} className="flex flex-col justify-start gap-4 my-2 max-h-[68dvh] notesBox lg:h-[52dvh] lg:max-h-[52dvh] mb-16 overflow-y-auto">
         {
           (chat.length == 0) && "No new messages"
         }
@@ -455,11 +463,18 @@ export default function Notes({patientId}:{patientId:string}) {
       const timeDiff = Math.abs(dateObj2.getTime() - dateObj1.getTime());
       const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
       const days = [];
-      for(let i = 1; i <= dayDiff+1; i++) {
-        let iso = new Date(dateObj1.getTime() + 1000 * 3600 * 24 * (i-1));
+      for(let i = 0; i < Math.min(8, dayDiff+1); i++) {
+        let iso = new Date(dateObj2.getTime() - 1000 * 3600 * 24 * (i));
         days.push({
-          day: `Day ${i}`,
+          day: `Day ${dayDiff-i}`,
           id: iso.toISOString(),
+        })
+      }
+      if(dayDiff+1 > 8) {
+        let iso = new Date(dateObj2.getTime() - 1000 * 3600 * 24 * (8));
+        days.push({
+          day: `Older`,
+          id: "older",
         })
       }
       return days;
@@ -481,7 +496,7 @@ export default function Notes({patientId}:{patientId:string}) {
     return (
       <div className="h-full items-stretch relative">
         <div className="flex justify-between">
-          <ToggleGroup defaultValue={"all"} className="notes w-full justify-start grid grid-cols-5" type="single" onValueChange={(val)=>{
+          <ToggleGroup defaultValue={"all"} className="notes w-full max-h-24 overflow-auto justify-start grid grid-cols-5" type="single" onValueChange={(val)=>{
             currentParams.set("dt", val)
             router.push('/tracking?'+currentParams.toString())
             setDay(val)
@@ -493,7 +508,7 @@ export default function Notes({patientId}:{patientId:string}) {
                 </ToggleGroupItem>
               {getDays().map(e => (
                 <ToggleGroupItem key={e.id} value={e.id} aria-label="Toggle bold">
-                  <a href={"#"+e.id}>
+                  <a title={getTimeFromISOString(e.id)} href={"#"+e.id}>
                     {e.day}
                   </a>
                 </ToggleGroupItem>

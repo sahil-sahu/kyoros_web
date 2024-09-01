@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install
-run npx puppeteer browsers install chrome
+RUN npx puppeteer browsers install chrome
 COPY . .
 RUN npm run build
 # Copy the rest of your application code
