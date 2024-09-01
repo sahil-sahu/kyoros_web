@@ -1,5 +1,5 @@
 # Stage 1: Build environment (slim Node.js image)
-FROM node:alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install
+RUN npx update-browserslist-db@latest
 RUN npx puppeteer browsers install chrome
 COPY . .
 RUN npm run build
