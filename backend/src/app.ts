@@ -13,6 +13,7 @@ import { redisClient } from './redis';
 import { Server } from "socket.io";
 import { mainSocket } from './socket/main';
 import authRouter from './routes/auth';
+import userRouter from './routes/user';
 import patientRouter from './routes/patient';
 import icuRouter from './routes/hospital';
 import logRouter from './routes/log';
@@ -30,6 +31,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/user', userRouter);
 app.use('/patient', patientRouter);
 app.use('/hospital', icuRouter);
 app.use('/logs', logRouter);

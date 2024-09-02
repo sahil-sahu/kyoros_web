@@ -11,6 +11,7 @@ export function AuthBox(){
     const router = useRouter();
     const {data, isPending, refetch, error} = useQuery({queryKey: ["authCheck"], queryFn:fetchAuth});
     async function LogOut (){
+        localStorage.setItem("fcmSet","false");
         await signOut(auth);
         refetch();
         const cookies = document.cookie.split(";");

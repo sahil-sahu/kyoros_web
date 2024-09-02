@@ -24,6 +24,7 @@ import {
 import { bedInfo, ICUInfo } from '@/types/ICU';
 import { DotFilledIcon } from '@radix-ui/react-icons';
 import { Radio, Wifi, WifiOff } from 'lucide-react';
+import { TestDialog } from './testDialog';
 
 
 function getData(): Alert[] {
@@ -47,7 +48,7 @@ function getData(): Alert[] {
   ];
 }
 function _Messaging() {
-    const { mutate, isPending:isLoading, error, data } = useMutation({mutationFn:setFcm});
+    const { mutate, isPending:isLoading, error, data, isSuccess } = useMutation({mutationFn:setFcm});
     const router = useRouter();
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [feeds, setFeeds] = useState<notification[]>([]);
@@ -105,30 +106,36 @@ function _Messaging() {
     // },[ICU, Bed])
 
     // const data1 = normalNotification.data;
+
+    
     useEffect(() => {
+      if(data && connected){
 
-    if(data){
-        return;
-    }
-    const requestNotificationPermission = async () => {
-      if(!isSupported()){
-        alert("notification not supported on this browser");
-        router.back();
+          // setConnected(true);
+          return;
       }
-      const messaging = getMessaging(app);
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const token = await getToken(messaging, {vapidKey:process.env.NEXT_PUBLIC_FCM});
-        mutate({token});
-      } else {
-        console.log('Notification permission denied');
-      }
-    };
+      if(isSuccess) setConnected(true);
+      const requestNotificationPermission = async () => {
+        if(!isSupported()){
+          alert("notification not supported on this browser");
+          router.back();
+        }
+        const messaging = getMessaging(app);
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const token = await getToken(messaging, {vapidKey:process.env.NEXT_PUBLIC_FCM});
+          mutate({token});
+        } else {
+          console.log('Notification permission denied');
+        }
+      };
 
-    if(localStorage.getItem("fcmSet")  != "true")
-        requestNotificationPermission();
+      if(localStorage.getItem("fcmSet")  != "true")
+          requestNotificationPermission();
 
-  }, [data, mutate, router]);
+  }, [data, mutate, router, connected]);
+
+  
   useEffect(()=>{
     if(!criticalNotification.data || !normalNotification.data) return;
 
@@ -162,6 +169,9 @@ function _Messaging() {
                 {!connected && <div title='Not connected messaging service'><WifiOff xlinkTitle='Not connected message service' color='red' /></div>}
                 {connected && <div title='Connected messaging service'><Radio xlinkTitle='Not connected message service' color='green' /></div>}
                 </span>
+            </th>
+            <th className='bg-gray-50'>
+              <TestDialog setConnected={setConnected} />
             </th>
             <th className="px-6 py-3 text-right bg-gray-50 text-xs float-end leading-4 flex gap-2 font-medium text-gray-500 uppercase tracking-wider">
               <div className='w-min gap-2 flex items-center'>

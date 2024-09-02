@@ -142,6 +142,7 @@ const TrendView = ({patientId}:{patientId:string|null}) => {
                                 <SelectValue placeholder="Frequency" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem key={1} value={"1"}>1m</SelectItem>
                                 <SelectItem key={5} value={"5"}>5m</SelectItem>
                                 <SelectItem key={15} value={"15"}>15m</SelectItem>
                                 <SelectItem key={30} value={"30"}>30m</SelectItem>

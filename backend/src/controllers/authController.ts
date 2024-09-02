@@ -46,7 +46,6 @@ export const setFCM = async (req: AuthRequest, res: any) => {
       }
       res.json({"fcmSet":true});
     }else{
-      console.log("mai ka choda");
       throw "unauthorised";
     }
   } catch (error) {
