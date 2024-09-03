@@ -13,38 +13,38 @@ const AdminPanel = () => {
         <main className="relative">
             <NavBox title={"Admin Panel"}></NavBox>
             <section className='p-2 absolute w-full m-auto text-center h-[80vh] flex flex-col items-center justify-center'>
-                <div className="grid grid-cols-3 gap-4 max-w-3xl container h-max m-auto">
-                    {/* <Link href={'/registrations/bed-setup'} className="border-bluecustom rounded flex flex-col justify-evenly items-center">
-                        <Image src={bed_i} alt="" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl container h-max m-auto">
+                    {/* <Link href={'/registrations/bed-setup'} className="border-2 border-bluecustom rounded flex flex-col justify-evenly items-center">
+                        <Image className="w-36 aspect-square object-contain" src={bed_i} alt="" />
                         <h2>
                         Bed Setup
                         </h2>
                         </Link> */}
-                    <Link href={'/registrations/new-patient'} className="border-bluecustom rounded flex flex-col justify-evenly items-center">
-                        <Image src={patient_i} alt="" />
+                    <Link href={'/registrations/new-patient'} className="border-2 border-bluecustom rounded flex flex-col justify-evenly items-center">
+                        <Image className="w-36 aspect-square object-contain" src={patient_i} alt="" />
                         <h2>
                             Add Patient
                         </h2>
                     </Link>
-                    <Link href={'/registrations/patient-mapping'} className="border-bluecustom rounded flex flex-col justify-evenly items-center">
-                        <Image src={bed_i} alt="" />
+                    <Link href={'/registrations/patient-mapping'} className="border-2 border-bluecustom rounded flex flex-col justify-evenly items-center">
+                        <Image className="w-36 aspect-square object-contain" src={bed_i} alt="" />
                         <h2>
                             Bed Transfer/ Discharge
                         </h2>
                     </Link>
-                    <Link href={'/registrations/user-mapping'} className="border-bluecustom rounded flex flex-col justify-evenly items-center">
+                    <Link href={'/registrations/user-mapping'} className="border-2 border-bluecustom rounded flex flex-col justify-evenly items-center">
                         <Image className="aspect-square p-4" src={user_i} alt="" />
                         <h2>
                             User Setup
                         </h2>
                     </Link>
-                    <Link href={'/registrations/device-mapping'} className="border-bluecustom rounded flex flex-col justify-evenly items-center">
-                        <Image src={cro_i} alt="" />
+                    <Link href={'/registrations/device-mapping'} className="border-2 border-bluecustom rounded flex flex-col justify-evenly items-center">
+                        <Image className="w-36 aspect-square object-contain" src={cro_i} alt="" />
                         <h2>
                             Device Mapping
                         </h2>
                     </Link>
-                    <Link href={'/registrations/icu-setup'} className="border-bluecustom rounded flex flex-col justify-evenly items-center">
+                    <Link href={'/registrations/icu-setup'} className="border-2 border-bluecustom rounded flex flex-col justify-evenly items-center">
                         <Image className="aspect-square p-6" src={icu_i} alt="" />
                         <h2>
                             ICU Setup

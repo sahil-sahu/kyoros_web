@@ -52,7 +52,8 @@ export const getbeds = async (req:AuthRequest,res:Response) =>{
         if(typeof(icu) != 'string') throw Error("Invalid type");
         const beds = await prisma.bed.findMany({
             where:{
-                icuId:parseInt(icu)
+                icuId:parseInt(icu),
+                hospitalId:req.hospital
             },
             orderBy:{
                 name:"asc"
@@ -70,6 +71,7 @@ export const getbeds = async (req:AuthRequest,res:Response) =>{
                     bedId:{
                         has: e.id
                     },
+                    hospitalId:req.hospital,
                     reason: null
                 }
             })
@@ -105,6 +107,7 @@ export const getbedsAll = async (req:AuthRequest,res:Response) =>{
                         has: e.id
                     },
                     reason: null,
+                    hospitalId:req.hospital
                 },
                 include:{
                     patient:{
@@ -199,6 +202,7 @@ export const getGlance = async (req:AuthRequest,res:Response) =>{
             {
                 where:{
                     occupied:true,
+                    hospitalId:req.hospital,
                     icuId: {
                         in:icus.map(icu => icu.id)
                     }
@@ -247,6 +251,7 @@ export const getOverviewforUser = async (req:AuthRequest,res:Response) =>{
         const sessions = await prisma.session.findMany({
             where:{
                 reason:null,
+                hospitalId:req.hospital,
                 OR:[
                     {
                         doctorIds:{
