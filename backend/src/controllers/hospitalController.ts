@@ -270,7 +270,8 @@ export const getOverviewforUser = async (req:AuthRequest,res:Response) =>{
         let completeSessions = await Promise.all(
             sessions.map(async s => {
                 const patient = await patient_from_redis(s.patientId);
-                const summary = await generate_summary(s.patientId)
+                // const summary = await generate_summary(s.patientId)
+                const summary = "No summary Available"
                 const doctors = await usersNames(s.doctorIds)
                 return {...s, patient, doctors, summary}
             })
@@ -413,6 +414,7 @@ export const addUser  = async (req:AuthRequest, res: Response) =>{
                 email,
                 userType: userType,
                 department,
+                verified:true,
                 hospitalId:req.hospital,
                 firebaseUid: fireUserId
             }

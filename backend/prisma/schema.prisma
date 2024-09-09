@@ -117,15 +117,15 @@ model Patient {
 model Logs {
   id         String   @id @default(cuid())
   bp         Int[]
-  spo2       Int
+  spo2       Int?
   temp       Float?
   timeStamp  DateTime
   patientId  String
   bedID      Int
   sensorid   String?
-  heart_rate Int      @default(0)
-  pulse      Int      @default(0)
-  resp_rate  Int      @default(0)
+  heart_rate Int?      @default(0)
+  pulse      Int?      @default(0)
+  resp_rate  Int?      @default(0)
   bed        Bed      @relation(fields: [bedID], references: [id], onDelete: NoAction)
   patient    Patient  @relation(fields: [patientId], references: [id], onDelete: NoAction)
   sensor     Sensor?  @relation(fields: [sensorid], references: [id], onDelete: NoAction)

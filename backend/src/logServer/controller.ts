@@ -14,7 +14,10 @@ export const addLog = async(req:AuthRequest,res:Response) => {
         body.sensorid = req.user;
         const [log,notificationInfo] = await reformat(body);
         const dblog = prisma.logs.create({
-            data: log
+            data: {
+                ...log,
+                bp: log.bp || [0,0]
+            }
         })
         const notified = checknSendNotification(log, notificationInfo);
         const latest = prisma.bed.update({

@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster"
 import ReactQueryProvider from "@/lib/queryClient";
 import ForegroundMessage from "@/lib/foregroundMessage";
+import { Suspense } from "react";
 const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Kyoros",
@@ -21,7 +22,9 @@ export default function RootLayout({
           {children}
         </ReactQueryProvider>
         <Toaster />
-        <ForegroundMessage></ForegroundMessage>
+        <Suspense>
+          <ForegroundMessage></ForegroundMessage>
+        </Suspense>
       </body>
     </html>
   );

@@ -43,7 +43,8 @@ export const medicalDepartments = [
     "Paediatrics",
     "Pulmonology",
     "Radiology",
-    "Renal Transplant"
+    "Renal Transplant",
+    "Other"
   ] as const;  
 export const formSchema = z.object({
     name: z.string(),

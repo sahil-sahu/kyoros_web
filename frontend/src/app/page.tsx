@@ -44,7 +44,7 @@ import PatientStay from "@/components/custom/overview/patientTrend";
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 import { fetchICU } from "./tracking/querys/icuQuery";
 import { getMetric, HeaderContext, useMetric } from "./admin/context";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { axiosInstance } from "@/lib/axios";
 import { ICU } from "@/types/ICU";
 
@@ -122,7 +122,16 @@ export default function Home() {
   const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
   const metricSt = useMetric(getMetric(""))
   const icuSt = useIcu()
-  const {data, error, isLoading} = useQuery({queryKey:["insights", icuSt[0]],queryFn:fetchInsights})
+  const {data, error, isLoading, refetch} = useQuery({queryKey:["insights", icuSt[0]],queryFn:fetchInsights})
+  // console.log(icuSt)
+  const perct = ((data?.occupancy.filled || 0)*100/(data?.occupancy.total || 0)).toFixed(2)
+  useLayoutEffect(()=>{
+    if(filterApi.data && filterApi.data.length > 0){
+      console.log(filterApi.data[0].id+"")
+      icuSt[1](filterApi.data[0].id+"")
+      refetch()
+    }
+  },[filterApi.data])
   return (
     <main className="">
         <NavBox title={"Overview"}></NavBox>
@@ -142,8 +151,8 @@ export default function Home() {
                     </SelectContent>
             </Select>
           </div>
-          <section className={"px-2  py-3 m-auto grid grid-cols-2 w-fit lg:grid-cols-5 gap-4 "+(isLoading?"blur-sm":"")}>
-            <Link className="col-span-2" href={'/admin'}>
+          <section className={"px-2 py-3 m-auto grid grid-cols-2 w-auto max-w-screen-2xl lg:grid-cols-5 gap-4 "+(isLoading?"blur-sm":"")}>
+            <Link className="col-span-2 order-1" href={'/admin'}>
               {data? <InsightBox insights={data.insight} />:(<div style={{
                 background:"linear-gradient(to bottom right, #303778, #4C8484)"
               }} className="text-white h-full rounded-xl shadow  bg-darkblue p-5 flex flex-col gap-[15%]">
@@ -182,7 +191,7 @@ export default function Home() {
                 </div>
               </div>)}
             </Link>
-            <Link className="2xl:aspect-square" href={'/occupancy'}>
+            <Link className="2xl:aspect-square order-2" href={'/occupancy'}>
             <div className="shadow border border-gray-400 h-full rounded-xl p-4 col-span-1">
               <div className="heading lg:flex flex lg:flex-row flex-col justify-between items-center">
                 <h3 className="text-lg font-semibold inline">
@@ -190,13 +199,13 @@ export default function Home() {
                 </h3>
               </div>
               <div style={{
-              background:`linear-gradient(to bottom right, #303778 ${(data?.occupancy.filled || 0)*100/(data?.occupancy.total || 0)}%, #7CA7EB)`
+              background:`linear-gradient(to bottom right, #303778 ${perct}%, #7CA7EB)`
             }} className="flex m-auto lg:mt-4 justify-center items-center rounded-full w-[6rem] h-[6rem] lg:w-[10rem] lg:h-[10rem]">
-              <h4 className="bg-white flex justify-center items-center text-3xl rounded-full text-center w-[4rem] h-[4rem] lg:w-[7.5rem] lg:h-[7.5rem]">
-                {(data?.occupancy.filled || 0)*100/(data?.occupancy.total || 0)}%
+              <h4 className="bg-white flex justify-center items-center text-xl lg:text-3xl rounded-full text-center w-[4rem] h-[4rem] lg:w-[7.5rem] lg:h-[7.5rem]">
+                {perct}%
               </h4>
             </div>
-              <ul className="flex align-top justify-evenly mt-3">
+              <ul className="flex align-top justify-evenly my-[3%]">
                 <li className="flex items-center flex-col">
                   <h3 className="text-3xl">{(data?.occupancy.filled || 0)}</h3>
                   <p>Occupied</p>
@@ -210,7 +219,7 @@ export default function Home() {
             </Link>
             <OccupancyTrend></OccupancyTrend>
             <MortalRate />
-            <div className="shadow border 2xl:aspect-square border-gray-400 col-span-1 rounded-xl p-5 relative flex flex-col gap-8">
+            <div className="shadow border h-full 2xl:aspect-square border-gray-400 order-3 col-span-1 rounded-xl p-5 relative flex flex-col gap-8">
             <div className="heading flex justify-between items-center">
                 <h3 className="text-lg font-semibold">
                   Avg. Patient Stay

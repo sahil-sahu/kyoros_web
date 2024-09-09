@@ -51,7 +51,7 @@ const MortalRate = () =>{
   const [old, setold] = useState(dt.toISOString())
   const { data, isLoading, refetch, error } = useQuery({queryKey:["admin",context?.icuState[0],"mortality", old, "7D"], queryFn:fetchMetric});  
     return (
-    <Link href={'/admin/?metric=mortality'} className="shadow border border-gray-400 rounded-xl p-4 py-5 lg:pt-3 col-span-2">
+    <Link href={'/admin/?metric=mortality'} className="shadow border border-gray-400 order-5 lg:order-3 rounded-xl p-4 py-5 lg:pt-3 col-span-2">
         <div className="heading flex justify-between items-center">
           <h3 className="text-lg font-semibold">
             Mortality Rate

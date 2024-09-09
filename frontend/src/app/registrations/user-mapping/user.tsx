@@ -50,7 +50,7 @@ import {
 // import { formSchema, UploadDoc } from "./query/docUpload"
 import { useToast } from "@/components/ui/use-toast"
 import { Divide, Edit2Icon, Edit3Icon } from "lucide-react"
-import { CaretDownIcon, UploadIcon } from "@radix-ui/react-icons"
+import { CaretDownIcon, CaretSortIcon, CheckIcon, UploadIcon } from "@radix-ui/react-icons"
 import { ToastAction } from "@/components/ui/toast"
 import Link from "next/link"
 import { createUser, deleteUser, editUser, formSchema, medicalDepartments, UserType } from "./query/newUser"
@@ -58,12 +58,29 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { fetchICU } from "@/app/tracking/querys/icuQuery"
 import { User } from "./query/getusers"
 import { UserRefreshContext } from "./context"
+
+import { Check, ChevronsUpDown } from "lucide-react"
+ 
+import { cn } from "@/lib/utils"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+  } from "@/components/ui/collapsible"
 export function AddUser() {
     const {toast} = useToast()
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [icu, setIcu] = useState<number[]>([])
     const userRefreshContext = useContext(UserRefreshContext)
-
+    const [open, setOpen] = useState(false)
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
         mode: "onSubmit",
@@ -101,7 +118,7 @@ export function AddUser() {
                         Add User
                     </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px] aspect-square bg-white">
+              <DialogContent className="sm:max-w-[425px] h-[80vh] overflow-auto aspect-square bg-white">
                 <DialogHeader onClick={()=>{form.reset()}} className="text-lg font-bold text-center w-full">
                     Add User
                 </DialogHeader>
@@ -168,14 +185,59 @@ export function AddUser() {
                             <FormItem>
                             <FormLabel>Department</FormLabel>
                             <FormControl>
-                            <Select onValueChange={field.onChange}>
+                            <Collapsible
+                                open={open}
+                                onOpenChange={setOpen}
+                                className="w-[350px] space-y-2 border"
+                                >
+                                <div className="flex w-full items-center justify-between space-x-4">
+                                    <CollapsibleTrigger asChild>
+                                    <Button className="w-full flex justify-between" variant="ghost" size="sm">
+                                        <h4 className="text-sm font-semibold">
+                                        {field.value || "Select Department"}
+                                        </h4>
+                                        <CaretSortIcon className="h-4 mx-4 w-4" />
+                                        <span className="sr-only">Toggle</span>
+                                    </Button>
+                                    </CollapsibleTrigger>
+                                </div>
+                                <CollapsibleContent className="space-y-2">
+                                <Command>
+                                    <CommandInput placeholder="Search Department..." className="h-9" />
+                                        <CommandList>
+                                            <CommandEmpty>No Department found.</CommandEmpty>
+                                            <CommandGroup>
+                                            {medicalDepartments.map((framework) => (
+                                                <CommandItem
+                                                key={framework}
+                                                value={framework}
+                                                onSelect={(currentValue) => {
+                                                    field.onChange(currentValue === field.value ? undefined : currentValue)
+                                                    setOpen(false)
+                                                }}
+                                                >
+                                                {framework}
+                                                <CheckIcon
+                                                    className={cn(
+                                                    "ml-auto h-4 w-4",
+                                                    field.value === framework ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                </CommandItem>
+                                            ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>  
+                                </CollapsibleContent>
+                                </Collapsible>
+                            {/* <Select onValueChange={field.onChange}>
                                 <SelectTrigger className="w-48 mp-1 flex">
                                     <SelectValue placeholder="Select Department" />
                                 </SelectTrigger>
                                 <SelectContent className="grid grid-cols-1">
                                     {medicalDepartments.map(e => (<SelectItem key={e} value={e}>{e}</SelectItem>))}
                                 </SelectContent>
-                            </Select>
+                            </Select> */}
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -244,6 +306,7 @@ export function EditUser({user}:{user:User}) {
     const {toast} = useToast()
     const filterApi = useQuery({ queryKey: ['icu'], queryFn: fetchICU });
     const [icu, setIcu] = useState<number[]>(user.watcher.map(w => w.icu.id))
+    const [open, setOpen] = useState(false)
     const userId = user.id;
 
     const userRefreshContext = useContext(UserRefreshContext)
@@ -376,14 +439,51 @@ export function EditUser({user}:{user:User}) {
                             <FormItem>
                             <FormLabel>Department</FormLabel>
                             <FormControl>
-                            <Select onValueChange={field.onChange}>
-                                <SelectTrigger className="w-48 mp-1 flex">
-                                    <SelectValue placeholder="Select Department" />
-                                </SelectTrigger>
-                                <SelectContent className="grid grid-cols-1">
-                                    {medicalDepartments.map(e => (<SelectItem key={e} value={e}>{e}</SelectItem>))}
-                                </SelectContent>
-                            </Select>
+                            <Collapsible
+                                open={open}
+                                onOpenChange={setOpen}
+                                className="w-[350px] space-y-2 border"
+                                >
+                                <div className="flex w-full items-center justify-between space-x-4">
+                                    <CollapsibleTrigger asChild>
+                                    <Button className="w-full flex justify-between" variant="ghost" size="sm">
+                                        <h4 className="text-sm font-semibold">
+                                        {field.value || "Select Department"}
+                                        </h4>
+                                        <CaretSortIcon className="h-4 mx-4 w-4" />
+                                        <span className="sr-only">Toggle</span>
+                                    </Button>
+                                    </CollapsibleTrigger>
+                                </div>
+                                <CollapsibleContent className="space-y-2">
+                                <Command>
+                                    <CommandInput placeholder="Search Department..." className="h-9" />
+                                        <CommandList>
+                                            <CommandEmpty>No Department found.</CommandEmpty>
+                                            <CommandGroup>
+                                            {medicalDepartments.map((framework) => (
+                                                <CommandItem
+                                                key={framework}
+                                                value={framework}
+                                                onSelect={(currentValue) => {
+                                                    field.onChange(currentValue === field.value ? undefined : currentValue)
+                                                    setOpen(false)
+                                                }}
+                                                >
+                                                {framework}
+                                                <CheckIcon
+                                                    className={cn(
+                                                    "ml-auto h-4 w-4",
+                                                    field.value === framework ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                                </CommandItem>
+                                            ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>  
+                                </CollapsibleContent>
+                                </Collapsible>
                             </FormControl>
                             <FormMessage />
                             </FormItem>

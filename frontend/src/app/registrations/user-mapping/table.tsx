@@ -45,6 +45,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import extractFileType from "@/lib/extensionFinder"
 import { User } from "./query/getusers"
 import { EditUser } from "./user"
+import { ResetBox } from "./resetBox"
 
 const serializeWatcherIcu = (watcher:{
     id: number;
@@ -118,7 +119,10 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
 
       return (
-        <EditUser user={row.original} />
+        <div className="flex items-center gap-2">
+          <EditUser user={row.original} />
+          <ResetBox email={row.original.email} />
+        </div>
       )
     },
   },

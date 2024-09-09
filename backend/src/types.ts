@@ -31,12 +31,12 @@ export interface IPatient extends Document {
 }
 
 export interface Patientlog {
-  bp: [number,number];
-  heart_rate: number;
-  pulse: number;
-  resp_rate: number;
-  spo2: number;
-  temp: number;
+  bp: [number,number]| null;
+  heart_rate: number|null;
+  pulse: number|null;
+  resp_rate: number|null;
+  spo2: number|null;
+  temp: number|null;
   // patientId: string;
   // bedID: number;
   timeStamp: Date;

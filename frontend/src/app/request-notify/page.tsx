@@ -25,6 +25,7 @@ import { bedInfo, ICUInfo } from '@/types/ICU';
 import { DotFilledIcon } from '@radix-ui/react-icons';
 import { Radio, Wifi, WifiOff } from 'lucide-react';
 import { TestDialog } from './testDialog';
+import SubscribeNotification from './subscribe';
 
 
 function getData(): Alert[] {
@@ -108,32 +109,32 @@ function _Messaging() {
     // const data1 = normalNotification.data;
 
     
-    useEffect(() => {
-      if(data && connected){
+  //   useEffect(() => {
+  //     if(data && connected){
 
-          // setConnected(true);
-          return;
-      }
-      if(isSuccess) setConnected(true);
-      const requestNotificationPermission = async () => {
-        if(!isSupported()){
-          alert("notification not supported on this browser");
-          router.back();
-        }
-        const messaging = getMessaging(app);
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          const token = await getToken(messaging, {vapidKey:process.env.NEXT_PUBLIC_FCM});
-          mutate({token});
-        } else {
-          console.log('Notification permission denied');
-        }
-      };
+  //         // setConnected(true);
+  //         return;
+  //     }
+  //     if(isSuccess) setConnected(true);
+  //     const requestNotificationPermission = async () => {
+  //       // if(!isSupported()){
+  //       //   alert("notification not supported on this browser");
+  //       //   router.back();
+  //       // }
+  //       const messaging = getMessaging(app);
+  //       const permission = await Notification.requestPermission();
+  //       if (permission === 'granted') {
+  //         const token = await getToken(messaging, {vapidKey:process.env.NEXT_PUBLIC_FCM});
+  //         mutate({token});
+  //       } else {
+  //         console.log('Notification permission denied');
+  //       }
+  //     };
 
-      if(localStorage.getItem("fcmSet")  != "true")
-          requestNotificationPermission();
+  //     if(localStorage.getItem("fcmSet")  != "true")
+  //         requestNotificationPermission();
 
-  }, [data, mutate, router, connected]);
+  // }, [data, mutate, router, connected]);
 
   
   useEffect(()=>{
@@ -152,7 +153,7 @@ function _Messaging() {
   return (
     <main className='max-h-dvh overflow-hidden'>
       <NavBox title={"Notifications"}></NavBox>
-      
+      <SubscribeNotification fcmSet={connected} Reset={setConnected}></SubscribeNotification>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className=''>
           <tr className=''>

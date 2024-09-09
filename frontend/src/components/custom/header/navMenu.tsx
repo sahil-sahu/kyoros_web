@@ -69,7 +69,7 @@ const navigationMenu = <ul className={`divide-y divide-solid pt-5 ${styles.navli
   </SheetClose>
   </Link>
 </li>
-<li>
+{/* <li>
   <Link href='/support'>
   <SheetClose>
       <Image height={20} width={20} src={support_ico} alt=''/>
@@ -84,7 +84,7 @@ const navigationMenu = <ul className={`divide-y divide-solid pt-5 ${styles.navli
       My Profile
   </SheetClose>
   </Link>
-</li>
+</li> */}
 <li id='authbox'>
   <AuthBox />
 </li>
