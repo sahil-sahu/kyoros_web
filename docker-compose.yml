@@ -1,6 +1,13 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: kyoros-postgres
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
   clientServer:
     image: kyoros-backend:latest
     depends_on:
@@ -10,6 +17,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - REDIS_URL=myredis
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kyoros?schema=public
     ports:
       - "5000:5000"  # Assuming backend runs on port 5000
     # Add other configurations for backend service if needed
@@ -23,6 +31,7 @@ services:
       dockerfile: Dockerfile_2
     environment:
       - REDIS_URL=myredis
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kyoros?schema=public
     ports:
       - "8000:8000"  # Assuming log server runs on port 8000
     # Add other configurations for log server service if needed  

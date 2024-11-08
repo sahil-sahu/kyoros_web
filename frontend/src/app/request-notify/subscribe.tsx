@@ -75,7 +75,7 @@ const SubscribeNotification = ({fcmSet, Reset}:{fcmSet:boolean; Reset: Dispatch<
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader className="font-bold">
-                    You aren't Connected to notification service
+                    You aren&apos;t Connected to notification service
                     <small className="font-light">
                         Press subscribe to continue
                     </small>
