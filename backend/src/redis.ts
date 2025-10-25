@@ -7,7 +7,7 @@ export const redisClient = createClient({
     socket: {
         host: process.env.REDIS_URL ?? "localhost",
         // port: 15599
-        port: 12285
+        port: parseInt(process.env.REDIS_PORT) || 6379
     }
 });
 
