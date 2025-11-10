@@ -22,26 +22,26 @@ const geminiModel = googleAI.getGenerativeModel({
 export const generate_summary = async (patientId:string):Promise<string> => {
   try {
     const summary_r = await redisClient.get(`summary:${patientId}`);
-    if(!summary_r){
-        const prompt = "provided some notes of a icu patient summarise it into a sentence of maximum 50 words: \n";
-        const dt = new Date();
-        dt.setHours(0,0,0,0)
-        const notes = await prisma.notes.findMany({
-            where:{
-                patientId,
-                createdAt:{
-                    gte: new Date(dt.getMilliseconds() - 24*60*60*1000)
-                }
-            }
-        });
-        const result = await geminiModel.generateContent(prompt+notes.map(e => e.note).join(",\n"));
-        const response = result.response;
-        const summary = response.text();
-        await redisClient.set(`summary:${patientId}`, summary);
-        await redisClient.expire(`summary:${patientId}`, 60 * 60 * 6);
-        return summary;
-    }
-    return summary_r;
+    // if(!summary_r){
+    //     const prompt = "provided some notes of a icu patient summarise it into a sentence of maximum 50 words: \n";
+    //     const dt = new Date();
+    //     dt.setHours(0,0,0,0)
+    //     const notes = await prisma.notes.findMany({
+    //         where:{
+    //             patientId,
+    //             createdAt:{
+    //                 gte: new Date(dt.getMilliseconds() - 24*60*60*1000)
+    //             }
+    //         }
+    //     });
+    //     const result = await geminiModel.generateContent(prompt+notes.map(e => e.note).join(",\n"));
+    //     const response = result.response;
+    //     const summary = response.text();
+    //     await redisClient.set(`summary:${patientId}`, summary);
+    //     await redisClient.expire(`summary:${patientId}`, 60 * 60 * 6);
+    //     return summary;
+    // }
+    return summary_r || "";
   } catch (error) {
     console.log("response error", error);
   }

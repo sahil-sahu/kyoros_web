@@ -138,6 +138,7 @@ export const createPatientPeriodic = async (req: AuthRequest, res: Response) => 
       
       const file:any = req.file;
       const s3Link:string = file.location;
+      console.log(s3Link)
       const fileName:string = file.key;
       const {tag, name, patientId} = req.body;
       const doc = await prisma.patientDoc.create({

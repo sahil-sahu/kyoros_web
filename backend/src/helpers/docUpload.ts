@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import multer, { MulterError } from 'multer';
 import multerS3 from 'multer-s3';
 import { S3Client } from '@aws-sdk/client-s3';
+import AWS from "aws-sdk";
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -14,17 +15,19 @@ dotenv.config();
 //     region: 'us-east-1'
 // });
 const s3 = new S3Client({
+    endpoint: "https://arolhjhdsduxkigwmsqq.storage.supabase.co/storage/v1/s3",
     credentials:{
         accessKeyId:process.env.S3_ACCESS_KEY,
         secretAccessKey:process.env.S3_ACCESS_SECRET
     },
-    region: 'us-east-1'
+    region: 'ap-south-1',
+    forcePathStyle: true,
 });
 
 const s3Storage = multerS3({
     s3: s3, // s3 instance
-    bucket: "kyorospatientdocs", // change it as per your project requirement
-    // acl: "public-read", // storage access type
+    bucket: "kyoros", // change it as per your project requirement
+    acl: "public-read", // storage access type
     metadata: (req, file, cb) => {
         cb(null, {fieldname: file.fieldname})
     },

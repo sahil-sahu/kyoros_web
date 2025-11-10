@@ -16,7 +16,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - REDIS_URL=myredis
+      - REDIS_URL=192.168.31.87
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/kyoros?schema=public
     ports:
       - "5000:5000"  # Assuming backend runs on port 5000

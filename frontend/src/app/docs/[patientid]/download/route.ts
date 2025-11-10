@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(payloadLink);
+    const response = await fetch(payloadLink.replace("https://arolhjhdsduxkigwmsqq.storage.supabase.co/","https://arolhjhdsduxkigwmsqq.supabase.co/storage/v1/object/public/"));
     const buffer = await response.blob();
 
     return new Response(buffer, {
